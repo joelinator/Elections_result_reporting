@@ -39,6 +39,20 @@ const translations = {
     'common.tryAgain': 'Try Again',
     'common.continue': 'Continue',
     'common.review': 'Review',
+    'common.refresh': 'Refresh',
+
+    // Dashboard
+    'dashboard.description': 'Overview of election data collection and reporting across all departments',
+    'dashboard.exportReport': 'Export Report',
+    'dashboard.dataProgress': 'Data Collection Progress',
+    'dashboard.overallCompletion': 'Overall Completion',
+    'dashboard.participationData': 'Participation Data',
+    'dashboard.resultsData': 'Results Data',
+    'dashboard.validation': 'Validation',
+    'dashboard.pendingValidations': 'items pending validation',
+    'dashboard.quickActions': 'Quick Actions',
+    'dashboard.recentActivity': 'Recent Activity',
+    'dashboard.viewAll': 'View All',
 
     // Departments
     'departments.title': 'Departments Overview',
@@ -139,6 +153,20 @@ const translations = {
     'common.tryAgain': 'Réessayer',
     'common.continue': 'Continuer',
     'common.review': 'Réviser',
+    'common.refresh': 'Actualiser',
+
+    // Dashboard
+    'dashboard.description': 'Aperçu de la collecte et du reporting des données électorales dans tous les départements',
+    'dashboard.exportReport': 'Exporter Rapport',
+    'dashboard.dataProgress': 'Progrès de Collecte des Données',
+    'dashboard.overallCompletion': 'Achèvement Global',
+    'dashboard.participationData': 'Données de Participation',
+    'dashboard.resultsData': 'Données de Résultats',
+    'dashboard.validation': 'Validation',
+    'dashboard.pendingValidations': 'éléments en attente de validation',
+    'dashboard.quickActions': 'Actions Rapides',
+    'dashboard.recentActivity': 'Activité Récente',
+    'dashboard.viewAll': 'Voir Tout',
 
     // Departments
     'departments.title': 'Aperçu des Départements',
