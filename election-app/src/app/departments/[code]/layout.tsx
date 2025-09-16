@@ -1,4 +1,6 @@
 // app/departments/[code]/layout.tsx
+'use client';
+
 import Link from 'next/link';
 import { useParams } from 'next/navigation';
 import { Button } from '@/components/ui/button';
