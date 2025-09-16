@@ -13,20 +13,20 @@ interface CommitteeMemberFormProps {
   onSubmit: (data: CreateCommissionMemberDTO) => void;
   defaultValues?: Partial<CreateCommissionMemberDTO>;
   functions: CommissionFunction[];
+  commissionCode: number;
 }
-
 const memberSchema = z.object({
   nom: z.string().min(1, 'Name required'),
   code_fonction: z.number(),
   contact: z.string().optional(),
   email: z.string().email().optional(),
   est_membre_secretariat: z.boolean().optional(),
+  code_commission: z.number(),
 });
-
-export function CommitteeMemberForm({ onSubmit, defaultValues, functions }: CommitteeMemberFormProps) {
+export function CommitteeMemberForm({ onSubmit, defaultValues, functions, commissionCode }: CommitteeMemberFormProps) {
   const form = useForm<z.infer<typeof memberSchema>>({
     resolver: zodResolver(memberSchema),
-    defaultValues: defaultValues || { est_membre_secretariat: false },
+    defaultValues: defaultValues || { est_membre_secretariat: false, code_commission: commissionCode },
   });
 
   const handleSubmit = async (data: z.infer<typeof memberSchema>) => {

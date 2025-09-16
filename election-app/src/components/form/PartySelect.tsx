@@ -61,12 +61,9 @@ export function PartySelect({
       options={options}
       value={value}
       onChange={onValueChange}
-      label={label || 'Political Party'}
       placeholder="Select political party..."
       searchPlaceholder="Search parties..."
-      error={error}
       loading={loading}
-      required={required}
       className={className}
       clearable
     />

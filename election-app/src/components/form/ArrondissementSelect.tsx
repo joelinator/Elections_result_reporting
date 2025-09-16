@@ -64,13 +64,12 @@ export function ArrondissementSelect({
 
   return (
         <SmartSelect
-      options={arrondissements}
+      options={options}
       value={value}
-      onChange={onChange}
+      onChange={onValueChange}
       placeholder="Sélectionner un arrondissement..."
       emptyMessage="Aucun arrondissement disponible"
-      loading={isLoading}
-      disabled={disabled}
+      loading={loading}
       className={className}
     />
   );

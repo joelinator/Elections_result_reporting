@@ -89,6 +89,7 @@ export default function CommitteePage() {
           onSubmit={handleSubmit}
           defaultValues={editingMember}
           functions={functions}
+          commissionCode={Number(departmentCode)}
         />
       </CrudDialog>
       <CommitteeMemberTable

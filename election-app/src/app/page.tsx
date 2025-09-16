@@ -160,7 +160,7 @@ export default function DashboardPage() {
             value={stats?.totalDepartments || 0}
             icon={MapPin}
             color="blue"
-            change={{ value: 0, type: 'neutral' }}
+            change={{ value: 0, type: 'increase' }}
           />
           <StatsCard
             title="Data Complete"
@@ -214,7 +214,7 @@ export default function DashboardPage() {
               <ProgressBar
                 label="Results Data"
                 value={72}
-                color="purple"
+                color="red"
                 size="md"
               />
               <ProgressBar

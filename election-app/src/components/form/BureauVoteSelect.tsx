@@ -70,12 +70,9 @@ export function BureauVoteSelect({
       options={options}
       value={value}
       onChange={onValueChange}
-      label={label || 'Bureau de Vote'}
       placeholder="Select voting bureau..."
       searchPlaceholder="Search voting bureaus..."
-      error={error}
       loading={loading}
-      required={required}
       className={className}
       clearable
     />
