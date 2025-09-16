@@ -26,7 +26,7 @@ export default function CommitteePage() {
     const fetchData = async () => {
       try {
         const [mems, funcs] = await Promise.all([
-          service.getMembers(Number(departmentCode), user.id),
+          service.getMembers(Number(departmentCode)),
           service.getFunctions(),
         ]);
         setMembers(mems);
@@ -44,11 +44,11 @@ export default function CommitteePage() {
     if (!user) return;
     try {
       if (editingMember) {
-        await service.updateMember(editingMember.code, data, user.id);
+        await CommissionService.updateMember(editingMember.code, data);
       } else {
-        await service.createMember({ ...data, code_commission: Number(departmentCode) }, user.id);
+        await CommissionService.createMember({ ...data, code_commission: Number(departmentCode) });
       }
-      const updated = await service.getMembers(Number(departmentCode), user.id);
+      const updated = await service.getMembers(Number(departmentCode));
       setMembers(updated);
       setIsDialogOpen(false);
       setEditingMember(null);
@@ -65,8 +65,8 @@ export default function CommitteePage() {
   const handleDelete = async (member: any) => {
     if (!user) return;
     try {
-      await service.deleteMember(member.code, user.id);
-      const updated = await service.getMembers(Number(departmentCode), user.id);
+      await service.deleteMember(member.code);
+      const updated = await service.getMembers(Number(departmentCode));
       setMembers(updated);
     } catch (err) {
       console.error(err);
