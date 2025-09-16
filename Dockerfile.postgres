@@ -1,0 +1,24 @@
+# PostgreSQL Docker Container
+FROM postgres:15-alpine
+
+# Set environment variables
+ENV POSTGRES_USER=postgres.wvrsbnpxuhbxbljjyucv
+ENV POSTGRES_PASSWORD=Joelinator543
+ENV POSTGRES_DB=postgres
+
+# Expose the custom port
+EXPOSE 6543
+
+# Copy initialization scripts
+COPY init.sql /docker-entrypoint-initdb.d/
+
+# Configure PostgreSQL
+RUN echo "listen_addresses = '*'" >> /usr/local/share/postgresql/postgresql.conf.sample
+RUN echo "port = 5432" >> /usr/local/share/postgresql/postgresql.conf.sample
+
+# Create a custom entrypoint to handle port mapping
+COPY entrypoint.sh /usr/local/bin/
+RUN chmod +x /usr/local/bin/entrypoint.sh
+
+ENTRYPOINT ["/usr/local/bin/entrypoint.sh"]
+CMD ["postgres"]
