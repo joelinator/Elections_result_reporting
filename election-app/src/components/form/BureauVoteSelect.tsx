@@ -2,8 +2,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { SearchableSelect, SelectOption } from '@/components/ui/SearchableSelect';
-import { useLanguage } from '@/contexts/LanguageContext';
+import { SmartSelect, SelectOption } from '@/components/ui/SmartSelect';
 
 interface BureauVote {
   code: number;
@@ -67,10 +66,10 @@ export function BureauVoteSelect({
   }));
 
   return (
-    <SearchableSelect
+    <SmartSelect
       options={options}
       value={value}
-      onValueChange={onValueChange}
+      onChange={onValueChange}
       label={label || 'Bureau de Vote'}
       placeholder="Select voting bureau..."
       searchPlaceholder="Search voting bureaus..."

@@ -2,8 +2,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { SearchableSelect, SelectOption } from '@/components/ui/SearchableSelect';
-import { useLanguage } from '@/contexts/LanguageContext';
+import { SmartSelect, SelectOption } from '@/components/ui/SmartSelect';
 
 interface Party {
   code: number;
@@ -58,10 +57,10 @@ export function PartySelect({
   }));
 
   return (
-    <SearchableSelect
+    <SmartSelect
       options={options}
       value={value}
-      onValueChange={onValueChange}
+      onChange={onValueChange}
       label={label || 'Political Party'}
       placeholder="Select political party..."
       searchPlaceholder="Search parties..."

@@ -8,7 +8,7 @@ type Language = 'en' | 'fr';
 interface LanguageContextType {
   language: Language;
   setLanguage: (language: Language) => void;
-  t: (key: string) => string;
+  t: (key: string, params?: Record<string, string | number>) => string;
 }
 
 const LanguageContext = createContext<LanguageContextType | undefined>(undefined);
@@ -24,6 +24,15 @@ const translations = {
     'navigation.users': 'Users',
     'navigation.settings': 'Settings',
     'navigation.signOut': 'Sign out',
+
+    // Breadcrumbs
+    'breadcrumbs.home': 'Home',
+    'breadcrumbs.departments': 'Departments',
+    'breadcrumbs.participation': 'Participation',
+    'breadcrumbs.results': 'Results',
+    'breadcrumbs.committee': 'Committee',
+    'breadcrumbs.redressements': 'Corrections',
+    'breadcrumbs.submissions': 'Submissions',
 
     // Common
     'common.save': 'Save',
@@ -74,7 +83,7 @@ const translations = {
 
     // Participation
     'participation.title': 'Participation Data Entry',
-    'participation.description': 'Enter participation data for Department',
+    'participation.description': 'Enter participation data for Department {departmentCode}',
     'participation.instructions': 'Data Entry Instructions',
     'participation.instructionsText': 'Please enter the participation data exactly as recorded in your departmental PV (procès-verbal). The system will validate the data and alert you to any inconsistencies. If the physical document contains discrepancies, you may proceed after reviewing the warnings.',
     'participation.basicInfo': 'Basic Registration & Voting Data',
@@ -139,6 +148,15 @@ const translations = {
     'navigation.settings': 'Paramètres',
     'navigation.signOut': 'Se déconnecter',
 
+    // Breadcrumbs
+    'breadcrumbs.home': 'Accueil',
+    'breadcrumbs.departments': 'Départements',
+    'breadcrumbs.participation': 'Participation',
+    'breadcrumbs.results': 'Résultats',
+    'breadcrumbs.committee': 'Comité',
+    'breadcrumbs.redressements': 'Corrections',
+    'breadcrumbs.submissions': 'Soumissions',
+
     // Common
     'common.save': 'Enregistrer',
     'common.delete': 'Supprimer',
@@ -188,7 +206,7 @@ const translations = {
 
     // Participation
     'participation.title': 'Saisie des Données de Participation',
-    'participation.description': 'Saisir les données de participation pour le Département',
+    'participation.description': 'Saisir les données de participation pour le Département {departmentCode}',
     'participation.instructions': 'Instructions de Saisie des Données',
     'participation.instructionsText': 'Veuillez saisir les données de participation exactement telles qu\'enregistrées dans votre PV départemental (procès-verbal). Le système validera les données et vous alertera de toute incohérence. Si le document physique contient des divergences, vous pouvez procéder après avoir examiné les avertissements.',
     'participation.basicInfo': 'Données d\'Inscription et de Vote de Base',
@@ -261,7 +279,7 @@ export function LanguageProvider({ children }: { children: React.ReactNode }) {
     localStorage.setItem('language', newLanguage);
   };
 
-    const t = (key: string, params?: Record<string, string | number>): string => {
+  const t = (key: string, params?: Record<string, string | number>): string => {
     const keys = key.split('.');
     let value: any = translations[language];
     
@@ -269,7 +287,16 @@ export function LanguageProvider({ children }: { children: React.ReactNode }) {
       value = value?.[k];
     }
     
-    return value || key; // Fallback to key if translation not found
+    let result = value || key; // Fallback to key if translation not found
+    
+    // Replace parameters in the translation string
+    if (params && typeof result === 'string') {
+      Object.entries(params).forEach(([paramKey, paramValue]) => {
+        result = result.replace(new RegExp(`{${paramKey}}`, 'g'), String(paramValue));
+      });
+    }
+    
+    return result;
   };
 
   return (

@@ -2,8 +2,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { SearchableSelect, SelectOption } from '@/components/ui/SearchableSelect';
-import { useLanguage } from '@/contexts/LanguageContext';
+import { SmartSelect, SelectOption } from '@/components/ui/SmartSelect';
 
 interface Arrondissement {
   code: number;
@@ -64,18 +63,15 @@ export function ArrondissementSelect({
   }));
 
   return (
-    <SearchableSelect
-      options={options}
+        <SmartSelect
+      options={arrondissements}
       value={value}
-      onValueChange={onValueChange}
-      label={label || 'Arrondissement'}
-      placeholder="Select arrondissement..."
-      searchPlaceholder="Search arrondissements..."
-      error={error}
-      loading={loading}
-      required={required}
+      onChange={onChange}
+      placeholder="Sélectionner un arrondissement..."
+      emptyMessage="Aucun arrondissement disponible"
+      loading={isLoading}
+      disabled={disabled}
       className={className}
-      clearable
     />
   );
 }

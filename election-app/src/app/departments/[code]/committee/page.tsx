@@ -1,4 +1,4 @@
-// app/departments/[code]/comittee/page.tsx
+// app/departments/[code]/committee/page.tsx
 'use client';
 
 import { useAuth } from '@/contexts/AuthContext';

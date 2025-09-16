@@ -11,7 +11,7 @@ interface DepartmentLayoutProps {
 
 export default function DepartmentLayout({ children }: DepartmentLayoutProps) {
   const params = useParams();
-  const departmentCode = params?.code as string;
+  // Department code available as params?.code if needed
 
   return (
     <DashboardLayout>
