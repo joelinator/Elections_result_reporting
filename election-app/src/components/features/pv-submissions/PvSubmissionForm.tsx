@@ -4,11 +4,12 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
 import { Button } from '@/components/ui/button';
 import { FormField } from '@/components/shared/FormField';
+import { CreatePvDTO, Arrondissement } from '@/types/pv';
 
 interface PvSubmissionFormProps {
-  onSubmit: (data: any) => void;
-  defaultValues?: any;
-  arrondissements: any[];
+  onSubmit: (data: CreatePvDTO) => void;
+  defaultValues?: Partial<CreatePvDTO>;
+  arrondissements: Arrondissement[];
 }
 
 const pvSchema = z.object({

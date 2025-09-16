@@ -3,7 +3,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
-import { FieldError } from 'react-hook-form';
+import { FieldError, UseFormRegisterReturn } from 'react-hook-form';
 import { ChangeEvent } from 'react';
 
 interface FormFieldProps {
@@ -11,7 +11,7 @@ interface FormFieldProps {
   id: string;
   type?: 'text' | 'number' | 'select' | 'textarea' | 'file';
   options?: { value: string | number; label: string }[]; // For select
-  register?: any;
+  register?: UseFormRegisterReturn;
   error?: FieldError;
   onChange?: (value: string | number | ChangeEvent<HTMLInputElement>) => void; // Keep for compatibility
   onFileChange?: (event: ChangeEvent<HTMLInputElement>) => void; // Specific for file inputs

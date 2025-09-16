@@ -31,15 +31,8 @@ export function ArrondissementSelect({
   required = false,
   className = ''
 }: ArrondissementSelectProps) {
-  const { t } = useLanguage();
   const [arrondissements, setArrondissements] = useState<Arrondissement[]>([]);
   const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    if (departmentCode) {
-      fetchArrondissements();
-    }
-  }, [departmentCode]);
 
   const fetchArrondissements = async () => {
     if (!departmentCode) return;
@@ -57,6 +50,12 @@ export function ArrondissementSelect({
       setLoading(false);
     }
   };
+
+  useEffect(() => {
+    if (departmentCode) {
+      fetchArrondissements();
+    }
+  }, [departmentCode]);
 
   const options: SelectOption[] = arrondissements.map(arr => ({
     value: arr.code,

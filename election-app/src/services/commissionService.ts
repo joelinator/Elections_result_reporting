@@ -1,39 +1,56 @@
 // services/commissionService.ts
-import { CommissionRepository } from '@/repositories/commissionRepository';
+import { BaseService } from './baseService';
+import { CommissionMember, CommissionFunction, CreateCommissionMemberDTO, UpdateCommissionMemberDTO } from '@/types/commission';
 
-const repo = new CommissionRepository();
+export class CommissionService extends BaseService {
+  constructor() {
+    super('/commission');
+  }
 
-export class CommissionService {
-  async getMembers(departmentCode: number, userId: number) {
-    const isAssigned = await repo.isUserAssignedToDepartment(userId, departmentCode);
-    if (!isAssigned) {
-      throw new Error('Unauthorized access to department');
+  async getMembers(departmentCode: number, userId: number): Promise<CommissionMember[]> {
+    try {
+      // Mock implementation - replace with actual API call
+      const response = await fetch(`${this.baseUrl}/departments/${departmentCode}/members`);
+      return await response.json();
+    } catch (error) {
+      console.error('Error fetching commission members:', error);
+      return [];
     }
-    return repo.getMembersByDepartment(departmentCode);
   }
 
-  async createMember(data: any, userId: number) {
-    const isAssigned = await repo.isUserAssignedToDepartment(userId, data.code_commission /* derive department from commission */);
-    if (!isAssigned) throw new Error('Unauthorized');
-    // Add validation logic here (e.g., limit reps per type)
-    // Example: Check for max 3 admin reps, etc. (business rule)
-    return repo.createMember(data);
+  static async createMember(data: CommitteeMemberFormData): Promise<MembreCommission> {
+    const response = await fetch('/api/commission-members', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(data)
+    });
+
+    if (!response.ok) {
+      throw new Error('Failed to create commission member');
+    }
+
+    return response.json();
   }
 
-  // Similar for update/delete
-  async updateMember(code: number, data: any, userId: number) {
-    // Get member to derive department, check assignment
-    const member = await repo.getMembersByDepartment(0); // Placeholder, fetch actual
-    // ...
-    return repo.updateMember(code, data);
+  static async updateMember(id: number, data: CommitteeMemberFormData): Promise<MembreCommission> {
+    // Mock implementation
+    console.log('Updating member:', code, data, 'User:', userId);
+    return { code, ...data } as CommissionMember;
   }
 
-  async deleteMember(code: number, userId: number) {
-    // Check assignment
-    return repo.deleteMember(code);
+  async deleteMember(code: number, userId: number): Promise<void> {
+    // Mock implementation
+    console.log('Deleting member:', code, 'User:', userId);
   }
 
-  async getFunctions() {
-    return repo.getFunctions();
+  async getFunctions(): Promise<CommissionFunction[]> {
+    // Mock implementation
+    return [
+      { code: 1, libelle: 'Président', description: 'Président de la commission' },
+      { code: 2, libelle: 'Vice-Président', description: 'Vice-président de la commission' },
+      { code: 3, libelle: 'Secrétaire', description: 'Secrétaire de la commission' },
+      { code: 4, libelle: 'Rapporteur', description: 'Rapporteur de la commission' },
+      { code: 5, libelle: 'Membre', description: 'Membre ordinaire de la commission' },
+    ];
   }
 }

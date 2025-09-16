@@ -13,7 +13,7 @@ interface LanguageToggleProps {
 }
 
 export function LanguageToggle({ variant = 'dropdown', size = 'default', className = '' }: LanguageToggleProps) {
-  const { language, setLanguage, t } = useLanguage();
+  const { language, setLanguage } = useLanguage();
   const [isOpen, setIsOpen] = React.useState(false);
 
   const languages = [

@@ -29,7 +29,6 @@ export function PartySelect({
   required = false,
   className = ''
 }: PartySelectProps) {
-  const { t } = useLanguage();
   const [parties, setParties] = useState<Party[]>([]);
   const [loading, setLoading] = useState(true);
 

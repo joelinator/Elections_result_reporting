@@ -36,10 +36,6 @@ export function DepartmentSelect({
   const [departments, setDepartments] = useState<Department[]>([]);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    fetchDepartments();
-  }, [userRestrictedOnly, userId]);
-
   const fetchDepartments = async () => {
     try {
       setLoading(true);
@@ -57,6 +53,10 @@ export function DepartmentSelect({
       setLoading(false);
     }
   };
+
+  useEffect(() => {
+    fetchDepartments();
+  }, [userRestrictedOnly, userId]);
 
   const options: SelectOption[] = departments.map(dept => ({
     value: dept.code,

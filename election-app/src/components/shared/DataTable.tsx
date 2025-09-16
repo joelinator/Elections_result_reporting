@@ -9,7 +9,6 @@ import {
 } from '@tanstack/react-table';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Button } from '@/components/ui/button';
-import { useState } from 'react';
 
 interface DataTableProps<T> {
   columns: ColumnDef<T>[];

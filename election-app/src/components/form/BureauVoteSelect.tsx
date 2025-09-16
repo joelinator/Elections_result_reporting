@@ -32,15 +32,8 @@ export function BureauVoteSelect({
   required = false,
   className = ''
 }: BureauVoteSelectProps) {
-  const { t } = useLanguage();
   const [bureaus, setBureaus] = useState<BureauVote[]>([]);
   const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    if (departmentCode) {
-      fetchBureauVotes();
-    }
-  }, [departmentCode]);
 
   const fetchBureauVotes = async () => {
     if (!departmentCode) return;
@@ -58,6 +51,12 @@ export function BureauVoteSelect({
       setLoading(false);
     }
   };
+
+  useEffect(() => {
+    if (departmentCode) {
+      fetchBureauVotes();
+    }
+  }, [departmentCode]);
 
   const options: SelectOption[] = bureaus.map(bureau => ({
     value: bureau.code,

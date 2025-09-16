@@ -7,11 +7,12 @@ import { FormField } from '@/components/shared/FormField';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Label } from '@/components/ui/label';
 import { toast } from 'sonner';
+import { CommissionFunction, CreateCommissionMemberDTO } from '@/types/commission';
 
 interface CommitteeMemberFormProps {
-  onSubmit: (data: any) => void;
-  defaultValues?: any;
-  functions: any[];
+  onSubmit: (data: CreateCommissionMemberDTO) => void;
+  defaultValues?: Partial<CreateCommissionMemberDTO>;
+  functions: CommissionFunction[];
 }
 
 const memberSchema = z.object({
@@ -32,8 +33,9 @@ export function CommitteeMemberForm({ onSubmit, defaultValues, functions }: Comm
     try {
       await onSubmit(data);
       toast.success('Member saved successfully');
-    } catch (err: any) {
-      toast.error(err.message || 'Failed to save member');
+    } catch (err: unknown) {
+      const errorMessage = err instanceof Error ? err.message : 'Failed to save member';
+      toast.error(errorMessage);
     }
   };
 

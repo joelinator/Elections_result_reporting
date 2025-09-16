@@ -1,15 +1,16 @@
 // components/features/pv-submissions/PvSubmissionTable.tsx
 import { DataTable } from '@/components/shared/DataTable';
 import { ColumnDef } from '@tanstack/react-table';
+import { PvArrondissement } from '@/types/pv';
 
 interface PvSubmissionTableProps {
-  pvs: any[];
-  onEdit: (pv: any) => void;
-  onDelete: (pv: any) => void;
+  pvs: PvArrondissement[];
+  onEdit: (pv: PvArrondissement) => void;
+  onDelete: (pv: PvArrondissement) => void;
 }
 
 export function PvSubmissionTable({ pvs, onEdit, onDelete }: PvSubmissionTableProps) {
-  const columns: ColumnDef<any>[] = [
+  const columns: ColumnDef<PvArrondissement>[] = [
     {
       accessorKey: 'arrondissement.libelle',
       header: 'Arrondissement',

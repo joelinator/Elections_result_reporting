@@ -1,15 +1,16 @@
 // components/features/committee/CommitteeMemberTable.tsx
 import { DataTable } from '@/components/shared/DataTable';
 import { ColumnDef } from '@tanstack/react-table';
+import { CommissionMember } from '@/types/commission';
 
 interface CommitteeMemberTableProps {
-  members: any[];
-  onEdit: (member: any) => void;
-  onDelete: (member: any) => void;
+  members: CommissionMember[];
+  onEdit: (member: CommissionMember) => void;
+  onDelete: (member: CommissionMember) => void;
 }
 
 export function CommitteeMemberTable({ members, onEdit, onDelete }: CommitteeMemberTableProps) {
-  const columns: ColumnDef<any>[] = [
+  const columns: ColumnDef<CommissionMember>[] = [
     {
       accessorKey: 'nom',
       header: 'Name',
