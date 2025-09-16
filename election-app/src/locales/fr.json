@@ -1,0 +1,173 @@
+{
+  "common": {
+    "save": "Enregistrer",
+    "cancel": "Annuler",
+    "delete": "Supprimer",
+    "edit": "Modifier",
+    "add": "Ajouter",
+    "close": "Fermer",
+    "confirm": "Confirmer",
+    "loading": "Chargement...",
+    "error": "Erreur",
+    "success": "Succès",
+    "warning": "Attention",
+    "info": "Information",
+    "yes": "Oui",
+    "no": "Non",
+    "search": "Rechercher",
+    "filter": "Filtrer",
+    "reset": "Réinitialiser",
+    "continue": "Continuer",
+    "back": "Retour",
+    "next": "Suivant",
+    "previous": "Précédent",
+    "total": "Total",
+    "of": "de",
+    "all": "Tous"
+  },
+  "navigation": {
+    "dashboard": "Tableau de bord",
+    "departments": "Départements",
+    "participation": "Participation",
+    "results": "Résultats",
+    "users": "Utilisateurs",
+    "settings": "Paramètres",
+    "signOut": "Se déconnecter"
+  },
+  "departments": {
+    "title": "Aperçu des Départements",
+    "description": "Gérer et surveiller la collecte de données électorales dans tous les départements",
+    "totalDepartments": "Total Départements",
+    "dataComplete": "Données Complètes",
+    "registeredVoters": "Électeurs Inscrits",
+    "avgParticipation": "Participation Moy.",
+    "searchPlaceholder": "Rechercher des départements...",
+    "status": {
+      "complete": "Complet",
+      "partial": "Partiel",
+      "pending": "En attente",
+      "all": "Tous les statuts"
+    },
+    "actions": {
+      "enterData": "Saisir Données",
+      "viewResults": "Voir Résultats"
+    },
+    "noResults": "Aucun département trouvé",
+    "noResultsDescription": "Essayez d'ajuster vos critères de recherche ou de filtre.",
+    "lastUpdated": "Dernière mise à jour",
+    "participationRate": "Taux de Participation"
+  },
+  "participation": {
+    "title": "Saisie des Données de Participation",
+    "description": "Saisir les données de participation pour le Département {{departmentCode}}",
+    "instructions": {
+      "title": "Instructions de Saisie",
+      "description": "Veuillez saisir les données de participation exactement comme enregistrées dans votre PV départemental (procès-verbal). Le système validera les données et vous alertera en cas d'incohérences. Si le document physique contient des divergences, vous pouvez procéder après avoir examiné les avertissements."
+    },
+    "sections": {
+      "basicInfo": {
+        "title": "Données d'Inscription et de Vote de Base",
+        "description": "Saisir les données fondamentales d'inscription et de vote de votre PV"
+      },
+      "irregularities": {
+        "title": "Irrégularités et Problèmes de Bulletins",
+        "description": "Enregistrer les différents types d'irrégularités de bulletins trouvées lors du dépouillement"
+      },
+      "results": {
+        "title": "Résultats Finaux et Calculs",
+        "description": "Décomptes finaux des votes et valeurs calculées automatiquement"
+      }
+    },
+    "fields": {
+      "bureauVotes": "Nombre de Bureaux de Vote",
+      "registeredVoters": "Électeurs Inscrits",
+      "numberOfVoters": "Nombre de Votants",
+      "envelopesInBoxes": "Enveloppes dans les Urnes",
+      "envelopesDifferentBallots": "Enveloppes avec Bulletins Différents",
+      "ballotsIdentifiableVoters": "Bulletins avec Électeurs Identifiables",
+      "signedEnvelopes": "Enveloppes Signées",
+      "nonElecamEnvelopes": "Enveloppes Non-Elecam",
+      "nonElecamBallots": "Bulletins Non-Elecam",
+      "ballotsWithoutEnvelopes": "Bulletins sans Enveloppes",
+      "emptyEnvelopes": "Enveloppes Vides",
+      "validSuffrages": "Suffrages Valables",
+      "invalidBallots": "Bulletins Nuls",
+      "expressedVotes": "Suffrages Exprimés",
+      "participationRate": "Taux de Participation (%)"
+    },
+    "helpText": {
+      "bureauVotes": "Nombre total de bureaux de vote dans le département",
+      "registeredVoters": "Nombre total d'électeurs inscrits",
+      "numberOfVoters": "Nombre réel de personnes ayant voté",
+      "envelopesInBoxes": "Total des enveloppes trouvées dans les urnes",
+      "envelopesDifferentBallots": "Enveloppes contenant différents types de bulletins",
+      "ballotsIdentifiableVoters": "Bulletins permettant l'identification des électeurs",
+      "signedEnvelopes": "Enveloppes signées par les électeurs",
+      "nonElecamEnvelopes": "Enveloppes non fournies par ELECAM",
+      "nonElecamBallots": "Bulletins non fournis par ELECAM",
+      "ballotsWithoutEnvelopes": "Bulletins trouvés sans enveloppes",
+      "emptyEnvelopes": "Enveloppes ne contenant aucun bulletin",
+      "validSuffrages": "Total des votes valides comptés",
+      "invalidBallots": "Nombre de bulletins invalides/nuls",
+      "expressedVotes": "Total des votes exprimés (calculé automatiquement si vide)",
+      "participationRate": "Pourcentage d'électeurs inscrits ayant participé"
+    },
+    "actions": {
+      "saveData": "Enregistrer les Données de Participation",
+      "savingData": "Enregistrement en cours...",
+      "deleteData": "Supprimer les Données",
+      "resetForm": "Réinitialiser le Formulaire",
+      "showSummary": "Afficher le Résumé",
+      "hideSummary": "Masquer le Résumé"
+    },
+    "stats": {
+      "participationRate": "Taux de Participation",
+      "totalVoters": "Total Votants",
+      "totalRegistered": "Électeurs Inscrits",
+      "invalidBallots": "Bulletins Nuls"
+    },
+    "overview": {
+      "title": "Aperçu de la Participation",
+      "voterTurnout": "Participation Électorale",
+      "dataCompleteness": "Complétude des Données"
+    },
+    "validation": {
+      "title": "Avertissements de Validation des Données",
+      "errorsTitle": "Erreurs de Validation Détectées",
+      "criticalErrors": "Erreurs Critiques :",
+      "warnings": "Avertissements :",
+      "note": "Note : Cette application est conçue pour recueillir des informations à partir de votre PV départemental. Si le document physique contient des divergences, vous pouvez procéder avec les valeurs actuelles.",
+      "reviewData": "Réviser les Données",
+      "forceSave": "Forcer l'Enregistrement",
+      "continueAnyway": "Continuer Quand Même"
+    },
+    "messages": {
+      "saveSuccess": "Données de participation enregistrées avec succès",
+      "saveSuccessWithWarnings": "Données de participation enregistrées avec succès (avec avertissements)",
+      "saveError": "Échec de l'enregistrement des données de participation",
+      "deleteSuccess": "Données de participation supprimées avec succès",
+      "deleteError": "Échec de la suppression des données de participation",
+      "loadError": "Échec du chargement des données de participation",
+      "userNotAuthenticated": "Utilisateur non authentifié"
+    }
+  },
+  "breadcrumbs": {
+    "dashboard": "Tableau de bord",
+    "departments": "Départements",
+    "department": "Département {{code}}",
+    "participation": "Participation",
+    "results": "Résultats"
+  },
+  "errors": {
+    "unableToLoadData": "Impossible de Charger les Données",
+    "tryAgain": "Réessayer",
+    "loadingError": "Veuillez patienter pendant que nous récupérons les dernières informations...",
+    "unauthorized": "Non autorisé : Utilisateur non assigné à ce département",
+    "validationFailed": "Échec de la validation"
+  },
+  "language": {
+    "switch": "Changer de Langue",
+    "english": "English",
+    "french": "Français"
+  }
+}

@@ -325,3 +325,4 @@ model UtilisateurRegion {
   region            Region?               @relation(fields: [code_region], references: [code])
   utilisateur       Utilisateur?          @relation(fields: [code_utilisateur], references: [code])
 }
+
