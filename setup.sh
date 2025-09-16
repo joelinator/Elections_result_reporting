@@ -27,9 +27,18 @@ print_error() {
     echo -e "${RED}❌ $1${NC}"
 }
 
-# Check if we're in the right directory
+# Check if we're in the right directory structure
+if [ ! -d "election-app" ]; then
+    print_error "election-app directory not found. Please run this script from the project root directory"
+    exit 1
+fi
+
+# Navigate to the election-app directory
+cd election-app
+
+# Check if package.json exists
 if [ ! -f "package.json" ]; then
-    print_error "Please run this script from the election-app directory"
+    print_error "package.json not found in election-app directory"
     exit 1
 fi
 
