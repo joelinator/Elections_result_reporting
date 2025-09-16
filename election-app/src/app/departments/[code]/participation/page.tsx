@@ -43,20 +43,22 @@ const participationSchema = z.object({
   nombre_bureau_vote: z.number().min(0, 'Must be at least 0'),
   nombre_inscrit: z.number().min(0, 'Must be at least 0'),
   nombre_enveloppe_urnes: z.number().min(0, 'Must be at least 0'),
-  nombre_enveloppe_bulletins_differents: z.number().min(0, 'Must be at least 0').default(0),
-  nombre_bulletin_electeur_identifiable: z.number().min(0, 'Must be at least 0').default(0),
-  nombre_bulletin_enveloppes_signes: z.number().min(0, 'Must be at least 0').default(0),
-  nombre_enveloppe_non_elecam: z.number().min(0, 'Must be at least 0').default(0),
-  nombre_bulletin_non_elecam: z.number().min(0, 'Must be at least 0').default(0),
-  nombre_bulletin_sans_enveloppe: z.number().min(0, 'Must be at least 0').default(0),
-  nombre_enveloppe_vide: z.number().min(0, 'Must be at least 0').default(0),
+  nombre_enveloppe_bulletins_differents: z.number().min(0, 'Must be at least 0'),
+  nombre_bulletin_electeur_identifiable: z.number().min(0, 'Must be at least 0'),
+  nombre_bulletin_enveloppes_signes: z.number().min(0, 'Must be at least 0'),
+  nombre_enveloppe_non_elecam: z.number().min(0, 'Must be at least 0'),
+  nombre_bulletin_non_elecam: z.number().min(0, 'Must be at least 0'),
+  nombre_bulletin_sans_enveloppe: z.number().min(0, 'Must be at least 0'),
+  nombre_enveloppe_vide: z.number().min(0, 'Must be at least 0'),
   nombre_suffrages_valable: z.number().min(0, 'Must be at least 0'),
   nombre_votant: z.number().min(0, 'Must be at least 0'),
   bulletin_nul: z.number().min(0, 'Must be at least 0'),
-  suffrage_exprime: z.number().min(0, 'Must be at least 0').optional().nullable(),
-  taux_participation: z.number().min(0, 'Must be at least 0').optional().nullable(),
+  suffrage_exprime: z.number().min(0, 'Must be at least 0').nullable().optional(),
+  taux_participation: z.number().min(0, 'Must be at least 0').nullable().optional(),
   date_creation: z.string().nullable().optional(),
 });
+
+type ParticipationFormData = z.infer<typeof participationSchema>;
 
 
 export default function ParticipationPage() {
@@ -66,7 +68,7 @@ export default function ParticipationPage() {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  const form = useForm<z.infer<typeof participationSchema>>({
+  const form = useForm<ParticipationFormData>({
     resolver: zodResolver(participationSchema),
     // CORRECTED: Ensure all fields from the schema are present in defaultValues.
     defaultValues: {
@@ -113,7 +115,7 @@ export default function ParticipationPage() {
     fetchData();
   }, [user, departmentCode, form]);
 
-  const handleSubmit = async (data: z.infer<typeof participationSchema>) => {
+  const handleSubmit = async (data: ParticipationFormData) => {
     if (!user) {
       toast.error('User not authenticated');
       return;

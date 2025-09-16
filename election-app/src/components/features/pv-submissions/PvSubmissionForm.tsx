@@ -1,79 +1,57 @@
-// src/components/features/committee/CommitteeMemberForm.tsx
+// components/features/pv-submissions/PvSubmissionForm.tsx
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
 import { Button } from '@/components/ui/button';
 import { FormField } from '@/components/shared/FormField';
-import { Checkbox } from '@/components/ui/checkbox';
-import { Label } from '@/components/ui/label';
-import { toast } from 'sonner';
 
-interface CommitteeMemberFormProps {
+interface PvSubmissionFormProps {
   onSubmit: (data: any) => void;
   defaultValues?: any;
-  functions: any[];
+  arrondissements: any[];
 }
 
-const memberSchema = z.object({
-  nom: z.string().min(1, 'Name required'),
-  code_fonction: z.number(),
-  contact: z.string().optional(),
-  email: z.string().email().optional(),
-  est_membre_secretariat: z.boolean().optional(),
+const pvSchema = z.object({
+  code_arrondissement: z.number(),
+  url_pv: z.string().optional(),
+  hash_file: z.string().optional(),
+  libelle: z.string().optional(),
 });
 
-export function CommitteeMemberForm({ onSubmit, defaultValues, functions }: CommitteeMemberFormProps) {
-  const form = useForm<z.infer<typeof memberSchema>>({
-    resolver: zodResolver(memberSchema),
-    defaultValues: defaultValues || { est_membre_secretariat: false },
+export function PvSubmissionForm({ onSubmit, defaultValues, arrondissements }: PvSubmissionFormProps) {
+  const form = useForm<z.infer<typeof pvSchema>>({
+    resolver: zodResolver(pvSchema),
+    defaultValues,
   });
 
-  const handleSubmit = async (data: z.infer<typeof memberSchema>) => {
-    try {
-      await onSubmit(data);
-      toast.success('Member saved successfully');
-    } catch (err: any) {
-      toast.error(err.message || 'Failed to save member');
-    }
-  };
-
   return (
-    <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-4">
+    <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
       <FormField
-        label="Name"
-        id="nom"
-        register={form.register('nom')}
-        error={form.formState.errors.nom}
-      />
-      <FormField
-        label="Function"
-        id="code_fonction"
+        label="Arrondissement"
+        id="code_arrondissement"
         type="select"
-        options={functions.map((f) => ({ value: f.code, label: f.libelle }))}
-        onSelectChange={(value) => form.setValue('code_fonction', Number(value))}
-        error={form.formState.errors.code_fonction}
+        options={arrondissements.map((arr) => ({ value: arr.code, label: arr.libelle }))}
+        onChange={(value) => form.setValue('code_arrondissement', Number(value))}
+        error={form.formState.errors.code_arrondissement}
       />
       <FormField
-        label="Contact"
-        id="contact"
-        register={form.register('contact')}
-        error={form.formState.errors.contact}
+        label="PV URL"
+        id="url_pv"
+        register={form.register('url_pv')}
+        error={form.formState.errors.url_pv}
       />
       <FormField
-        label="Email"
-        id="email"
-        register={form.register('email')}
-        error={form.formState.errors.email}
+        label="File Hash"
+        id="hash_file"
+        register={form.register('hash_file')}
+        error={form.formState.errors.hash_file}
       />
-      <div className="flex items-center space-x-2">
-        <Checkbox
-          id="est_membre_secretariat"
-          {...form.register('est_membre_secretariat')}
-          checked={form.watch('est_membre_secretariat')}
-          onCheckedChange={(checked: boolean) => form.setValue('est_membre_secretariat', checked)}
-        />
-        <Label htmlFor="est_membre_secretariat">Secretariat Member</Label>
-      </div>
+      <FormField
+        label="Label"
+        id="libelle"
+        register={form.register('libelle')}
+        error={form.formState.errors.libelle}
+      />
       <Button type="submit">Save</Button>
     </form>
   );
