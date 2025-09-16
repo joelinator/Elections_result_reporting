@@ -1,4 +1,6 @@
 // components/ui/modal.tsx
+'use client';
+
 import React from 'react';
 import { X, AlertTriangle, CheckCircle } from 'lucide-react';
 import { Button } from './button';

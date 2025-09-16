@@ -1,4 +1,6 @@
 // app/departments/[code]/bureau-redressements/page.tsx
+'use client';
+
 import { useAuth } from '@/contexts/AuthContext';
 import { RedressementBureauService } from '@/services/redressementBureauService';
 import { Button } from '@/components/ui/button';

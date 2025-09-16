@@ -1,4 +1,6 @@
 // components/ui/ProgressBar.tsx
+'use client';
+
 import React from 'react';
 
 interface ProgressBarProps {

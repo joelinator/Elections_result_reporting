@@ -1,4 +1,6 @@
 // app/departments/[code]/results/page.tsx
+'use client';
+
 import { useAuth } from '@/contexts/AuthContext';
 import { ResultatService } from '@/services/resultatService';
 import { Button } from '@/components/ui/button';

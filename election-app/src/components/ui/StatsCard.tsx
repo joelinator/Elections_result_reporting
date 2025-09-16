@@ -1,4 +1,6 @@
 // components/ui/StatsCard.tsx
+'use client';
+
 import React from 'react';
 import { LucideIcon, TrendingUp, TrendingDown } from 'lucide-react';
 

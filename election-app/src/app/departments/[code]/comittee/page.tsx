@@ -1,4 +1,6 @@
 // app/departments/[code]/committee/page.tsx
+'use client';
+
 import { useAuth } from '@/contexts/AuthContext';
 import { CommissionService } from '@/services/commissionService';
 import { CommitteeMemberTable } from '@/components/features/committee/CommitteeMemberTable';

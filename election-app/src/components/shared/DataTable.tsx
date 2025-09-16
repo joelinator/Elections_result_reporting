@@ -1,4 +1,6 @@
 // components/shared/DataTable.tsx
+'use client';
+
 import {
   ColumnDef,
   flexRender,

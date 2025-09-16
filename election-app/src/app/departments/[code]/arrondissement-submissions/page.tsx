@@ -1,4 +1,6 @@
 // app/departments/[code]/arrondissement-submissions/page.tsx
+'use client';
+
 import { useAuth } from '@/contexts/AuthContext';
 import { PvArrondissementService } from '@/services/pvArrondissementService';
 import { PvSubmissionTable } from '@/components/features/pv-submissions/PvSubmissionTable';
