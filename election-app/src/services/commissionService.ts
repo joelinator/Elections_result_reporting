@@ -1,13 +1,27 @@
 // services/commissionService.ts
 import { BaseService } from './baseService';
-import { CommissionMember, CommissionFunction, CreateCommissionMemberDTO, UpdateCommissionMemberDTO } from '@/types/commission';
+
+export interface CommissionMember {
+  code: number;
+  nom: string;
+  code_fonction: number;
+  contact?: string;
+  email?: string;
+  est_membre_secretariat: boolean;
+}
+
+export interface CommissionFunction {
+  code: number;
+  libelle: string;
+  description?: string;
+}
 
 export class CommissionService extends BaseService {
   constructor() {
     super('/commission');
   }
 
-  async getMembers(departmentCode: number, userId: number): Promise<CommissionMember[]> {
+  async getMembers(departmentCode: number): Promise<CommissionMember[]> {
     try {
       // Mock implementation - replace with actual API call
       const response = await fetch(`${this.baseUrl}/departments/${departmentCode}/members`);
@@ -18,7 +32,7 @@ export class CommissionService extends BaseService {
     }
   }
 
-  static async createMember(data: CommitteeMemberFormData): Promise<MembreCommission> {
+  static async createMember(data: any): Promise<any> {
     const response = await fetch('/api/commission-members', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -32,15 +46,23 @@ export class CommissionService extends BaseService {
     return response.json();
   }
 
-  static async updateMember(id: number, data: CommitteeMemberFormData): Promise<MembreCommission> {
-    // Mock implementation
-    console.log('Updating member:', code, data, 'User:', userId);
-    return { code, ...data } as CommissionMember;
+  static async updateMember(id: number, data: any): Promise<any> {
+    const response = await fetch(`/api/commission-members/${id}`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(data)
+    });
+
+    if (!response.ok) {
+      throw new Error('Failed to update commission member');
+    }
+
+    return response.json();
   }
 
-  async deleteMember(code: number, userId: number): Promise<void> {
+  async deleteMember(code: number): Promise<void> {
     // Mock implementation
-    console.log('Deleting member:', code, 'User:', userId);
+    console.log('Deleting member:', code);
   }
 
   async getFunctions(): Promise<CommissionFunction[]> {
