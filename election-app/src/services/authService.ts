@@ -34,45 +34,58 @@ export class AuthService {
   private readonly JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key';
   private readonly JWT_EXPIRES_IN = process.env.JWT_EXPIRES_IN || '24h';
 
-  async login(username: string, password: string, rememberMe?: boolean): Promise<LoginResult> {
+  async login(username: string, password: string, rememberMe?: boolean): Promise<{ user: UserSession; token: string }> {
     try {
-      // Find user with role and department assignments
-      const user = await prisma.utilisateur.findFirst({
-        where: {
-          OR: [
-            { username: username },
-            { email: username }
-          ],
-          statut_vie: 1 // Active users only
+      // Mock user data for demo - replace with actual database lookup
+      const mockUsers = [
+        {
+          code: 1,
+          username: 'admin',
+          password: 'admin123',
+          noms_prenoms: 'Administrateur Système',
+          email: 'admin@elections.cm',
+          contact: '+237 677 123 456',
+          code_role: 1,
+          role: { code: 1, libelle: 'Administrateur Système' },
+          departements: []
         },
-        include: {
-          role: true,
-          utilisateurDepartements: {
-            include: {
-              departement: true
-            }
-          }
+        {
+          code: 2,
+          username: 'jmballa',
+          password: 'password123',
+          noms_prenoms: 'Jean MBALLA',
+          email: 'jean.mballa@elections.cm',
+          contact: '+237 677 234 567',
+          code_role: 3,
+          role: { code: 3, libelle: 'Superviseur Départemental' },
+          departements: [{ code: 1, libelle: 'Wouri' }]
+        },
+        {
+          code: 3,
+          username: 'mngono',
+          password: 'password123',
+          noms_prenoms: 'Marie NGONO',
+          email: 'marie.ngono@elections.cm',
+          contact: '+237 677 345 678',
+          code_role: 3,
+          role: { code: 3, libelle: 'Superviseur Départemental' },
+          departements: [{ code: 2, libelle: 'Mfoundi' }]
         }
-      });
+      ];
+
+      const user = mockUsers.find(u => u.username === username);
 
       if (!user) {
-        return {
-          success: false,
-          error: 'Invalid username or password'
-        };
+        throw new Error('Invalid username or password');
       }
 
       // Verify password
-      const isValidPassword = await this.verifyPassword(password, user.password);
-      if (!isValidPassword) {
-        return {
-          success: false,
-          error: 'Invalid username or password'
-        };
+      if (user.password !== password) {
+        throw new Error('Invalid username or password');
       }
 
       // Get user permissions
-      const permissions = await this.getUserPermissions(user.code_role);
+      const permissions = this.getDefaultPermissions(user.code_role);
 
       // Create user session object
       const userSession: UserSession = {
@@ -86,10 +99,7 @@ export class AuthService {
           code: user.role.code,
           libelle: user.role.libelle
         },
-        departements: user.utilisateurDepartements.map(ud => ({
-          code: ud.departement.code,
-          libelle: ud.departement.libelle
-        })),
+        departements: user.departements,
         permissions
       };
 
@@ -97,21 +107,14 @@ export class AuthService {
       const tokenExpiry = rememberMe ? '30d' : this.JWT_EXPIRES_IN;
       const token = this.generateToken(userSession, tokenExpiry);
 
-      // Update last login
-      await this.updateLastLogin(user.code);
-
       return {
-        success: true,
         user: userSession,
         token
       };
 
     } catch (error) {
       console.error('Login error:', error);
-      return {
-        success: false,
-        error: 'An error occurred during login'
-      };
+      throw new Error(error instanceof Error ? error.message : 'An error occurred during login');
     }
   }
 
@@ -130,28 +133,48 @@ export class AuthService {
     try {
       const decoded = jwt.verify(token, this.JWT_SECRET) as any;
       
-      // Verify user still exists and is active
-      const user = await prisma.utilisateur.findFirst({
-        where: {
-          code: decoded.id,
-          statut_vie: 1
+      // Mock user verification for demo
+      const mockUsers = [
+        {
+          code: 1,
+          username: 'admin',
+          noms_prenoms: 'Administrateur Système',
+          email: 'admin@elections.cm',
+          contact: '+237 677 123 456',
+          code_role: 1,
+          role: { code: 1, libelle: 'Administrateur Système' },
+          departements: []
         },
-        include: {
-          role: true,
-          utilisateurDepartements: {
-            include: {
-              departement: true
-            }
-          }
+        {
+          code: 2,
+          username: 'jmballa',
+          noms_prenoms: 'Jean MBALLA',
+          email: 'jean.mballa@elections.cm',
+          contact: '+237 677 234 567',
+          code_role: 3,
+          role: { code: 3, libelle: 'Superviseur Départemental' },
+          departements: [{ code: 1, libelle: 'Wouri' }]
+        },
+        {
+          code: 3,
+          username: 'mngono',
+          noms_prenoms: 'Marie NGONO',
+          email: 'marie.ngono@elections.cm',
+          contact: '+237 677 345 678',
+          code_role: 3,
+          role: { code: 3, libelle: 'Superviseur Départemental' },
+          departements: [{ code: 2, libelle: 'Mfoundi' }]
         }
-      });
+      ];
+
+      const user = mockUsers.find(u => u.code === decoded.id);
 
       if (!user) {
         return null;
       }
 
       // Get fresh permissions
-      const permissions = await this.getUserPermissions(user.code_role);
+      const permissions = this.getDefaultPermissions(user.code_role);
 
       return {
         id: user.code,
@@ -164,10 +187,7 @@ export class AuthService {
           code: user.role.code,
           libelle: user.role.libelle
         },
-        departements: user.utilisateurDepartements.map(ud => ({
-          code: ud.departement.code,
-          libelle: ud.departement.libelle
-        })),
+        departements: user.departements,
         permissions
       };
 

@@ -60,6 +60,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
       setIsAuthenticated(true);
       
       console.log('User logged in:', response.user.username);
+      return response; // Return response for redirect logic
     } catch (error) {
       console.error('Login error:', error);
       throw error;

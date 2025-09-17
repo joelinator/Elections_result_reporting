@@ -47,18 +47,13 @@ export default function LoginPage() {
     setError(null);
 
     try {
-      const { user, token } = await authService.login(
-        formData.username,
-        formData.password,
-        formData.rememberMe
-      );
-
-      await login({username:user.username, password:formData.password});
+      // Login using AuthContext which handles token storage and state
+      const response = await login({ username: formData.username, password: formData.password });
       
-      toast.success(`Welcome back, ${user.noms_prenoms}!`);
+      toast.success(`Welcome back, ${response.user.noms_prenoms}!`);
       
-      // Redirect to dashboard
-      router.push('/dashboard');
+      // Force navigation to dashboard
+      window.location.href = '/dashboard';
       
     } catch (error: any) {
       const errorMessage = error.message || 'Login failed. Please try again.';

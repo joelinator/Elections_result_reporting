@@ -42,11 +42,11 @@ export interface AuthContextType {
   user: UserSession | null;
   isLoading: boolean;
   isAuthenticated: boolean;
-  login: (credentials: LoginCredentials) => Promise<void>;
+  login: (credentials: LoginCredentials) => Promise<{ user: UserSession; token: string }>;
   logout: () => Promise<void>;
   hasPermission: (permission: string, context?: { departmentCode?: number; regionCode?: number; userId?: number }) => boolean;
   canAccessDepartment: (departmentCode: number) => boolean;
-  refreshUser?: string | null | any
+  refreshUser?: () => Promise<void>;
 }
 
 export interface PermissionContext {
