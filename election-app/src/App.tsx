@@ -152,7 +152,7 @@ function App() {
   }
 
   if (!isAuthenticated) {
-    return <LoginPage />;
+    // return <LoginPage />;
   }
 
   return (

@@ -26,7 +26,17 @@ interface AuthProviderProps {
 }
 
 export const AuthProvider = ({ children }: AuthProviderProps) => {
-  const [user, setUser] = useState<User | null>(null);
+  const [user, setUser] = useState<User | null>({
+    code: 1,
+    username: 'admin',
+    email: 'admin@example.com',
+    noms_prenoms: 'Admin',
+    roles: [{ code: 1, libelle: 'Administrateur' }],
+    arrondissementCode: 1,
+    arrondissements: [],
+    role: { code: 1, libelle: 'Administrateur' },
+
+  });
   const [isLoading, setIsLoading] = useState(true);
 
   // Check if user has required role(s) - supports both single role and multiple roles
