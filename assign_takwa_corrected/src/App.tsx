@@ -67,6 +67,7 @@ import ReportsComponent from './components/reportsPageView'
 import SubmissionPage from './components/submissionPageView'
 import CommissionManagement from './components/CommissionManagement'
 import ArrondissementManagement from './components/ArrondissementManagement'
+import ParticipationManagement from './components/ParticipationManagement'
 
 // Utility function to clean PV URLs by removing '/uploads' part
 const cleanPVUrl = (url: string): string => {
@@ -5134,6 +5135,11 @@ function AppContent() {
       id: 'arrondissements',
       label: 'Gestion des Arrondissements',
       icon: 'fas fa-map-marked-alt'
+    },
+    {
+      id: 'participations',
+      label: 'Participations Départementales',
+      icon: 'fas fa-chart-pie'
     }
   ];
 
@@ -5243,6 +5249,8 @@ function AppContent() {
         return <CommissionManagement className="max-w-7xl mx-auto" />;
       case 'arrondissements':
         return <ArrondissementManagement className="max-w-7xl mx-auto" />;
+      case 'participations':
+        return <ParticipationManagement className="max-w-7xl mx-auto" />;
       case 'synthesis': 
         return <SynthesisPage />;
       case 'synthesis-departemental':
