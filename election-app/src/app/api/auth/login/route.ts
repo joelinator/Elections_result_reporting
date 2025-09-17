@@ -192,13 +192,13 @@ export async function POST(request: NextRequest) {
     );
 
     // Update last login
-    await prisma.utilisateur.update({
-      where: { code: user.code },
-      data: { 
-        last_login: new Date().toISOString(),
-        date_modification: new Date().toISOString()
-      }
-    });
+    // await prisma.utilisateur.update({
+    //   where: { code: user.code },
+    //   data: { 
+    //     last_login: new Date().toISOString(),
+    //     date_modification: new Date().toISOString()
+    //   }
+    // });
 
     return NextResponse.json({
       success: true,
