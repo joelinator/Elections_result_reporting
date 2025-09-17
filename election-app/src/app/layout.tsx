@@ -1,7 +1,7 @@
 // src/app/layout.tsx
 import { AuthProvider } from '@/contexts/AuthContext';
-import { Toast } from '@/components/shared/Toast';
 import { LanguageProvider } from '@/contexts/LanguageContext';
+import { Toaster } from 'sonner';
 import './globals.css';
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
@@ -9,9 +9,15 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     <html lang="en">
       <body>
         <AuthProvider>
-          <LanguageProvider>{children}</LanguageProvider>
+          <LanguageProvider>
+            {children}
+            <Toaster 
+              position="top-right"
+              richColors
+              closeButton
+            />
+          </LanguageProvider>
         </AuthProvider>
-        <Toast />
       </body>
     </html>
   );

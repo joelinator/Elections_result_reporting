@@ -17,6 +17,8 @@ import {
 import { usePathname } from 'next/navigation';
 import Link from 'next/link';
 import { useLanguage } from '@/contexts/LanguageContext';
+import { useAuth } from '@/contexts/AuthContext';
+import { usePermissions } from '@/hooks/usePermissions';
 import { LanguageToggle } from '@/components/ui/LanguageToggle';
 
 interface DashboardLayoutProps {
@@ -27,15 +29,51 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const pathname = usePathname();
   const { t } = useLanguage();
+  const { user, logout } = useAuth();
+  const { canViewReports, canManageUsers, hasAnyDepartmentAccess } = usePermissions();
 
   const navigation = [
-    { name: t('navigation.dashboard'), href: '/dashboard', icon: Home },
-    { name: t('navigation.departments'), href: '/departments', icon: MapPin },
-    { name: t('navigation.participation'), href: '/participation', icon: FileText },
-    { name: t('navigation.results'), href: '/results', icon: BarChart3 },
-    { name: t('navigation.users'), href: '/users', icon: Users },
-    { name: t('navigation.settings'), href: '/settings', icon: Settings },
-  ];
+    { 
+      name: t('navigation.dashboard'), 
+      href: '/dashboard', 
+      icon: Home,
+      show: true
+    },
+    { 
+      name: t('navigation.departments'), 
+      href: '/departments', 
+      icon: MapPin,
+      show: hasAnyDepartmentAccess()
+    },
+    { 
+      name: t('navigation.participation'), 
+      href: '/participation', 
+      icon: FileText,
+      show: hasAnyDepartmentAccess()
+    },
+    { 
+      name: t('navigation.results'), 
+      href: '/results', 
+      icon: BarChart3,
+      show: canViewReports()
+    },
+    { 
+      name: t('navigation.users'), 
+      href: '/users', 
+      icon: Users,
+      show: canManageUsers()
+    },
+    { 
+      name: t('navigation.settings'), 
+      href: '/settings', 
+      icon: Settings,
+      show: true
+    },
+  ].filter(item => item.show);
+
+  const handleLogout = async () => {
+    await logout();
+  };
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -107,8 +145,12 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
                 <Users className="h-4 w-4 text-gray-600" />
               </div>
               <div className="flex-1 min-w-0">
-                <p className="text-sm font-medium text-gray-900 truncate">John Doe</p>
-                <p className="text-xs text-gray-500 truncate">Administrator</p>
+                <p className="text-sm font-medium text-gray-900 truncate">
+                  {user?.noms_prenoms || 'Unknown User'}
+                </p>
+                <p className="text-xs text-gray-500 truncate">
+                  {user?.role.libelle || 'No Role'}
+                </p>
               </div>
             </div>
             
@@ -117,7 +159,10 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
               <LanguageToggle variant="button" size="sm" className="w-full justify-center" />
             </div>
             
-            <button className="w-full flex items-center px-3 py-2 text-sm text-gray-600 hover:text-gray-900 hover:bg-gray-50 rounded-lg transition-colors">
+            <button 
+              onClick={handleLogout}
+              className="w-full flex items-center px-3 py-2 text-sm text-gray-600 hover:text-gray-900 hover:bg-gray-50 rounded-lg transition-colors"
+            >
               <LogOut className="h-4 w-4 mr-2" />
               {t('navigation.signOut')}
             </button>
