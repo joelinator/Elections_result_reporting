@@ -327,9 +327,37 @@ const ArrondissementsTab: React.FC<ArrondissementsTabProps> = ({
   onEdit,
   onDelete,
   onAdd
-}) => (
-  <div className="space-y-4">
-    {/* Filters and Add button */}
+}) => {
+  // Calculer les statistiques
+  const totalDocuments = arrondissements.reduce((sum, arr) => sum + (arr.pvArrondissements?.length || 0), 0);
+  const arrondissementsAvecDocuments = arrondissements.filter(arr => (arr.pvArrondissements?.length || 0) > 0).length;
+  const totalBureauxVote = arrondissements.reduce((sum, arr) => sum + (arr.bureauVotes?.length || 0), 0);
+
+  return (
+    <div className="space-y-4">
+      {/* Statistiques */}
+      {arrondissements.length > 0 && (
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-4 p-4 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-lg border border-blue-100">
+          <div className="text-center">
+            <div className="text-2xl font-bold text-blue-600">{arrondissements.length}</div>
+            <div className="text-sm text-gray-600">Arrondissements</div>
+          </div>
+          <div className="text-center">
+            <div className="text-2xl font-bold text-green-600">{totalDocuments}</div>
+            <div className="text-sm text-gray-600">Documents soumis</div>
+          </div>
+          <div className="text-center">
+            <div className="text-2xl font-bold text-purple-600">{arrondissementsAvecDocuments}</div>
+            <div className="text-sm text-gray-600">Avec documents</div>
+          </div>
+          <div className="text-center">
+            <div className="text-2xl font-bold text-orange-600">{totalBureauxVote}</div>
+            <div className="text-sm text-gray-600">Bureaux de vote</div>
+          </div>
+        </div>
+      )}
+      
+      {/* Filters and Add button */}
     <div className="flex justify-between items-center">
       <div className="flex items-center space-x-4">
         <select
@@ -402,11 +430,47 @@ const ArrondissementsTab: React.FC<ArrondissementsTabProps> = ({
                 </div>
                 <div className="flex items-center mt-3 space-x-4 text-sm text-gray-500">
                   <span>Bureaux de vote: {arrondissement.bureauVotes?.length || 0}</span>
-                  <span>Documents: {arrondissement.pvArrondissements?.length || 0}</span>
+                  <span className="flex items-center">
+                    📄 Documents soumis: 
+                    <span className={`ml-1 px-2 py-1 rounded-full text-xs font-medium ${
+                      (arrondissement.pvArrondissements?.length || 0) > 0 
+                        ? 'bg-green-100 text-green-800' 
+                        : 'bg-gray-100 text-gray-600'
+                    }`}>
+                      {arrondissement.pvArrondissements?.length || 0}
+                    </span>
+                  </span>
                   {arrondissement.date_creation && (
                     <span>Créé le: {new Date(arrondissement.date_creation).toLocaleDateString()}</span>
                   )}
                 </div>
+                
+                {/* Affichage des derniers documents si disponibles */}
+                {arrondissement.pvArrondissements && arrondissement.pvArrondissements.length > 0 && (
+                  <div className="mt-3 p-3 bg-gray-50 rounded-lg">
+                    <h4 className="text-sm font-medium text-gray-700 mb-2">
+                      📋 Derniers documents soumis ({arrondissement.pvArrondissements.length})
+                    </h4>
+                    <div className="space-y-1">
+                      {arrondissement.pvArrondissements
+                        .sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime())
+                        .slice(0, 3) // Afficher seulement les 3 derniers
+                        .map((doc) => (
+                          <div key={doc.code} className="flex justify-between items-center text-xs text-gray-600">
+                            <span className="truncate">{doc.libelle}</span>
+                            <span className="ml-2 flex-shrink-0">
+                              {new Date(doc.timestamp).toLocaleDateString()}
+                            </span>
+                          </div>
+                        ))}
+                      {arrondissement.pvArrondissements.length > 3 && (
+                        <div className="text-xs text-blue-600 font-medium">
+                          ... et {arrondissement.pvArrondissements.length - 3} autre(s) document(s)
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                )}
               </div>
               <div className="flex space-x-2 ml-4">
                 <button
@@ -428,7 +492,8 @@ const ArrondissementsTab: React.FC<ArrondissementsTabProps> = ({
       )}
     </div>
   </div>
-);
+  );
+};
 
 // Composant pour l'onglet Documents
 interface DocumentsTabProps {
