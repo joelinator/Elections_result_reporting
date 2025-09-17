@@ -2,20 +2,65 @@
 'use client';
 
 import { createContext, useContext, useEffect, useState } from 'react';
-import { UserSession, getSession } from '@/lib/auth';
+import { UserSession } from '@/lib/auth';
 
-const AuthContext = createContext<{ user: UserSession | null }>({ user: null });
+interface AuthContextType {
+  user: UserSession | null;
+  login: (user: UserSession) => void;
+  logout: () => void;
+  isLoading: boolean;
+}
+
+const AuthContext = createContext<AuthContextType>({
+  user: null,
+  login: () => {},
+  logout: () => {},
+  isLoading: true
+});
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<UserSession | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    // Mock fetching token from external API or cookie
-    const token = 'your-jwt-token-from-external-api'; // Replace with actual fetch/cookie logic
-    getSession(token).then(setUser);
+    checkSession();
   }, []);
 
-  return <AuthContext.Provider value={{ user }}>{children}</AuthContext.Provider>;
+  const checkSession = async () => {
+    try {
+      const response = await fetch('/api/auth/session');
+      if (response.ok) {
+        const data = await response.json();
+        if (data.success && data.user) {
+          setUser(data.user);
+        }
+      }
+    } catch (error) {
+      console.error('Session check failed:', error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const login = (userData: UserSession) => {
+    setUser(userData);
+  };
+
+  const logout = async () => {
+    try {
+      await fetch('/api/auth/logout', { method: 'POST' });
+    } catch (error) {
+      console.error('Logout failed:', error);
+    } finally {
+      setUser(null);
+    }
+  };
+
+  return (
+    <AuthContext.Provider value={{ user, login, logout, isLoading }}>
+      {children}
+    </AuthContext.Provider>
+  );
 }
 
 export function useAuth() {
