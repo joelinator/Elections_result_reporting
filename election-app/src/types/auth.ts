@@ -25,7 +25,7 @@ export interface UserSession {
   departements?: UserDepartment[];
   permissions?: string[];
   token?: string;
-  isActive?: Boolean
+  isActive?: boolean
 }
 
 export interface LoginCredentials {
