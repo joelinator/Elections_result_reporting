@@ -40,7 +40,7 @@ export default function ResultsPage() {
     const fetchData = async () => {
       try {
         const [resData, partyData] = await Promise.all([
-          service.getResults(Number(departmentCode), user.id),
+          service.getResults(Number(departmentCode)), // Removed extra user.id parameter
           service.getParties(),
         ]);
         setResults(resData);
@@ -57,8 +57,12 @@ export default function ResultsPage() {
   const onSubmit = async (data: z.infer<typeof resultSchema>) => {
     if (!user) return;
     try {
-      await service.createResult(data, user.id, Number(departmentCode));
-      const updated = await service.getResults(Number(departmentCode), user.id);
+      const resultData = {
+        ...data,
+        code_departement: Number(departmentCode)
+      };
+      await service.createResult(resultData);
+      const updated = await service.getResults(Number(departmentCode));
       setResults(updated);
     } catch (err) {
       console.error(err);
@@ -122,7 +126,7 @@ export default function ResultsPage() {
               <TableCell>{result.pourcentage}</TableCell>
               <TableCell>
                 <Button variant="outline" onClick={() => {/* Edit */}}>Edit</Button>
-                <Button variant="destructive" onClick={() => service.deleteResult(result.code, user!.id, Number(departmentCode))}>Delete</Button>
+                <Button variant="destructive" onClick={() => service.deleteResult(result.code)}>Delete</Button>
               </TableCell>
             </TableRow>
           ))}

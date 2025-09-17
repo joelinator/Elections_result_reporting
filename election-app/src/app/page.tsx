@@ -46,13 +46,15 @@ interface RecentActivity {
 export default function DashboardPage() {
   const router = useRouter();
   const { t } = useLanguage();
-  const { user } = useAuth();
+  const { user, isLoading: authLoading } = useAuth();
   const [stats, setStats] = useState<DashboardStats | null>(null);
   const [recentActivity, setRecentActivity] = useState<RecentActivity[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
   // Redirect to login if not authenticated
   useEffect(() => {
+    if (authLoading) return; // Wait for auth to load
+    
     if (!user) {
       router.push('/auth/login');
       return;
@@ -60,7 +62,7 @@ export default function DashboardPage() {
     
     // Load dashboard data
     loadDashboardData();
-  }, [user, router]);
+  }, [user, authLoading, router]);
 
   const loadDashboardData = async () => {
     try {
