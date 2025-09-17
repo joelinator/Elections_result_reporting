@@ -1,7 +1,7 @@
 // api/electionApi.ts
 import type { PollingStation, PoliticalParty, SubmissionData, ApiResponse, PaginatedResponse } from '../data/submissionData';
 
-const API_BASE_URL =  'http://localhost:3000/api';
+const API_BASE_URL =  'https://turbo-barnacle-7pqj6gpp75jhrpww-3000.app.github.dev/api';
 // const API_BASE_URL =  'http://api.voteflow.cm/api';
 
 // Generic API request function
