@@ -1,208 +1,127 @@
 // contexts/AuthContext.tsx
 'use client';
 
-import { createContext, useContext, useEffect, useState, ReactNode } from 'react';
-import { useRouter } from 'next/navigation';
-import { AuthService } from '@/services/authService';
-import type { UserSession } from '@/types/auth';
+import { createContext, useContext, useState, useEffect } from 'react';
+import type { ReactNode } from 'react';
+
+export interface User {
+  id: number;
+  code: number;
+  username: string;
+  email: string;
+  noms_prenoms: string;
+  role: {
+    code: number;
+    libelle: string;
+  };
+  departements: Array<{
+    code: number;
+    libelle: string;
+  }>;
+  permissions: string[];
+}
+
+export interface LoginCredentials {
+  username: string;
+  password: string;
+  rememberMe?: boolean;
+}
 
 interface AuthContextType {
-  user: UserSession | null;
-  isLoading: boolean;
+  user: User | null;
   isAuthenticated: boolean;
-  login: (username: string, password: string) => Promise<void>;
-  logout: () => Promise<void>;
-  hasPermission: (permission: string, context?: { departmentCode?: number; regionCode?: number; userId?: number }) => boolean;
-  canAccessDepartment: (departmentCode: number) => boolean;
-  refreshUser: () => Promise<void>;
+  isLoading: boolean;
+  login: (credentials: LoginCredentials) => Promise<void>;
+  logout: () => void;
+  hasRole: (requiredRoles: number[]) => boolean;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
+
+export const useAuth = () => {
+  const context = useContext(AuthContext);
+  if (context === undefined) {
+    throw new Error('useAuth must be used within an AuthProvider');
+  }
+  return context;
+};
 
 interface AuthProviderProps {
   children: ReactNode;
 }
 
-export function AuthProvider({ children }: AuthProviderProps) {
-  const [user, setUser] = useState<UserSession | null>(null);
+export const AuthProvider = ({ children }: AuthProviderProps) => {
+  const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(true);
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const router = useRouter();
-  const authService = new AuthService();
 
-  // Initialize auth state on mount
+  const hasRole = (requiredRoles: number[]): boolean => {
+    if (!user) return false;
+    return requiredRoles.includes(user.role.code);
+  };
+
   useEffect(() => {
+    const initializeAuth = () => {
+      try {
+        const storedUser = localStorage.getItem('user');
+        const storedToken = localStorage.getItem('accessToken');
+        
+        if (storedUser && storedToken) {
+          setUser(JSON.parse(storedUser));
+        }
+      } catch (error) {
+        console.error('Error initializing auth:', error);
+        localStorage.removeItem('user');
+        localStorage.removeItem('accessToken');
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
     initializeAuth();
   }, []);
 
-  const initializeAuth = async () => {
+  const login = async (credentials: LoginCredentials): Promise<void> => {
+    setIsLoading(true);
     try {
-      const token = getStoredToken();
-      if (!token) {
-        setIsLoading(false);
-        return;
+      const response = await fetch('/api/auth/login', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(credentials),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || 'Login failed');
       }
 
-      const verifiedUser = await authService.verifyToken(token);
-      if (verifiedUser) {
-        setUser(verifiedUser);
-        setIsAuthenticated(true);
-      } else {
-        // Token is invalid, remove it
-        removeStoredToken();
-      }
-    } catch (error) {
-      console.error('Auth initialization error:', error);
-      removeStoredToken();
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-    const login = async (username: string, password: string) => {
-    try {
-      setIsLoading(true);
-      const result = await authService.login(username, password, false);
+      localStorage.setItem('accessToken', data.token);
+      localStorage.setItem('user', JSON.stringify(data.user));
       
-      if (result.success && result.user && result.token) {
-        // Store token
-        storeToken(result.token);
-        
-        // Update state
-        setUser(result.user);
-        setIsAuthenticated(true);
-        
-        console.log('User logged in:', result.user.username);
-      } else {
-        throw new Error(result.error || 'Login failed');
-      }
+      setUser(data.user);
     } catch (error: any) {
       console.error('Login error:', error);
-      throw error;
+      throw new Error(error.message || 'Unknown login error');
     } finally {
       setIsLoading(false);
     }
   };
 
-  const logout = async () => {
-    try {
-      const token = getStoredToken();
-      if (token) {
-        await authService.logout(token);
-      }
-      
-      // Clear state
-      removeStoredToken();
-      setUser(null);
-      setIsAuthenticated(false);
-      
-      // Redirect to login
-      router.push('/auth/login');
-    } catch (error) {
-      console.error('Logout error:', error);
-    }
-  };
-
-  const hasPermission = (permission: string, context?: { departmentCode?: number; regionCode?: number; userId?: number }): boolean => {
-    if (!user || !user.permissions) {
-      return false;
-    }
-
-    // Check direct permission
-    if (user.permissions.includes(permission)) {
-      return true;
-    }
-
-    // Check role-based permissions
-    const role = user.role.libelle;
-    
-    // System admin has all permissions
-    if (role === 'Administrateur Système') {
-      return true;
-    }
-
-    // Context-based permission checks
-    if (context?.departmentCode && user.departements) {
-      const hasAccessToDepartment = user.departements.some(d => d.code === context.departmentCode);
-      
-      if (hasAccessToDepartment) {
-        // Check department-specific permissions
-        const departmentPermissions = [
-          'data.view_department',
-          'data.edit_department',
-          'participation.manage',
-          'results.manage',
-          'redressements.manage'
-        ];
-        
-        if (departmentPermissions.includes(permission) && 
-            (role === 'Responsable Départemental' || role === 'Opérateur de Saisie')) {
-          return true;
-        }
-      }
-    }
-
-    return false;
-  };
-
-  const canAccessDepartment = (departmentCode: number): boolean => {
-    if (!user) return false;
-    
-    // System admin can access all departments
-    if (user.role.libelle === 'Administrateur Système') {
-      return true;
-    }
-
-    // Check if user is assigned to this department
-    return user.departements?.some(d => d.code === departmentCode) || false;
-  };
-
-  const refreshUser = async () => {
-    const token = getStoredToken();
-    if (!token) return;
-
-    try {
-      const verifiedUser = await authService.verifyToken(token);
-      if (verifiedUser) {
-        setUser(verifiedUser);
-      } else {
-        await logout();
-      }
-    } catch (error) {
-      console.error('Refresh user error:', error);
-      await logout();
-    }
-  };
-
-  // Token storage utilities
-  const storeToken = (token: string) => {
-    if (typeof window !== 'undefined') {
-      localStorage.setItem('auth_token', token);
-    }
-  };
-
-  const getStoredToken = (): string | null => {
-    if (typeof window !== 'undefined') {
-      return localStorage.getItem('auth_token');
-    }
-    return null;
-  };
-
-  const removeStoredToken = () => {
-    if (typeof window !== 'undefined') {
-      localStorage.removeItem('auth_token');
-    }
+  const logout = () => {
+    localStorage.removeItem('accessToken');
+    localStorage.removeItem('user');
+    setUser(null);
   };
 
   const value: AuthContextType = {
     user,
+    isAuthenticated: !!user,
     isLoading,
-    isAuthenticated,
     login,
     logout,
-    hasPermission,
-    canAccessDepartment,
-    refreshUser
+    hasRole,
   };
 
   return (
@@ -210,12 +129,4 @@ export function AuthProvider({ children }: AuthProviderProps) {
       {children}
     </AuthContext.Provider>
   );
-}
-
-export function useAuth(): AuthContextType {
-  const context = useContext(AuthContext);
-  if (context === undefined) {
-    throw new Error('useAuth must be used within an AuthProvider');
-  }
-  return context;
-}
+};

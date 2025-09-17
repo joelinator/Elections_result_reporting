@@ -1,4 +1,9 @@
 {
+  "files": [],
+  "references": [
+    { "path": "./tsconfig.app.json" },
+    { "path": "./tsconfig.node.json" }
+  ],
   "compilerOptions": {
     "target": "es5",
     "lib": ["dom", "dom.iterable", "es6"],
