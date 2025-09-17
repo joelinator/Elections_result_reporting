@@ -48,9 +48,9 @@ export default function LoginPage() {
 
     try {
       // Login using AuthContext which handles token storage and state
-      const response = await login({ username: formData.username, password: formData.password });
+      await login(formData.username,  formData.password);
       
-      toast.success(`Welcome back, ${response.user.noms_prenoms}!`);
+      toast.success('Welcome back!');
       
       // Force navigation to dashboard
       window.location.href = '/dashboard';

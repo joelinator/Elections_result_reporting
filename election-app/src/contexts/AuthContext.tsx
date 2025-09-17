@@ -4,7 +4,18 @@
 import { createContext, useContext, useEffect, useState, ReactNode } from 'react';
 import { useRouter } from 'next/navigation';
 import { AuthService } from '@/services/authService';
-import type { UserSession, AuthContextType } from '@/types/auth';
+import type { UserSession } from '@/types/auth';
+
+interface AuthContextType {
+  user: UserSession | null;
+  isLoading: boolean;
+  isAuthenticated: boolean;
+  login: (username: string, password: string) => Promise<void>;
+  logout: () => Promise<void>;
+  hasPermission: (permission: string, context?: { departmentCode?: number; regionCode?: number; userId?: number }) => boolean;
+  canAccessDepartment: (departmentCode: number) => boolean;
+  refreshUser: () => Promise<void>;
+}
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
@@ -48,22 +59,28 @@ export function AuthProvider({ children }: AuthProviderProps) {
     }
   };
 
-  const login = async (credentials: { username: string; password: string }) => {
+    const login = async (username: string, password: string) => {
     try {
-      const response = await authService.login(credentials.username, credentials.password);
+      setIsLoading(true);
+      const result = await authService.login(username, password, false);
       
-      // Store token
-      storeToken(response.token);
-      
-      // Update state
-      setUser(response.user);
-      setIsAuthenticated(true);
-      
-      console.log('User logged in:', response.user.username);
-      return response; // Return response for redirect logic
-    } catch (error) {
+      if (result.success && result.user && result.token) {
+        // Store token
+        storeToken(result.token);
+        
+        // Update state
+        setUser(result.user);
+        setIsAuthenticated(true);
+        
+        console.log('User logged in:', result.user.username);
+      } else {
+        throw new Error(result.error || 'Login failed');
+      }
+    } catch (error: any) {
       console.error('Login error:', error);
       throw error;
+    } finally {
+      setIsLoading(false);
     }
   };
 
