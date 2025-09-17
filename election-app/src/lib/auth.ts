@@ -1,7 +1,7 @@
 // lib/auth.ts
 import jwt from 'jsonwebtoken';
 import bcrypt from 'bcryptjs';
-import { prisma } from './prisma';
+// import { prisma } from './prisma'; // TODO: Re-enable when Prisma is working
 
 export interface UserSession {
   id: number;
@@ -20,6 +20,46 @@ export interface LoginCredentials {
 
 export async function validateCredentials(credentials: LoginCredentials): Promise<UserSession | null> {
   try {
+    // Mock data for demo - replace with database call when DB is available
+    const mockUsers = [
+      {
+        code: 1,
+        username: 'admin',
+        password: 'admin123',
+        email: 'admin@elections.cm',
+        noms_prenoms: 'Administrateur Système',
+        role: 'Administrateur Système',
+        departments: []
+      },
+      {
+        code: 2,
+        username: 'jmballa',
+        password: 'password123',
+        email: 'jean.mballa@elections.cm',
+        noms_prenoms: 'Jean MBALLA',
+        role: 'Superviseur Départemental',
+        departments: [1] // Wouri
+      }
+    ];
+
+    const user = mockUsers.find(u => u.username === credentials.username);
+
+    if (!user || user.password !== credentials.password) {
+      return null;
+    }
+
+    return {
+      id: user.code,
+      code: user.code,
+      username: user.username,
+      email: user.email,
+      noms_prenoms: user.noms_prenoms,
+      role: user.role,
+      departments: user.departments
+    };
+
+    // TODO: Replace with actual database call when Prisma is working
+    /*
     const user = await prisma.utilisateur.findUnique({
       where: { username: credentials.username },
       include: {
@@ -60,6 +100,7 @@ export async function validateCredentials(credentials: LoginCredentials): Promis
       role: user.role?.libelle || 'User',
       departments: user.utilisateurDepartements.map(ud => ud.code_departement).filter(Boolean)
     };
+    */
   } catch (error) {
     console.error('Authentication error:', error);
     return null;
