@@ -310,7 +310,7 @@ export const CommissionManagement: React.FC<CommissionManagementProps> = ({ clas
   );
 };
 
-// Composants des onglets (à implémenter dans les fichiers suivants)
+// Composants des onglets
 interface CommissionsTabProps {
   commissions: CommissionDepartementale[];
   departements: Departement[];
@@ -535,7 +535,7 @@ const MembresTab: React.FC<MembresTabProps> = ({ membres, onEdit, onDelete, onAd
   </div>
 );
 
-// Modales (à implémenter dans les fichiers suivants)
+// Modales
 interface CommissionModalProps {
   commission: CommissionDepartementale | null;
   departements: Departement[];

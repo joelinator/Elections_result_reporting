@@ -65,6 +65,7 @@ import {
 } from './api/electionApi'
 import ReportsComponent from './components/reportsPageView'
 import SubmissionPage from './components/submissionPageView'
+import CommissionManagement from './components/CommissionManagement'
 
 // Utility function to clean PV URLs by removing '/uploads' part
 const cleanPVUrl = (url: string): string => {
@@ -5122,6 +5123,11 @@ function AppContent() {
       label: 'Reports',
       icon: 'fas fa-note',
       
+    },
+    {
+      id: 'commissions',
+      label: 'Gestion des Commissions',
+      icon: 'fas fa-users-cog'
     }
   ];
 
@@ -5227,6 +5233,8 @@ function AppContent() {
         return <RegionsPage />;
       case 'reports':
         return <ReportsComponent />; 
+      case 'commissions':
+        return <CommissionManagement className="max-w-7xl mx-auto" />;
       case 'synthesis': 
         return <SynthesisPage />;
       case 'synthesis-departemental':
