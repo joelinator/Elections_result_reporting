@@ -97,6 +97,22 @@ export interface PvArrondissement {
   };
 }
 
+export interface ResultatDepartement {
+  code: number;
+  code_departement: number;
+  code_parti: number;
+  nombre_vote: number;
+  pourcentage?: number;
+  date_creation?: string;
+  departement?: {
+    libelle: string;
+  };
+  parti?: {
+    designation: string;
+    abbreviation?: string;
+  };
+}
+
 export interface RedressementCandidat {
   code: number;
   nombre_vote_initial: number;

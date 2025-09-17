@@ -20,9 +20,10 @@ const service = new RedressementBureauService();
 
 const redressementSchema = z.object({
   code_bureau_vote: z.number(),
-  nombre_inscrit_initial: z.number().optional(),
-  nombre_inscrit_redresse: z.number().optional(),
-  // Add all fields...
+  nombre_inscrit_initial: z.number(),
+  nombre_inscrit_redresse: z.number(),
+  nombre_votant_initial: z.number(),
+  nombre_votant_redresse: z.number(),
   raison_redressement: z.string().optional(),
 });
 

@@ -1,42 +1,102 @@
 // services/redressementCandidatService.ts
-import { RedressementCandidatRepository } from '@/repositories/redressementCandidatRepository';
-
-const repo = new RedressementCandidatRepository();
+import type { RedressementCandidat } from '@/types/api';
+import type { RedressementCandidatFormData } from '@/types/forms';
 
 export class RedressementCandidatService {
-  async getRedressements(departmentCode: number, userId: number) {
-    const isAssigned = await repo.isUserAssignedToDepartment(userId, departmentCode);
-    if (!isAssigned) throw new Error('Unauthorized');
-    return repo.getByDepartment(departmentCode);
+  static async getByDepartment(departmentCode: number): Promise<RedressementCandidat[]> {
+    try {
+      const response = await fetch(`/api/redressements/candidat?department=${departmentCode}`);
+      if (!response.ok) throw new Error('Failed to fetch candidat redressements');
+      return response.json();
+    } catch (error) {
+      console.error('Error fetching candidat redressements:', error);
+      return [];
+    }
   }
 
-  async createRedressement(data: any, userId: number, departmentCode: number) {
-    const isAssigned = await repo.isUserAssignedToDepartment(userId, departmentCode);
-    if (!isAssigned) throw new Error('Unauthorized');
-    // Validate bureau in department
-    const bureaus = await repo.getBureauVotesByDepartment(departmentCode);
-    if (!bureaus.some(b => b.code === data.code_bureau_vote)) throw new Error('Invalid bureau');
-    return repo.createRedressement(data);
+  static async create(data: RedressementCandidatFormData): Promise<RedressementCandidat> {
+    const response = await fetch('/api/redressements/candidat', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(data)
+    });
+
+    if (!response.ok) {
+      throw new Error('Failed to create candidat redressement');
+    }
+
+    return response.json();
   }
 
-  // Similar for update/delete
-  async updateRedressement(code: number, data: any, userId: number, departmentCode: number) {
-    const isAssigned = await repo.isUserAssignedToDepartment(userId, departmentCode);
-    if (!isAssigned) throw new Error('Unauthorized');
-    return repo.updateRedressement(code, data);
+  // Instance methods for component usage
+  async getRedressements(departmentCode: number, userId: number): Promise<RedressementCandidat[]> {
+    try {
+      const response = await fetch(`/api/departments/${departmentCode}/redressements/candidat?userId=${userId}`);
+      if (!response.ok) throw new Error('Failed to fetch redressements');
+      return response.json();
+    } catch (error) {
+      console.error('Error fetching redressements:', error);
+      return [];
+    }
   }
 
-  async deleteRedressement(code: number, userId: number, departmentCode: number) {
-    const isAssigned = await repo.isUserAssignedToDepartment(userId, departmentCode);
-    if (!isAssigned) throw new Error('Unauthorized');
-    return repo.deleteRedressement(code);
+  async getBureauVotes(departmentCode: number): Promise<any[]> {
+    try {
+      const response = await fetch(`/api/departments/${departmentCode}/bureau-votes`);
+      if (!response.ok) throw new Error('Failed to fetch bureau votes');
+      return response.json();
+    } catch (error) {
+      console.error('Error fetching bureau votes:', error);
+      return [];
+    }
   }
 
-  async getBureauVotes(departmentCode: number) {
-    return repo.getBureauVotesByDepartment(departmentCode);
+  async getParties(): Promise<any[]> {
+    try {
+      const response = await fetch('/api/parties');
+      if (!response.ok) throw new Error('Failed to fetch parties');
+      return response.json();
+    } catch (error) {
+      console.error('Error fetching parties:', error);
+      return [];
+    }
   }
 
-  async getParties() {
-    return repo.getParties();
+  async createRedressement(data: RedressementCandidatFormData, userId: number, departmentCode: number): Promise<RedressementCandidat> {
+    const response = await fetch('/api/redressements/candidat', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ ...data, userId, departmentCode })
+    });
+
+    if (!response.ok) {
+      throw new Error('Failed to create redressement');
+    }
+
+    return response.json();
+  }
+
+  async updateRedressement(id: number, data: RedressementCandidatFormData, userId: number, departmentCode: number): Promise<RedressementCandidat> {
+    const response = await fetch(`/api/redressements/candidat/${id}`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ ...data, userId, departmentCode })
+    });
+
+    if (!response.ok) {
+      throw new Error('Failed to update redressement');
+    }
+
+    return response.json();
+  }
+
+  async deleteRedressement(id: number, userId: number, departmentCode: number): Promise<void> {
+    const response = await fetch(`/api/redressements/candidat/${id}?userId=${userId}&departmentCode=${departmentCode}`, {
+      method: 'DELETE'
+    });
+
+    if (!response.ok) {
+      throw new Error('Failed to delete redressement');
+    }
   }
 }

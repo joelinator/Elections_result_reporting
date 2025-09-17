@@ -1,5 +1,7 @@
 // services/commissionService.ts
 import { BaseService } from './baseService';
+import type { MembreCommission } from '@/types/api';
+import type { CommitteeMemberFormData } from '@/types/forms';
 
 export interface CommissionMember {
   code: number;
@@ -32,7 +34,7 @@ export class CommissionService extends BaseService {
     }
   }
 
-  static async createMember(data: any): Promise<any> {
+  static async createMember(data: CommitteeMemberFormData): Promise<MembreCommission> {
     const response = await fetch('/api/commission-members', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -46,7 +48,7 @@ export class CommissionService extends BaseService {
     return response.json();
   }
 
-  static async updateMember(id: number, data: any): Promise<any> {
+  static async updateMember(id: number, data: CommitteeMemberFormData): Promise<MembreCommission> {
     const response = await fetch(`/api/commission-members/${id}`, {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },

@@ -43,39 +43,45 @@ export function CommitteeMemberForm({ onSubmit, defaultValues, functions, commis
     <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-4">
       <FormField
         label="Name"
-        id="nom"
-        register={form.register('nom')}
-        error={form.formState.errors.nom}
+        name="nom"
+        value={form.watch('nom') || ''}
+        onChange={(value) => form.setValue('nom', value as string)}
+        error={form.formState.errors.nom?.message}
       />
+      
       <FormField
         label="Function"
-        id="code_fonction"
+        name="code_fonction"
         type="select"
         options={functions.map((f) => ({ value: f.code, label: f.libelle }))}
         onChange={(value) => form.setValue('code_fonction', Number(value))}
-        error={form.formState.errors.code_fonction}
+        error={form.formState.errors.code_fonction?.message}
       />
       <FormField
         label="Contact"
-        id="contact"
-        register={form.register('contact')}
-        error={form.formState.errors.contact}
+        name="contact"
+        value={form.watch('contact') || ''}
+        onChange={(value) => form.setValue('contact', value as string)}
+        error={form.formState.errors.contact?.message}
       />
       <FormField
         label="Email"
-        id="email"
-        register={form.register('email')}
-        error={form.formState.errors.email}
+        name="email"
+        value={form.watch('email') || ''}
+        onChange={(value) => form.setValue('email', value as string)}
+        error={form.formState.errors.email?.message}
       />
+      
       <div className="flex items-center space-x-2">
         <Checkbox
           id="est_membre_secretariat"
           {...form.register('est_membre_secretariat')}
           checked={form.watch('est_membre_secretariat')}
-          onCheckedChange={(checked: boolean) => form.setValue('est_membre_secretariat', checked)} // Type checked as boolean
+          onCheckedChange={(checked: boolean) => form.setValue('est_membre_secretariat', checked)}
         />
         <Label htmlFor="est_membre_secretariat">Secretariat Member</Label>
       </div>
+      
       <Button type="submit">Save</Button>
     </form>
   );

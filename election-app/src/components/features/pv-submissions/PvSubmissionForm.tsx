@@ -27,33 +27,30 @@ export function PvSubmissionForm({ onSubmit, defaultValues, arrondissements }: P
 
   return (
     <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-      <FormField
-        label="Arrondissement"
-        id="code_arrondissement"
-        type="select"
-        options={arrondissements.map((arr) => ({ value: arr.code, label: arr.libelle }))}
-        onChange={(value) => form.setValue('code_arrondissement', Number(value))}
-        error={form.formState.errors.code_arrondissement}
-      />
-      <FormField
-        label="PV URL"
-        id="url_pv"
-        register={form.register('url_pv')}
-        error={form.formState.errors.url_pv}
-      />
-      <FormField
-        label="File Hash"
-        id="hash_file"
-        register={form.register('hash_file')}
-        error={form.formState.errors.hash_file}
-      />
-      <FormField
-        label="Label"
-        id="libelle"
-        register={form.register('libelle')}
-        error={form.formState.errors.libelle}
-      />
-      <Button type="submit">Save</Button>
-    </form>
-  );
+          <FormField
+            label="Arrondissement"
+            name="code_arrondissement"
+            type="select"
+            options={arrondissements.map((arr) => ({ value: arr.code, label: arr.libelle }))}
+            onChange={(value) => form.setValue('code_arrondissement', Number(value))}
+            error={form.formState.errors.code_arrondissement?.message}
+          />
+              <FormField
+                label="PV URL"
+                name="url_pv"
+                error={form.formState.errors.url_pv?.message}
+              />
+              <FormField
+                label="File Hash"
+                name="hash_file"
+                error={form.formState.errors.hash_file?.message}
+              />
+              <FormField
+                label="Label"
+                name="libelle"
+                error={form.formState.errors.libelle?.message}
+              />
+              <Button type="submit">Submit</Button>
+        </form>
+      );
 }

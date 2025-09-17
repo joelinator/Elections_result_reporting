@@ -41,7 +41,6 @@ export function ForeignKeySelect({
   const { user } = useAuth();
   const [options, setOptions] = useState<SelectOption[]>([]);
   const [isLoading, setIsLoading] = useState(false);
-  const optionsService = new OptionsService();
 
   // Get user's assigned department for intelligent filtering
   const getUserDepartmentCode = (): number | undefined => {
@@ -57,36 +56,35 @@ export function ForeignKeySelect({
       
       switch (entityType) {
         case 'department':
-          fetchedOptions = await optionsService.getDepartmentOptions();
+          fetchedOptions = await OptionsService.getDepartments();
           break;
         case 'region':
-          fetchedOptions = await optionsService.getRegionOptions();
+          fetchedOptions = await OptionsService.getRegions();
           break;
         case 'arrondissement':
           // Intelligently filter by user's department or provided department
           const deptCode = getUserDepartmentCode();
-          fetchedOptions = await optionsService.getArrondissementOptions(deptCode);
+          fetchedOptions = await OptionsService.getArrondissements(deptCode);
           break;
         case 'bureauVote':
           // Intelligently filter by arrondissement or department
           if (arrondissementCode) {
-            fetchedOptions = await optionsService.getBureauVoteOptions(arrondissementCode);
+            fetchedOptions = await OptionsService.getBureauVotes(arrondissementCode);
           } else {
-            const deptCode = getUserDepartmentCode();
-            fetchedOptions = await optionsService.getBureauVoteOptions(undefined, deptCode);
+            fetchedOptions = await OptionsService.getBureauVotes(undefined);
           }
           break;
         case 'party':
-          fetchedOptions = await optionsService.getPartiOptions();
+          fetchedOptions = await OptionsService.getParties();
           break;
         case 'user':
-          fetchedOptions = await optionsService.getUserOptions(roleCode);
+          fetchedOptions = await OptionsService.getUsers(roleCode);
           break;
         case 'role':
-          fetchedOptions = await optionsService.getRoleOptions();
+          fetchedOptions = await OptionsService.getRoles();
           break;
         case 'candidate':
-          fetchedOptions = await optionsService.getCandidatOptions();
+          fetchedOptions = await OptionsService.getCandidates();
           break;
         default:
           console.warn(`Unknown entity type: ${entityType}`);
@@ -152,9 +150,8 @@ export function ForeignKeySelect({
       value={value}
       onChange={onChange}
       placeholder={getPlaceholder()}
-      searchPlaceholder={t('select.searchPlaceholder')}
-      isLoading={isLoading}
-      error={error}
+      searchPlaceholder={t('select.searchPlaceholder') || 'Search...'}
+      loading={isLoading}
       disabled={disabled}
       clearable={clearable}
       className={className}

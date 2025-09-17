@@ -1,36 +1,97 @@
 // services/resultatService.ts
-import { ResultatRepository } from '@/repositories/resultatRepository';
+import type { ResultatDepartement } from '@/types/api';
 
-const repo = new ResultatRepository();
+export interface ResultFormData {
+  code_departement: number;
+  code_parti: number;
+  nombre_vote: number;
+  pourcentage?: number;
+}
 
 export class ResultatService {
-  async getResults(departmentCode: number, userId: number) {
-    const isAssigned = await repo.isUserAssignedToDepartment(userId, departmentCode);
-    if (!isAssigned) throw new Error('Unauthorized');
-    return repo.getByDepartment(departmentCode);
+  static async getByDepartment(departmentCode: number): Promise<ResultatDepartement[]> {
+    try {
+      const response = await fetch(`/api/results?department=${departmentCode}`);
+      if (!response.ok) throw new Error('Failed to fetch results');
+      return response.json();
+    } catch (error) {
+      console.error('Error fetching results:', error);
+      return [];
+    }
   }
 
-  async createResult(data: any, userId: number, departmentCode: number) {
-    const isAssigned = await repo.isUserAssignedToDepartment(userId, departmentCode);
-    if (!isAssigned) throw new Error('Unauthorized');
-    data.code_departement = departmentCode;
-    // Calculate pourcentage if needed (requires total votes from participation)
-    return repo.createResult(data);
+  static async create(data: ResultFormData): Promise<ResultatDepartement> {
+    const response = await fetch('/api/results', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(data)
+    });
+
+    if (!response.ok) {
+      throw new Error('Failed to create result');
+    }
+
+    return response.json();
   }
 
-  async updateResult(code: number, data: any, userId: number, departmentCode: number) {
-    const isAssigned = await repo.isUserAssignedToDepartment(userId, departmentCode);
-    if (!isAssigned) throw new Error('Unauthorized');
-    return repo.updateResult(code, data);
+  // Instance methods for component usage
+  async getResults(departmentCode: number): Promise<ResultatDepartement[]> {
+    try {
+      const response = await fetch(`/api/departments/${departmentCode}/results`);
+      if (!response.ok) throw new Error('Failed to fetch results');
+      return response.json();
+    } catch (error) {
+      console.error('Error fetching results:', error);
+      return [];
+    }
   }
 
-  async deleteResult(code: number, userId: number, departmentCode: number) {
-    const isAssigned = await repo.isUserAssignedToDepartment(userId, departmentCode);
-    if (!isAssigned) throw new Error('Unauthorized');
-    return repo.deleteResult(code);
+  async getParties(): Promise<any[]> {
+    try {
+      const response = await fetch('/api/parties');
+      if (!response.ok) throw new Error('Failed to fetch parties');
+      return response.json();
+    } catch (error) {
+      console.error('Error fetching parties:', error);
+      return [];
+    }
   }
 
-  async getParties() {
-    return repo.getParties();
+  async createResult(data: ResultFormData): Promise<ResultatDepartement> {
+    const response = await fetch('/api/results', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(data)
+    });
+
+    if (!response.ok) {
+      throw new Error('Failed to create result');
+    }
+
+    return response.json();
+  }
+
+  async updateResult(id: number, data: ResultFormData): Promise<ResultatDepartement> {
+    const response = await fetch(`/api/results/${id}`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(data)
+    });
+
+    if (!response.ok) {
+      throw new Error('Failed to update result');
+    }
+
+    return response.json();
+  }
+
+  async deleteResult(id: number): Promise<void> {
+    const response = await fetch(`/api/results/${id}`, {
+      method: 'DELETE'
+    });
+
+    if (!response.ok) {
+      throw new Error('Failed to delete result');
+    }
   }
 }

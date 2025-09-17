@@ -53,3 +53,22 @@ export interface ValidationError {
   message: string;
   code?: string;
 }
+
+export interface ResultFormData {
+  code_parti: number;
+  nombre_vote: number;
+  pourcentage?: number;
+}
+
+export interface CreatePvDTO {
+  code_arrondissement: number;
+  libelle: string;
+  url_pv: string;
+  hash_file?: string;
+}
+
+export interface UpdatePvDTO {
+  libelle?: string;
+  url_pv?: string;
+  hash_file?: string;
+}
