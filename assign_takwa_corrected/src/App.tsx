@@ -1,4 +1,4 @@
-import { useState, useMemo, useEffect } from 'react'
+import React, { useState, useMemo, useEffect } from 'react'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import CameroonMapView from './components/CameroonMapView'
 import ProtectedRoute from './components/ProtectedRoute'
@@ -306,6 +306,8 @@ const Navigation = ({ menuItems, activeMenu, onMenuClick }: {
   onMenuClick: (menuId: string) => void;
 }) => {
   const [openDropdown, setOpenDropdown] = useState<string | null>(null);
+  const [showScrollButtons, setShowScrollButtons] = useState(false);
+  const scrollContainerRef = React.useRef<HTMLDivElement>(null);
 
   const handleMenuClick = (item: MenuItem) => {
     if (item.children) {
@@ -316,13 +318,67 @@ const Navigation = ({ menuItems, activeMenu, onMenuClick }: {
     }
   };
 
+  // Vérifier si le scroll est nécessaire
+  React.useEffect(() => {
+    const checkScrollNeed = () => {
+      if (scrollContainerRef.current) {
+        const { scrollWidth, clientWidth } = scrollContainerRef.current;
+        setShowScrollButtons(scrollWidth > clientWidth);
+      }
+    };
+
+    checkScrollNeed();
+    window.addEventListener('resize', checkScrollNeed);
+    return () => window.removeEventListener('resize', checkScrollNeed);
+  }, [menuItems]);
+
+  const scrollLeft = () => {
+    if (scrollContainerRef.current) {
+      scrollContainerRef.current.scrollBy({ left: -200, behavior: 'smooth' });
+    }
+  };
+
+  const scrollRight = () => {
+    if (scrollContainerRef.current) {
+      scrollContainerRef.current.scrollBy({ left: 200, behavior: 'smooth' });
+    }
+  };
+
   return (
-    <nav className="bg-gradient-to-r from-slate-700 to-slate-600 px-6 h-14 flex items-center gap-8 shadow-md">
-      {menuItems.map((item) => (
-        <div key={item.id} className="relative group">
+    <nav className="bg-gradient-to-r from-slate-700 to-slate-600 h-14 shadow-md relative">
+      {/* Bouton de scroll gauche */}
+      {showScrollButtons && (
+        <button
+          onClick={scrollLeft}
+          className="absolute left-2 top-1/2 transform -translate-y-1/2 z-10 bg-slate-600/80 hover:bg-slate-600 text-white p-1 rounded-full transition-all duration-200"
+        >
+          <i className="fas fa-chevron-left text-sm"></i>
+        </button>
+      )}
+      
+      {/* Bouton de scroll droite */}
+      {showScrollButtons && (
+        <button
+          onClick={scrollRight}
+          className="absolute right-2 top-1/2 transform -translate-y-1/2 z-10 bg-slate-600/80 hover:bg-slate-600 text-white p-1 rounded-full transition-all duration-200"
+        >
+          <i className="fas fa-chevron-right text-sm"></i>
+        </button>
+      )}
+
+      <div 
+        ref={scrollContainerRef}
+        className="px-6 h-full flex items-center gap-6 overflow-x-auto nav-scroll"
+        style={{ 
+          scrollbarWidth: 'thin',
+          paddingLeft: showScrollButtons ? '3rem' : '1.5rem',
+          paddingRight: showScrollButtons ? '3rem' : '1.5rem'
+        }}>
+        {menuItems.map((item) => (
+        <div key={item.id} className="relative group flex-shrink-0">
           <button
             onClick={() => handleMenuClick(item)}
-            className={`flex items-center gap-2 text-white hover:text-blue-300 transition-all duration-200 py-2 px-3 rounded-lg font-medium ${
+            className={`flex items-center gap-2 text-white hover:text-blue-300 transition-all duration-200 py-2 px-3 rounded-lg font-medium whitespace-nowrap ${
               activeMenu === item.id ? 'text-blue-300 bg-slate-600/50 border-b-2 border-blue-300' : ''
             }`}
           >
@@ -346,7 +402,8 @@ const Navigation = ({ menuItems, activeMenu, onMenuClick }: {
             </div>
           )}
         </div>
-      ))}
+        ))}
+      </div>
     </nav>
   );
 };
