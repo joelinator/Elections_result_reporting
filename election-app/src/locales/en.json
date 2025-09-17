@@ -23,16 +23,57 @@
     "previous": "Previous",
     "total": "Total",
     "of": "of",
-    "all": "All"
+    "all": "All",
+    "export": "Export",
+    "import": "Import",
+    "refresh": "Refresh",
+    "view": "View"
   },
   "navigation": {
     "dashboard": "Dashboard",
     "departments": "Departments",
-    "participation": "Participation",
     "results": "Results",
-    "users": "Users",
+    "participation": "Participation",
+    "reports": "Reports",
     "settings": "Settings",
-    "signOut": "Sign out"
+    "logout": "Logout"
+  },
+  "auth": {
+    "login": {
+      "title": "Sign in to Elections Platform",
+      "description": "Enter your credentials to access the election management system",
+      "username": "Username",
+      "password": "Password",
+      "rememberMe": "Remember me",
+      "forgotPassword": "Forgot your password?",
+      "signIn": "Sign In",
+      "signingIn": "Signing in...",
+      "error": "Login failed. Please check your credentials."
+    },
+    "logout": {
+      "title": "Sign out",
+      "description": "Are you sure you want to sign out?",
+      "confirm": "Sign Out",
+      "cancel": "Cancel"
+    }
+  },
+  "dashboard": {
+    "welcome": "Welcome back",
+    "overview": "Election Data Overview",
+    "stats": {
+      "totalDepartments": "Total Departments",
+      "yourDepartments": "Your Departments",
+      "dataComplete": "Data Complete",
+      "registeredVoters": "Registered Voters",
+      "avgParticipation": "Avg. Participation"
+    },
+    "progress": {
+      "title": "Data Collection Progress",
+      "overall": "Overall Completion",
+      "participation": "Participation Data",
+      "results": "Results Data",
+      "validation": "Validation"
+    }
   },
   "departments": {
     "title": "Departments Overview",
@@ -163,7 +204,10 @@
     "tryAgain": "Try Again",
     "loadingError": "Please wait while we fetch the latest information...",
     "unauthorized": "Unauthorized: User not assigned to this department",
-    "validationFailed": "Validation failed"
+    "validationFailed": "Validation failed",
+    "notFound": "The requested resource was not found",
+    "serverError": "An internal server error occurred",
+    "networkError": "Network error. Please check your connection."
   },
   "language": {
     "switch": "Switch Language",
