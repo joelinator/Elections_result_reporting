@@ -3,7 +3,7 @@
  */
 
 // Configuration de base - ajustez l'URL selon votre environnement
-const API_BASE_URL = 'http://localhost:3000/api'; // Port du projet api-crud
+const API_BASE_URL = 'https://turbo-barnacle-7pqj6gpp75jhrpww-3000.app.github.dev/api'; // Port du projet api-crud
 
 // Helper pour les appels fetch
 const apiFetch = async (endpoint: string, options: RequestInit = {}) => {
