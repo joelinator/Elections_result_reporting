@@ -20,6 +20,7 @@ import {
   type ParticipationCommune,
   type ParticipationCommuneInput
 } from '../api/participationCommuneApi';
+import { arrondissementApi, type Arrondissement as Commune } from '../api/arrondissementApi';
 
 interface Arrondissement {
   code: number;
@@ -40,6 +41,7 @@ const ParticipationCommuneManagement: React.FC<ParticipationCommuneManagementPro
   const { canViewData, canEditArrondissement, getUserRoleNames } = useTerritorialAccessControl();
   const [participations, setParticipations] = useState<ParticipationCommune[]>([]);
   const [arrondissements, setArrondissements] = useState<Arrondissement[]>([]);
+  const [communes, setCommunes] = useState<Commune[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [showCreateModal, setShowCreateModal] = useState(false);
@@ -59,6 +61,10 @@ const ParticipationCommuneManagement: React.FC<ParticipationCommuneManagementPro
       // Load participations based on user role and territorial access
       const data = await getParticipationCommuneForUser();
       setParticipations(data);
+      
+      // Load communes (arrondissements) from API
+      const communesData = await arrondissementApi.getAll();
+      setCommunes(communesData);
       
       // Extract unique arrondissements from participations
       const uniqueArrondissements = data.reduce((acc, participation) => {
@@ -545,14 +551,20 @@ const ParticipationCommuneManagement: React.FC<ParticipationCommuneManagementPro
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1">
-                      Code Commune
+                      Commune
                     </label>
-                    <input
-                      type="number"
+                    <select
                       name="codeCommune"
                       required
                       className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    />
+                    >
+                      <option value="">Sélectionner une commune</option>
+                      {communes.map((commune) => (
+                        <option key={commune.code} value={commune.code}>
+                          {commune.libelle} {commune.departement ? `(${commune.departement.libelle})` : ''}
+                        </option>
+                      ))}
+                    </select>
                   </div>
                   
                   <div>

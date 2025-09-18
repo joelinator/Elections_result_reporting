@@ -128,14 +128,14 @@ export const regionsApi = {
     apiFetch('/regions'),
 };
 
-// API pour les arrondissements
+// API pour les arrondissements (communes)
 export const arrondissementApi = {
   getAll: (filters?: { departement?: number; region?: number }): Promise<Arrondissement[]> => {
     const params = new URLSearchParams();
     if (filters?.departement) params.append('departement', filters.departement.toString());
     if (filters?.region) params.append('region', filters.region.toString());
     const queryString = params.toString() ? `?${params.toString()}` : '';
-    return apiFetch(`/arrondissement${queryString}`);
+    return apiFetch(`/territoriale/arrondissements${queryString}`);
   },
     
   getById: (id: number): Promise<Arrondissement> => 
