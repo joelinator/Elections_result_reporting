@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useTerritorialAccessControl } from '../hooks/useTerritorialAccessControl';
 import { useAuth } from '../contexts/AuthContext';
+import { commissionApi, fonctionCommissionApi, type Commission as CommissionApi, type FonctionCommission as FonctionCommissionApi } from '../api/arrondissementApi';
 
 interface MembreCommission {
   code: number;
@@ -32,8 +33,8 @@ const MembreCommissionManagement: React.FC<MembreCommissionManagementProps> = ({
   const { user } = useAuth();
   const { canViewData, canEditDepartment, getUserRoleNames } = useTerritorialAccessControl();
   const [membres, setMembres] = useState<MembreCommission[]>([]);
-  const [commissions, setCommissions] = useState<Commission[]>([]);
-  const [fonctions, setFonctions] = useState<FonctionCommission[]>([]);
+  const [commissions, setCommissions] = useState<CommissionApi[]>([]);
+  const [fonctions, setFonctions] = useState<FonctionCommissionApi[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [showCreateModal, setShowCreateModal] = useState(false);
@@ -59,8 +60,14 @@ const MembreCommissionManagement: React.FC<MembreCommissionManagementProps> = ({
       // Load membres, commissions, and fonctions from API
       // This would be replaced with actual API calls
       setMembres([]);
-      setCommissions([]);
-      setFonctions([]);
+      
+      // Load commissions and fonctions from API
+      const [commissionsData, fonctionsData] = await Promise.all([
+        commissionApi.getAll(),
+        fonctionCommissionApi.getAll()
+      ]);
+      setCommissions(commissionsData);
+      setFonctions(fonctionsData);
     } catch (err) {
       setError('Erreur lors du chargement des données');
       console.error('Error loading data:', err);
@@ -241,7 +248,7 @@ const MembreCommissionManagement: React.FC<MembreCommissionManagementProps> = ({
               <form onSubmit={(e) => {
                 e.preventDefault();
                 const formData = new FormData(e.target as HTMLFormElement);
-                const membreData: MembreCommissionInput = {
+                const membreData: Partial<MembreCommission> = {
                   code: formData.get('code') as string || '',
                   codeMembre: formData.get('codeMembre') as string || '',
                   codeCommission: formData.get('codeCommission') as string || '',
@@ -279,26 +286,38 @@ const MembreCommissionManagement: React.FC<MembreCommissionManagementProps> = ({
                   
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1">
-                      Code Commission
+                      Commission
                     </label>
-                    <input
-                      type="text"
+                    <select
                       name="codeCommission"
                       required
                       className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    />
+                    >
+                      <option value="">Sélectionner une commission</option>
+                      {commissions.map((commission) => (
+                        <option key={commission.code} value={commission.code}>
+                          {commission.libelle} {commission.departement ? `(${commission.departement.libelle})` : ''}
+                        </option>
+                      ))}
+                    </select>
                   </div>
                   
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1">
-                      Code Fonction
+                      Fonction
                     </label>
-                    <input
-                      type="text"
+                    <select
                       name="codeFonction"
                       required
                       className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    />
+                    >
+                      <option value="">Sélectionner une fonction</option>
+                      {fonctions.map((fonction) => (
+                        <option key={fonction.code} value={fonction.code}>
+                          {fonction.libelle}
+                        </option>
+                      ))}
+                    </select>
                   </div>
                   
                   <div>

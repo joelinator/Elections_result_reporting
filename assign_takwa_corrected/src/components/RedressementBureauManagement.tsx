@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useTerritorialAccessControl } from '../hooks/useTerritorialAccessControl';
 import { useAuth } from '../contexts/AuthContext';
+import { bureauVoteApi, type BureauVote as BureauVoteApi } from '../api/arrondissementApi';
 
 interface RedressementBureau {
   code: number;
@@ -33,7 +34,7 @@ const RedressementBureauManagement: React.FC<RedressementBureauManagementProps> 
   const { user } = useAuth();
   const { canViewData, canEditBureauVote, getUserRoleNames } = useTerritorialAccessControl();
   const [redressements, setRedressements] = useState<RedressementBureau[]>([]);
-  const [bureauxVote, setBureauxVote] = useState<BureauVote[]>([]);
+  const [bureauxVote, setBureauxVote] = useState<BureauVoteApi[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [showCreateModal, setShowCreateModal] = useState(false);
@@ -59,7 +60,10 @@ const RedressementBureauManagement: React.FC<RedressementBureauManagementProps> 
       // Load redressements and bureaux vote from API
       // This would be replaced with actual API calls
       setRedressements([]);
-      setBureauxVote([]);
+      
+      // Load bureaux de vote from API
+      const bureauxVoteData = await bureauVoteApi.getAll();
+      setBureauxVote(bureauxVoteData);
     } catch (err) {
       setError('Erreur lors du chargement des données');
       console.error('Error loading data:', err);
@@ -298,7 +302,7 @@ const RedressementBureauManagement: React.FC<RedressementBureauManagementProps> 
               <form onSubmit={(e) => {
                 e.preventDefault();
                 const formData = new FormData(e.target as HTMLFormElement);
-                const redressementData: RedressementBureauInput = {
+                const redressementData: Partial<RedressementBureau> = {
                   codeBureauVote: parseInt(formData.get('codeBureauVote') as string) || 0,
                   nombreInscritInitial: parseInt(formData.get('nombreInscritInitial') as string) || 0,
                   nombreInscritRedresse: parseInt(formData.get('nombreInscritRedresse') as string) || 0,
@@ -320,14 +324,20 @@ const RedressementBureauManagement: React.FC<RedressementBureauManagementProps> 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1">
-                      Code Bureau de Vote
+                      Bureau de Vote
                     </label>
-                    <input
-                      type="number"
+                    <select
                       name="codeBureauVote"
                       required
                       className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    />
+                    >
+                      <option value="">Sélectionner un bureau de vote</option>
+                      {bureauxVote.map((bureau) => (
+                        <option key={bureau.code} value={bureau.code}>
+                          {bureau.designation} {bureau.arrondissement ? `(${bureau.arrondissement.libelle})` : ''}
+                        </option>
+                      ))}
+                    </select>
                   </div>
                   
                   <div>

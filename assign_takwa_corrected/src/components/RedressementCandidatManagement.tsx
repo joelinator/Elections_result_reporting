@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useTerritorialAccessControl } from '../hooks/useTerritorialAccessControl';
 import { useAuth } from '../contexts/AuthContext';
+import { candidatApi, bureauVoteApi, type Candidat, type BureauVote } from '../api/arrondissementApi';
 
 interface RedressementCandidat {
   code: number;
@@ -34,6 +35,7 @@ const RedressementCandidatManagement: React.FC<RedressementCandidatManagementPro
   const { user } = useAuth();
   const { canViewData, canEditBureauVote, getUserRoleNames } = useTerritorialAccessControl();
   const [redressements, setRedressements] = useState<RedressementCandidat[]>([]);
+  const [candidats, setCandidats] = useState<Candidat[]>([]);
   const [bureauxVote, setBureauxVote] = useState<BureauVote[]>([]);
   const [partis, setPartis] = useState<PartiPolitique[]>([]);
   const [loading, setLoading] = useState(true);
@@ -61,8 +63,15 @@ const RedressementCandidatManagement: React.FC<RedressementCandidatManagementPro
       // Load redressements, bureaux vote, and partis from API
       // This would be replaced with actual API calls
       setRedressements([]);
-      setBureauxVote([]);
       setPartis([]);
+      
+      // Load candidats and bureaux de vote from API
+      const [candidatsData, bureauxVoteData] = await Promise.all([
+        candidatApi.getAll(),
+        bureauVoteApi.getAll()
+      ]);
+      setCandidats(candidatsData);
+      setBureauxVote(bureauxVoteData);
     } catch (err) {
       setError('Erreur lors du chargement des données');
       console.error('Error loading data:', err);
@@ -303,26 +312,38 @@ const RedressementCandidatManagement: React.FC<RedressementCandidatManagementPro
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1">
-                      Code Candidat
+                      Candidat
                     </label>
-                    <input
-                      type="number"
+                    <select
                       name="codeCandidat"
                       required
                       className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    />
+                    >
+                      <option value="">Sélectionner un candidat</option>
+                      {candidats.map((candidat) => (
+                        <option key={candidat.code} value={candidat.code}>
+                          {candidat.noms_prenoms || `Candidat ${candidat.code}`}
+                        </option>
+                      ))}
+                    </select>
                   </div>
                   
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1">
-                      Code Bureau de Vote
+                      Bureau de Vote
                     </label>
-                    <input
-                      type="number"
+                    <select
                       name="codeBureauVote"
                       required
                       className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    />
+                    >
+                      <option value="">Sélectionner un bureau de vote</option>
+                      {bureauxVote.map((bureau) => (
+                        <option key={bureau.code} value={bureau.code}>
+                          {bureau.designation} {bureau.arrondissement ? `(${bureau.arrondissement.libelle})` : ''}
+                        </option>
+                      ))}
+                    </select>
                   </div>
                   
                   <div>

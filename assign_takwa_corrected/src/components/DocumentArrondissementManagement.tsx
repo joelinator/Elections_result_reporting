@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { useTerritorialAccessControl } from '../hooks/useTerritorialAccessControl';
 import { useAuth } from '../contexts/AuthContext';
+import { arrondissementApi, type Arrondissement as Commune } from '../api/arrondissementApi';
 
 interface DocumentArrondissement {
   code: number;
@@ -28,6 +29,7 @@ const DocumentArrondissementManagement: React.FC<DocumentArrondissementManagemen
   const { canViewData, canEditArrondissement, getUserRoleNames } = useTerritorialAccessControl();
   const [documents, setDocuments] = useState<DocumentArrondissement[]>([]);
   const [arrondissements, setArrondissements] = useState<Arrondissement[]>([]);
+  const [communes, setCommunes] = useState<Commune[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [showCreateModal, setShowCreateModal] = useState(false);
@@ -44,6 +46,10 @@ const DocumentArrondissementManagement: React.FC<DocumentArrondissementManagemen
       // This would be replaced with actual API calls
       setDocuments([]);
       setArrondissements([]);
+      
+      // Load communes (arrondissements) from API
+      const communesData = await arrondissementApi.getAll();
+      setCommunes(communesData);
     } catch (err) {
       setError('Erreur lors du chargement des données');
       console.error('Error loading data:', err);
@@ -307,14 +313,20 @@ const DocumentArrondissementManagement: React.FC<DocumentArrondissementManagemen
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1">
-                      Code Arrondissement
+                      Commune
                     </label>
-                    <input
-                      type="number"
+                    <select
                       name="codeArrondissement"
                       required
                       className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    />
+                    >
+                      <option value="">Sélectionner une commune</option>
+                      {communes.map((commune) => (
+                        <option key={commune.code} value={commune.code}>
+                          {commune.libelle} {commune.departement ? `(${commune.departement.libelle})` : ''}
+                        </option>
+                      ))}
+                    </select>
                   </div>
                   
                   <div>

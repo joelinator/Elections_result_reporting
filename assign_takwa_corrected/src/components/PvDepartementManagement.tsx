@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useTerritorialAccessControl } from '../hooks/useTerritorialAccessControl';
 import { useAuth } from '../contexts/AuthContext';
+import { departementApi, type Departement } from '../api/arrondissementApi';
 
 interface PvDepartement {
   code: number;
@@ -50,7 +51,10 @@ const PvDepartementManagement: React.FC<PvDepartementManagementProps> = ({ class
       // Load PVs and departements from API
       // This would be replaced with actual API calls
       setPvs([]);
-      setDepartements([]);
+      
+      // Load départements from API
+      const departementsData = await departementApi.getAll();
+      setDepartements(departementsData);
     } catch (err) {
       setError('Erreur lors du chargement des données');
       console.error('Error loading data:', err);
@@ -257,14 +261,20 @@ const PvDepartementManagement: React.FC<PvDepartementManagementProps> = ({ class
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1">
-                      Code Département
+                      Département
                     </label>
-                    <input
-                      type="number"
+                    <select
                       name="codeDepartement"
                       required
                       className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    />
+                    >
+                      <option value="">Sélectionner un département</option>
+                      {departements.map((departement) => (
+                        <option key={departement.code} value={departement.code}>
+                          {departement.libelle} {departement.region ? `(${departement.region.libelle})` : ''}
+                        </option>
+                      ))}
+                    </select>
                   </div>
                   
                   <div>

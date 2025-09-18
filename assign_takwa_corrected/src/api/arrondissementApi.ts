@@ -98,6 +98,59 @@ export interface Arrondissement {
   pvArrondissements?: DocumentArrondissement[];
 }
 
+export interface Candidat {
+  code: number;
+  noms_prenoms?: string;
+  photo?: string;
+  date_creation?: string;
+  date_modification?: string;
+  code_createur?: string;
+  code_modificateur?: string;
+}
+
+export interface BureauVote {
+  code: number;
+  designation: string;
+  description?: string;
+  latitude?: number;
+  longitude?: number;
+  effectif?: number;
+  code_arrondissement?: number;
+  arrondissement?: {
+    code: number;
+    libelle: string;
+    abbreviation?: string;
+    departement?: {
+      code: number;
+      libelle: string;
+      abbreviation?: string;
+      region?: {
+        code: number;
+        libelle: string;
+        abbreviation?: string;
+      };
+    };
+  };
+}
+
+export interface Commission {
+  code: string;
+  libelle: string;
+  description?: string;
+  code_departement?: number;
+  date_creation?: string;
+  date_modification?: string;
+  departement?: Departement;
+}
+
+export interface FonctionCommission {
+  code: string;
+  libelle: string;
+  description?: string;
+  date_creation?: string;
+  date_modification?: string;
+}
+
 export interface DocumentArrondissement {
   code: number;
   code_arrondissement: number;
@@ -126,6 +179,41 @@ export interface DocumentArrondissement {
 export const regionsApi = {
   getAll: (): Promise<Region[]> => 
     apiFetch('/regions'),
+};
+
+// API pour les départements
+export const departementApi = {
+  getAll: (): Promise<Departement[]> => 
+    apiFetch('/departements'),
+};
+
+// API pour les candidats
+export const candidatApi = {
+  getAll: (): Promise<Candidat[]> => 
+    apiFetch('/candidats'),
+};
+
+// API pour les bureaux de vote
+export const bureauVoteApi = {
+  getAll: (filters?: { arrondissement?: number; departement?: number }): Promise<BureauVote[]> => {
+    const params = new URLSearchParams();
+    if (filters?.arrondissement) params.append('arrondissement', filters.arrondissement.toString());
+    if (filters?.departement) params.append('departement', filters.departement.toString());
+    const queryString = params.toString() ? `?${params.toString()}` : '';
+    return apiFetch(`/bureaux-vote${queryString}`);
+  },
+};
+
+// API pour les commissions
+export const commissionApi = {
+  getAll: (): Promise<Commission[]> => 
+    apiFetch('/commission-departementale'),
+};
+
+// API pour les fonctions de commission
+export const fonctionCommissionApi = {
+  getAll: (): Promise<FonctionCommission[]> => 
+    apiFetch('/fonction-commission'),
 };
 
 // API pour les arrondissements (communes)
