@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test des Rôles - Administration</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .test-section {
+            background: white;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .role-test {
+            border: 1px solid #ddd;
+            padding: 15px;
+            margin: 10px 0;
+            border-radius: 5px;
+        }
+        .admin { background-color: #e8f5e8; border-left: 4px solid #4caf50; }
+        .non-admin { background-color: #ffe8e8; border-left: 4px solid #f44336; }
+        .expected { font-weight: bold; color: #2e7d32; }
+        .actual { font-weight: bold; color: #d32f2f; }
+        .success { color: #4caf50; }
+        .error { color: #f44336; }
+    </style>
+</head>
+<body>
+    <h1>Test des Rôles - Vues d'Administration</h1>
+    
+    <div class="test-section">
+        <h2>Résumé de l'implémentation</h2>
+        <p>✅ <strong>Restrictions de rôles implémentées :</strong></p>
+        <ul>
+            <li>Seuls les utilisateurs avec le rôle "Administrateur" (code: 1) peuvent accéder aux vues d'administration</li>
+            <li>Le menu Administration n'est visible que pour les administrateurs</li>
+            <li>Chaque vue d'administration est protégée par <code>ProtectedRoute</code> avec <code>requiredRoles={[1]}</code></li>
+            <li>Les vues d'administration fonctionnent au niveau départemental</li>
+        </ul>
+    </div>
+
+    <div class="test-section">
+        <h2>Vues d'Administration Protégées</h2>
+        <div class="role-test admin">
+            <h3>✅ Administrateur (code: 1)</h3>
+            <p><strong>Accès autorisé :</strong></p>
+            <ul>
+                <li>Gestion des Commissions</li>
+                <li>Gestion des Arrondissements</li>
+                <li>Participations Départementales</li>
+                <li>Gestion des Redressements</li>
+                <li>Résultats par Département</li>
+                <li>PV par Département</li>
+            </ul>
+        </div>
+
+        <div class="role-test non-admin">
+            <h3>❌ Autres rôles (Validateur, Observateur, etc.)</h3>
+            <p><strong>Accès refusé :</strong></p>
+            <ul>
+                <li>Menu Administration masqué</li>
+                <li>Redirection vers page non autorisée si tentative d'accès direct</li>
+                <li>Message d'erreur approprié affiché</li>
+            </ul>
+        </div>
+    </div>
+
+    <div class="test-section">
+        <h2>Logique de Filtrage du Menu</h2>
+        <pre><code>// Dans App.tsx - Filtrage du menu par rôle
+const menuItems: MenuItem[] = useMemo(() => {
+  if (isAdmin) {
+    // Administrateurs voient tous les éléments y compris l'administration
+    return fullMenuItems;
+  }
+  // Autres rôles voient seulement leurs vues autorisées
+  // (sans le menu Administration)
+}, [isAdmin, ...]);
+</code></pre>
+    </div>
+
+    <div class="test-section">
+        <h2>Protection des Vues</h2>
+        <pre><code>// Exemple pour la vue Commissions
+case 'commissions':
+  return (
+    &lt;ProtectedRoute requiredRoles={[1]}&gt;
+      &lt;CommissionManagement className="max-w-7xl mx-auto" /&gt;
+    &lt;/ProtectedRoute&gt;
+  );
+</code></pre>
+    </div>
+
+    <div class="test-section">
+        <h2>Fonctionnement Départemental</h2>
+        <p>✅ <strong>Les vues d'administration fonctionnent au niveau départemental :</strong></p>
+        <ul>
+            <li>Filtrage par région et département</li>
+            <li>Gestion des données territoriales</li>
+            <li>APIs backend existantes et fonctionnelles</li>
+            <li>Composants React complets avec CRUD</li>
+        </ul>
+    </div>
+
+    <div class="test-section">
+        <h2>APIs Backend Disponibles</h2>
+        <p>✅ <strong>Tous les endpoints nécessaires existent :</strong></p>
+        <ul>
+            <li><code>/api/commission-departementale</code> - Gestion des commissions</li>
+            <li><code>/api/arrondissement</code> - Gestion des arrondissements</li>
+            <li><code>/api/participation-departement</code> - Participations départementales</li>
+            <li><code>/api/redressement-*</code> - Gestion des redressements</li>
+            <li><code>/api/resultats-departement</code> - Résultats par département</li>
+            <li><code>/api/pv-departement</code> - PV par département</li>
+        </ul>
+    </div>
+
+    <div class="test-section">
+        <h2>Test de Validation</h2>
+        <p>Pour tester l'implémentation :</p>
+        <ol>
+            <li>Connectez-vous avec un compte administrateur → Le menu Administration doit être visible</li>
+            <li>Connectez-vous avec un autre rôle → Le menu Administration doit être masqué</li>
+            <li>Tentez d'accéder directement à une URL d'administration avec un rôle non-admin → Redirection vers page d'erreur</li>
+            <li>Vérifiez que les vues d'administration fonctionnent correctement avec un compte admin</li>
+        </ol>
+    </div>
+
+    <div class="test-section success">
+        <h2>✅ Implémentation Terminée</h2>
+        <p>L'intégration des rôles pour les vues d'administration est maintenant complète et suit la même logique que les autres vues de l'application.</p>
+    </div>
+</body>
+</html>
