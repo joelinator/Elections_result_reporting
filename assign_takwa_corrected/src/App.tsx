@@ -5122,6 +5122,7 @@ function AppContent() {
     };
     
     const roleNames = getUserRoleNames();
+    const isAdmin = roleNames.includes('administrateur');
     const isValidator = roleNames.includes('validateur');
     const isScrutateur = roleNames.includes('scrutateur');
     const isLocalObserver = roleNames.includes('observateur-local');
@@ -5129,7 +5130,9 @@ function AppContent() {
     const isSuperviseurDepartementale = roleNames.includes('superviseur-departementale');
     const isSuperviseurCommunale = roleNames.includes('superviseur-communale');
     
-    if (isValidator) {
+    if (isAdmin) {
+      return 'dashboard'; // Admins start with dashboard
+    } else if (isValidator) {
       return 'polling-stations'; // Validators go directly to validation
     } else if (isLocalObserver) {
       return 'synthesis-departemental'; // Local observers go directly to departmental synthesis
@@ -5140,9 +5143,9 @@ function AppContent() {
     } else if (isSuperviseurCommunale) {
       return 'synthesis-communal'; // Communal supervisors go directly to communal synthesis
     } else if (isScrutateur) {
-      return 'submission'; // Communal supervisors go directly to communal synthesis
+      return 'submission'; // Scrutateurs go directly to submission
     } else {
-      return 'dashboard'; // Admins and observers see dashboard
+      return 'dashboard'; // Default fallback
     }
   };
   
@@ -5307,7 +5310,7 @@ function AppContent() {
   // Filter menu by role (memoized) with submenu support
   const menuItems: MenuItem[] = useMemo(() => {
     if (isAdmin) {
-      // Administrateurs can see all items
+      // Administrateurs can see all items - return full menu without filtering
       return fullMenuItems;
     }
     if (isValidator) {
@@ -5529,13 +5532,28 @@ function AppContent() {
         return <DocumentArrondissementManagement className="max-w-7xl mx-auto" />;
       case 'participation-commune':
         return <ParticipationCommuneManagement className="max-w-7xl mx-auto" />;
+      // Handle parent menu items that don't have direct content
+      case 'results':
+        return <PollingStationsPage />; // Default to first child
+      case 'synthesis':
+        return <SynthesisPage />; // Default to regional synthesis
+      case 'departmental-management':
+        return <ResultatDepartementManagement className="max-w-7xl mx-auto" />; // Default to first child
+      case 'bureau-management':
+        return <RedressementBureauManagement className="max-w-7xl mx-auto" />; // Default to first child
+      case 'arrondissement-management':
+        return <ArrondissementManagement className="max-w-7xl mx-auto" />; // Default to first child
+      case 'reports':
+        return <ReportsComponent />;
       default:
+        console.log('Unknown menu item:', activeMenu);
         return (
           <div className="flex items-center justify-center h-96">
             <div className="text-center">
               <i className="fas fa-tools text-6xl text-gray-400 mb-6"></i>
               <h2 className="text-2xl font-semibold text-gray-700 mb-3">Page en construction</h2>
               <p className="max-w-md">Cette fonctionnalité sera bientôt disponible. Notre équipe travaille activement sur son développement.</p>
+              <p className="text-sm text-gray-400 mt-2">Menu ID: {activeMenu}</p>
             </div>
           </div>
         );
