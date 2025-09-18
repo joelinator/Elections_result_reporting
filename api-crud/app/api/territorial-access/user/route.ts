@@ -1,16 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
+import { addCorsHeaders, createCorsPreflightResponse } from '@/lib/cors'
 
 // Handle CORS preflight requests
-export async function OPTIONS() {
-  return new NextResponse(null, {
-    status: 200,
-    headers: {
-      'Access-Control-Allow-Origin': '*',
-      'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
-      'Access-Control-Allow-Headers': 'Content-Type, Authorization',
-    },
-  })
+export async function OPTIONS(request: NextRequest) {
+  return createCorsPreflightResponse(request)
 }
 
 // GET /api/territorial-access/user - Get user's territorial access
@@ -124,15 +118,13 @@ export async function GET(request: NextRequest) {
     }
 
     const response = NextResponse.json(territorialAccess)
-    response.headers.set('Access-Control-Allow-Origin', '*')
-    return response
+    return addCorsHeaders(request, response)
   } catch (error) {
     console.error('Error fetching territorial access:', error)
     const response = NextResponse.json(
       { error: 'Failed to fetch territorial access' },
       { status: 500 }
     )
-    response.headers.set('Access-Control-Allow-Origin', '*')
-    return response
+    return addCorsHeaders(request, response)
   }
 }
