@@ -64,13 +64,23 @@ export const getAllParticipationCommune = async (): Promise<ParticipationCommune
     });
 
     if (!response.ok) {
-      throw new Error('Failed to fetch participation commune data');
+      if (response.status === 401) {
+        console.warn('API authentication failed, returning empty data');
+        return [];
+      }
+      if (response.status === 404) {
+        console.warn('API endpoint not found, returning empty data');
+        return [];
+      }
+      throw new Error(`Failed to fetch participation commune data: ${response.status}`);
     }
 
     return await parseJsonResponse(response);
   } catch (error) {
     console.error('Error fetching participation commune data:', error);
-    throw error;
+    // Return empty array instead of throwing to prevent app crashes
+    console.warn('Returning empty data due to API error');
+    return [];
   }
 };
 
@@ -86,13 +96,23 @@ export const getParticipationCommuneByArrondissement = async (arrondissementCode
     });
 
     if (!response.ok) {
-      throw new Error('Failed to fetch participation commune data for arrondissement');
+      if (response.status === 401) {
+        console.warn('API authentication failed, returning empty data');
+        return [];
+      }
+      if (response.status === 404) {
+        console.warn('API endpoint not found, returning empty data');
+        return [];
+      }
+      throw new Error(`Failed to fetch participation commune data for arrondissement: ${response.status}`);
     }
 
-    return await response.json();
+    return await parseJsonResponse(response);
   } catch (error) {
     console.error('Error fetching participation commune data for arrondissement:', error);
-    throw error;
+    // Return empty array instead of throwing to prevent app crashes
+    console.warn('Returning empty data due to API error');
+    return [];
   }
 };
 
@@ -108,13 +128,23 @@ export const getParticipationCommuneForUser = async (): Promise<ParticipationCom
     });
 
     if (!response.ok) {
-      throw new Error('Failed to fetch user participation commune data');
+      if (response.status === 401) {
+        console.warn('API authentication failed, returning empty data');
+        return [];
+      }
+      if (response.status === 404) {
+        console.warn('API endpoint not found, returning empty data');
+        return [];
+      }
+      throw new Error(`Failed to fetch user participation commune data: ${response.status}`);
     }
 
     return await parseJsonResponse(response);
   } catch (error) {
     console.error('Error fetching user participation commune data:', error);
-    throw error;
+    // Return empty array instead of throwing to prevent app crashes
+    console.warn('Returning empty data due to API error');
+    return [];
   }
 };
 
