@@ -13,7 +13,7 @@ const getAuthToken = () => {
 };
 
 // Helper pour les appels fetch
-const apiFetch = async (endpoint: string) => {
+export const apiFetch = async (endpoint: string) => {
   const url = `${BASE_URL}${endpoint}`;
   const token = getAuthToken();
   
@@ -47,7 +47,7 @@ const apiFetch = async (endpoint: string) => {
 };
 
 // Helper pour les appels POST/PUT/PATCH
-const apiMutate = async (endpoint: string, method: 'POST' | 'PUT' | 'PATCH' = 'POST', data?: any) => {
+export const apiMutate = async (endpoint: string, method: 'POST' | 'PUT' | 'PATCH' = 'POST', data?: any) => {
   const url = `${BASE_URL}${endpoint}`;
   const token = getAuthToken();
   
