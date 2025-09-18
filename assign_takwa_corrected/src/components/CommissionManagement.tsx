@@ -13,15 +13,37 @@ import {
   type MembreCommission,
   type Departement
 } from '../api/commissionApi';
+import { useAuth } from '../contexts/AuthContext';
 
 interface CommissionManagementProps {
   className?: string;
 }
 
 export const CommissionManagement: React.FC<CommissionManagementProps> = ({ className = '' }) => {
+  const { user, hasRole } = useAuth();
   const [activeTab, setActiveTab] = useState<'commissions' | 'fonctions' | 'membres'>('commissions');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  // Vérifier les permissions - seuls les administrateurs peuvent accéder
+  if (!user || !hasRole([1])) { // 1 = Administrateur
+    return (
+      <div className={`flex items-center justify-center p-8 ${className}`}>
+        <div className="text-center">
+          <div className="w-20 h-20 bg-gradient-to-br from-red-500 to-red-600 rounded-full flex items-center justify-center mx-auto mb-6">
+            <i className="fas fa-exclamation-triangle text-white text-2xl"></i>
+          </div>
+          <h2 className="text-2xl font-bold text-gray-900 mb-4">Accès refusé</h2>
+          <p className="text-gray-600 mb-6">
+            Seuls les administrateurs peuvent accéder à la gestion des commissions.
+          </p>
+          <p className="text-sm text-gray-500">
+            Votre rôle actuel ne vous permet pas d'accéder à cette fonctionnalité.
+          </p>
+        </div>
+      </div>
+    );
+  }
 
   // États pour les données
   const [commissions, setCommissions] = useState<CommissionDepartementale[]>([]);

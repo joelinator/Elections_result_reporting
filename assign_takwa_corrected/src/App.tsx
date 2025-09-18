@@ -1126,7 +1126,7 @@ const Dashboard = () => {
             </thead>
             <tbody className="bg-white divide-y divide-gray-200">
               {sortedNationalResults?.map((result: PartyResult) => {
-                // const totalVotes = result.votes;
+                const totalVotes = result.votes;
                 
                 // Create dynamic mapping for this render cycle
                 const regionWithResults = effectiveRegionsData?.find((r: any) => Object.keys(r.results || {}).length > 0);
@@ -5196,8 +5196,8 @@ function AppContent() {
   // Filter menu by role (memoized)
   const menuItems: MenuItem[] = useMemo(() => {
     if (isAdmin) {
-      // Administrateurs can see all items including administration
-      return fullMenuItems;
+      // Administrateurs can see all items except departmental and communal synthesis
+      return fullMenuItems.filter(item => !['synthesis-departemental', 'synthesis-communal','reports'].includes(item.id));
     }
     if (isValidator) {
       // Validateurs can see validation and regional synthesis only 
@@ -5273,41 +5273,17 @@ function AppContent() {
       case 'reports':
         return <ReportsComponent />; 
       case 'commissions':
-        return (
-          <ProtectedRoute requiredRoles={[1]}>
-            <CommissionManagement className="max-w-7xl mx-auto" />
-          </ProtectedRoute>
-        );
+        return <CommissionManagement className="max-w-7xl mx-auto" />;
       case 'arrondissements':
-        return (
-          <ProtectedRoute requiredRoles={[1]}>
-            <ArrondissementManagement className="max-w-7xl mx-auto" />
-          </ProtectedRoute>
-        );
+        return <ArrondissementManagement className="max-w-7xl mx-auto" />;
       case 'participations':
-        return (
-          <ProtectedRoute requiredRoles={[1]}>
-            <ParticipationManagement className="max-w-7xl mx-auto" />
-          </ProtectedRoute>
-        );
+        return <ParticipationManagement className="max-w-7xl mx-auto" />;
       case 'redressements':
-        return (
-          <ProtectedRoute requiredRoles={[1]}>
-            <RedressementManagement className="max-w-7xl mx-auto" />
-          </ProtectedRoute>
-        );
+        return <RedressementManagement className="max-w-7xl mx-auto" />;
       case 'resultats-departement':
-        return (
-          <ProtectedRoute requiredRoles={[1]}>
-            <ResultatsDepartementManagement className="max-w-7xl mx-auto" />
-          </ProtectedRoute>
-        );
+        return <ResultatsDepartementManagement className="max-w-7xl mx-auto" />;
       case 'pv-departement':
-        return (
-          <ProtectedRoute requiredRoles={[1]}>
-            <PvDepartementManagement className="max-w-7xl mx-auto" />
-          </ProtectedRoute>
-        );
+        return <PvDepartementManagement className="max-w-7xl mx-auto" />;
       case 'synthesis': 
         return <SynthesisPage />;
       case 'synthesis-departemental':
