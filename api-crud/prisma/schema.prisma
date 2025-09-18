@@ -308,7 +308,7 @@ model ResultatDepartement {
   date_creation     String?
   departement       Departement           @relation(fields: [code_departement], references: [code])
   parti             PartiPolitique        @relation(fields: [code_parti], references: [code])
-  candidat          Candidat              @relation(fields: [code_candidat, references: [code]])
+  candidat          Candidat              @relation(fields: [code_candidat], references: [code])
   @@map("resultat_departement")
 }
 
