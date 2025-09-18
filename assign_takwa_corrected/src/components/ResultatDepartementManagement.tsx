@@ -7,9 +7,9 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { 
   resultatDepartementApi, 
   roleBasedResultatDepartementApi,
-  ResultatDepartement, 
-  ResultatDepartementInput,
-  ResultatDepartementFilters 
+  type ResultatDepartement, 
+  type ResultatDepartementInput,
+  type ResultatDepartementFilters 
 } from '../api/resultatDepartementApi';
 import { usePermissions } from '../hooks/usePermissions';
 import { EntityType, ActionType } from '../types/roles';
