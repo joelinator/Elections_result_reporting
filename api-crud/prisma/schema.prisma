@@ -87,6 +87,7 @@ model Departement {
   participationDepartements ParticipationDepartement[]
   resultatDepartements ResultatDepartement[]
   utilisateurDepartements UtilisateurDepartement[]
+  pvDepartements PvDepartement[]
 }
 
 model FonctionCommission {
@@ -180,6 +181,16 @@ model PvArrondissement {
   libelle           String?
   timestamp         DateTime              @default(now())
   arrondissement    Arrondissement        @relation(fields: [code_arrondissement], references: [code])
+}
+
+model PvDepartement {
+  code              Int                   @id @default(autoincrement())
+  code_departement  Int
+  url_pv            String?
+  hash_file         String?
+  libelle           String?
+  timestamp         DateTime              @default(now())
+  departement       Departement           @relation(fields: [code_departement], references: [code])
 }
 
 model RedressementBureauVote {

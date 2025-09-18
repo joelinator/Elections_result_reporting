@@ -70,6 +70,7 @@ import ArrondissementManagement from './components/ArrondissementManagement'
 import ParticipationManagement from './components/ParticipationManagement'
 import RedressementManagement from './components/RedressementManagement'
 import ResultatsDepartementManagement from './components/ResultatsDepartementManagement'
+import PvDepartementManagement from './components/PvDepartementManagement'
 
 // Utility function to clean PV URLs by removing '/uploads' part
 const cleanPVUrl = (url: string): string => {
@@ -5214,6 +5215,11 @@ function AppContent() {
           id: 'resultats-departement',
           label: 'Résultats par Département',
           icon: 'fas fa-chart-bar'
+        },
+        {
+          id: 'pv-departement',
+          label: 'PV par Département',
+          icon: 'fas fa-file-pdf'
         }
       ]
     }
@@ -5331,6 +5337,8 @@ function AppContent() {
         return <RedressementManagement className="max-w-7xl mx-auto" />;
       case 'resultats-departement':
         return <ResultatsDepartementManagement className="max-w-7xl mx-auto" />;
+      case 'pv-departement':
+        return <PvDepartementManagement className="max-w-7xl mx-auto" />;
       case 'synthesis': 
         return <SynthesisPage />;
       case 'synthesis-departemental':
