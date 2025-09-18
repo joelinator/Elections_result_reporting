@@ -5185,24 +5185,31 @@ function AppContent() {
       
     },
     {
-      id: 'commissions',
-      label: 'Gestion des Commissions',
-      icon: 'fas fa-users-cog'
-    },
-    {
-      id: 'arrondissements',
-      label: 'Gestion des Arrondissements',
-      icon: 'fas fa-map-marked-alt'
-    },
-    {
-      id: 'participations',
-      label: 'Participations Départementales',
-      icon: 'fas fa-chart-pie'
-    },
-    {
-      id: 'redressements',
-      label: 'Gestion des Redressements',
-      icon: 'fas fa-edit'
+      id: 'administration',
+      label: 'Administration',
+      icon: 'fas fa-cogs',
+      children: [
+        {
+          id: 'commissions',
+          label: 'Gestion des Commissions',
+          icon: 'fas fa-users-cog'
+        },
+        {
+          id: 'arrondissements',
+          label: 'Gestion des Arrondissements',
+          icon: 'fas fa-map-marked-alt'
+        },
+        {
+          id: 'participations',
+          label: 'Participations Départementales',
+          icon: 'fas fa-chart-pie'
+        },
+        {
+          id: 'redressements',
+          label: 'Gestion des Redressements',
+          icon: 'fas fa-edit'
+        }
+      ]
     }
   ];
 
