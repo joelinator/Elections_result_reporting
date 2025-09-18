@@ -16,16 +16,17 @@ export async function OPTIONS() {
 // POST /api/participation-commune/[id]/reject - Reject participation commune data
 export async function POST(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const id = parseInt(params.id)
+    const { id } = await params
+    const participationId = parseInt(id)
     const body = await request.json()
     const { reason } = body
 
     // Find the participation commune record
     const participation = await prisma.participationCommune.findUnique({
-      where: { code: id },
+      where: { code: participationId },
       include: {
         commune: {
           select: {

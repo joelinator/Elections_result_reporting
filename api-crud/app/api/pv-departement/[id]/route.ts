@@ -10,10 +10,11 @@ export async function OPTIONS(request: NextRequest) {
 // GET /api/pv-departement/[id] - Get PV by ID
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const pvId = parseInt(params.id);
+    const { id } = await params
+    const pvId = parseInt(id);
     
     const pv = await prisma.pvDepartement.findUnique({
       where: { code: pvId },
@@ -56,28 +57,26 @@ export async function GET(
 // PUT /api/pv-departement/[id] - Update PV
 export async function PUT(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const pvId = parseInt(params.id);
+    const { id } = await params
+    const pvId = parseInt(id);
     const body = await request.json();
     const {
       code_departement,
-      numero_pv,
-      date_etablissement,
+      libelle,
       url_pv,
-      statut
+      hash_file
     } = body;
 
     const pv = await prisma.pvDepartement.update({
       where: { code: pvId },
       data: {
         code_departement: parseInt(code_departement),
-        numero_pv,
-        date_etablissement,
+        libelle,
         url_pv,
-        statut,
-        date_modification: new Date().toISOString()
+        hash_file
       },
       include: {
         departement: {
@@ -110,10 +109,11 @@ export async function PUT(
 // DELETE /api/pv-departement/[id] - Delete PV
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const pvId = parseInt(params.id);
+    const { id } = await params
+    const pvId = parseInt(id);
     
     await prisma.pvDepartement.delete({
       where: { code: pvId }

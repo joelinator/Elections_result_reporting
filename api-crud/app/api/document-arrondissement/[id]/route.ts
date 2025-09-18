@@ -11,10 +11,11 @@ export async function OPTIONS(request: NextRequest) {
 // GET /api/document-arrondissement/[id] - Get document by ID
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const documentId = parseInt(params.id);
+    const { id } = await params
+    const documentId = parseInt(id);
     
     const document = await prisma.documentArrondissement.findUnique({
       where: { code: documentId },
@@ -57,10 +58,11 @@ export async function GET(
 // PUT /api/document-arrondissement/[id] - Update document
 export async function PUT(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const documentId = parseInt(params.id);
+    const { id } = await params
+    const documentId = parseInt(id);
     
     // Extraire le fichier et les données du formulaire
     const { file, formData } = await extractFileFromRequest(request);
@@ -146,10 +148,11 @@ export async function PUT(
 // DELETE /api/document-arrondissement/[id] - Delete document
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const documentId = parseInt(params.id);
+    const { id } = await params
+    const documentId = parseInt(id);
     
     await prisma.documentArrondissement.delete({
       where: { code: documentId }

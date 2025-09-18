@@ -16,14 +16,15 @@ export async function OPTIONS() {
 // POST /api/participation-commune/[id]/validate - Validate participation commune data
 export async function POST(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const id = parseInt(params.id)
+    const { id } = await params
+    const participationId = parseInt(id)
 
     // Find the participation commune record
     const participation = await prisma.participationCommune.findUnique({
-      where: { code: id },
+      where: { code: participationId },
       include: {
         commune: {
           select: {

@@ -12,6 +12,8 @@ import {
   type Region,
   type Departement
 } from '../api/arrondissementApi';
+import { getAllPvs, createPv, updatePv, deletePv, type PvArrondissement as PvArrondissementType, type PvArrondissementInput } from '../api/pvArrondissementApi';
+import FileUpload from './FileUpload';
 import { departementsApi } from '../api/commissionApi';
 import { usePermissions } from '../hooks/usePermissions';
 import { EntityType, ActionType } from '../types/roles';
@@ -23,23 +25,26 @@ interface ArrondissementManagementProps {
 
 export const ArrondissementManagement: React.FC<ArrondissementManagementProps> = ({ className = '' }) => {
   const { canAccess, canModify, canCreate, canDelete } = usePermissions();
-  const [activeTab, setActiveTab] = useState<'arrondissements' | 'documents'>('arrondissements');
+  const [activeTab, setActiveTab] = useState<'arrondissements' | 'documents' | 'pv'>('arrondissements');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   // États pour les données
   const [arrondissements, setArrondissements] = useState<Arrondissement[]>([]);
   const [documents, setDocuments] = useState<DocumentArrondissement[]>([]);
+  const [pvs, setPvs] = useState<PvArrondissementType[]>([]);
   const [regions, setRegions] = useState<Region[]>([]);
   const [departements, setDepartements] = useState<Departement[]>([]);
 
   // États pour les modales
   const [showArrondissementModal, setShowArrondissementModal] = useState(false);
   const [showDocumentModal, setShowDocumentModal] = useState(false);
+  const [showPvModal, setShowPvModal] = useState(false);
 
   // États pour l'édition
   const [editingArrondissement, setEditingArrondissement] = useState<Arrondissement | null>(null);
   const [editingDocument, setEditingDocument] = useState<DocumentArrondissement | null>(null);
+  const [editingPv, setEditingPv] = useState<PvArrondissementType | null>(null);
 
   // Filtres
   const [selectedRegion, setSelectedRegion] = useState<number | ''>('');
@@ -62,6 +67,13 @@ export const ArrondissementManagement: React.FC<ArrondissementManagementProps> =
   useEffect(() => {
     if (activeTab === 'documents') {
       loadDocuments();
+    }
+  }, [selectedArrondissement, activeTab]);
+
+  // Rechargement des PV quand le filtre arrondissement change
+  useEffect(() => {
+    if (activeTab === 'pv') {
+      loadPvs();
     }
   }, [selectedArrondissement, activeTab]);
 
@@ -93,6 +105,9 @@ export const ArrondissementManagement: React.FC<ArrondissementManagementProps> =
       case 'documents':
         await loadDocuments();
         break;
+      case 'pv':
+        await loadPvs();
+        break;
     }
   };
 
@@ -117,6 +132,17 @@ export const ArrondissementManagement: React.FC<ArrondissementManagementProps> =
       setDocuments(data);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Erreur lors du chargement des documents');
+    }
+  };
+
+  const loadPvs = async () => {
+    try {
+      const data = await getAllPvs(
+        selectedArrondissement ? Number(selectedArrondissement) : undefined
+      );
+      setPvs(data);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Erreur lors du chargement des PV');
     }
   };
 

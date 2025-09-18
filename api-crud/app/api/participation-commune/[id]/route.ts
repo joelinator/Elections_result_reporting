@@ -16,13 +16,14 @@ export async function OPTIONS() {
 // GET /api/participation-commune/[id] - Get participation commune by ID
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const id = parseInt(params.id)
+    const { id } = await params
+    const participationId = parseInt(id)
 
     const participation = await prisma.participationCommune.findUnique({
-      where: { code: id },
+      where: { code: participationId },
       include: {
         commune: {
           select: {
@@ -73,10 +74,11 @@ export async function GET(
 // PUT /api/participation-commune/[id] - Update participation commune
 export async function PUT(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const id = parseInt(params.id)
+    const { id } = await params
+    const participationId = parseInt(id)
     const body = await request.json()
     const { 
       codeCommune,
@@ -102,7 +104,7 @@ export async function PUT(
     }
 
     const participation = await prisma.participationCommune.update({
-      where: { code: id },
+      where: { code: participationId },
       data: {
         codeCommune: codeCommune ? parseInt(codeCommune) : undefined,
         nombreBureaux: nombreBureaux !== undefined ? parseInt(nombreBureaux) : undefined,
@@ -154,13 +156,14 @@ export async function PUT(
 // DELETE /api/participation-commune/[id] - Delete participation commune
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const id = parseInt(params.id)
+    const { id } = await params
+    const participationId = parseInt(id)
 
     await prisma.participationCommune.delete({
-      where: { code: id }
+      where: { code: participationId }
     })
 
     const response = NextResponse.json({ message: 'Participation commune deleted successfully' })

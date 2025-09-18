@@ -3,12 +3,10 @@ const API_BASE_URL = process.env.REACT_APP_API_URL || 'https://turbo-barnacle-7p
 export interface PvDepartement {
   code: number;
   code_departement: number;
-  numero_pv: string;
-  date_etablissement: string;
   url_pv?: string;
-  statut: string;
-  date_creation: string;
-  date_modification: string;
+  hash_file?: string;
+  libelle?: string;
+  timestamp: string;
   departement?: {
     code: number;
     libelle: string;
