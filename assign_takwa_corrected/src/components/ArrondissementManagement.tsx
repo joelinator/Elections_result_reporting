@@ -14,6 +14,8 @@ import {
 } from '../api/arrondissementApi';
 import { getAllPvs, createPv, updatePv, deletePv, type PvArrondissement as PvArrondissementType, type PvArrondissementInput } from '../api/pvArrondissementApi';
 import FileUpload from './FileUpload';
+
+const API_BASE_URL = process.env.REACT_APP_API_URL || 'https://turbo-barnacle-7pqj6gpp75jhrpww-3000.app.github.dev';
 import { departementsApi } from '../api/commissionApi';
 import { usePermissions } from '../hooks/usePermissions';
 import { EntityType, ActionType } from '../types/roles';
@@ -146,7 +148,7 @@ export const ArrondissementManagement: React.FC<ArrondissementManagementProps> =
     }
   };
 
-  const handleTabChange = async (tab: 'arrondissements' | 'documents') => {
+  const handleTabChange = async (tab: 'arrondissements' | 'documents' | 'pv') => {
     setActiveTab(tab);
     setError(null);
     await loadDataForActiveTab();
@@ -177,6 +179,48 @@ export const ArrondissementManagement: React.FC<ArrondissementManagementProps> =
   const handleDownloadDocument = (document: DocumentArrondissement) => {
     const url = documentArrondissementApi.getDownloadUrl(document);
     if (url) {
+      window.open(url, '_blank');
+    }
+  };
+
+  // Fonctions de gestion des PV
+  const handleCreatePv = async (pvData: PvArrondissementInput) => {
+    try {
+      await createPv(pvData);
+      await loadPvs();
+      setShowPvModal(false);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Erreur lors de la création');
+    }
+  };
+
+  const handleEditPv = async (pvData: PvArrondissementInput) => {
+    if (!editingPv) return;
+    
+    try {
+      await updatePv(editingPv.code, pvData);
+      await loadPvs();
+      setShowPvModal(false);
+      setEditingPv(null);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Erreur lors de la modification');
+    }
+  };
+
+  const handleDeletePv = async (id: number) => {
+    if (!confirm('Êtes-vous sûr de vouloir supprimer ce PV ?')) return;
+    
+    try {
+      await deletePv(id);
+      await loadPvs();
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Erreur lors de la suppression');
+    }
+  };
+
+  const handleDownloadPv = (pv: PvArrondissementType) => {
+    if (pv.url_pv) {
+      const url = `${API_BASE_URL.replace('/api', '')}${pv.url_pv}`;
       window.open(url, '_blank');
     }
   };
@@ -250,6 +294,12 @@ export const ArrondissementManagement: React.FC<ArrondissementManagementProps> =
               label: 'Documents', 
               count: documents.length,
               entity: EntityType.DOCUMENT_ARRONDISSEMENT
+            },
+            { 
+              key: 'pv', 
+              label: 'PV Arrondissement', 
+              count: pvs.length,
+              entity: EntityType.DOCUMENT_ARRONDISSEMENT
             }
           ].map(({ key, label, count, entity }) => (
             <RoleBasedView
@@ -320,6 +370,31 @@ export const ArrondissementManagement: React.FC<ArrondissementManagementProps> =
             }}
           />
         )}
+
+        {activeTab === 'pv' && (
+          <PvArrondissementTab
+            pvs={pvs}
+            regions={regions}
+            departements={filteredDepartements}
+            arrondissements={filteredArrondissementsForDocuments}
+            selectedRegion={selectedRegion}
+            selectedDepartement={selectedDepartement}
+            selectedArrondissement={selectedArrondissement}
+            onRegionChange={setSelectedRegion}
+            onDepartementChange={setSelectedDepartement}
+            onArrondissementChange={setSelectedArrondissement}
+            onEdit={(pv) => {
+              setEditingPv(pv);
+              setShowPvModal(true);
+            }}
+            onDelete={handleDeletePv}
+            onDownload={handleDownloadPv}
+            onAdd={() => {
+              setEditingPv(null);
+              setShowPvModal(true);
+            }}
+          />
+        )}
       </div>
 
       {/* Modales */}
@@ -353,6 +428,18 @@ export const ArrondissementManagement: React.FC<ArrondissementManagementProps> =
             setShowDocumentModal(false);
             setEditingDocument(null);
           }}
+        />
+      )}
+
+      {showPvModal && (
+        <PvArrondissementModal
+          pv={editingPv}
+          arrondissements={arrondissements}
+          onClose={() => {
+            setShowPvModal(false);
+            setEditingPv(null);
+          }}
+          onSave={editingPv ? handleEditPv : handleCreatePv}
         />
       )}
     </div>
@@ -1003,22 +1090,313 @@ const DocumentModal: React.FC<DocumentModalProps> = ({
           </div>
           
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Fichier {!document && '*'}
-            </label>
-            <input
-              type="file"
-              onChange={(e) => setFile(e.target.files?.[0] || null)}
-              className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-              accept=".pdf,.doc,.docx,.jpg,.jpeg,.png"
+            <FileUpload
+              onFileSelect={setFile}
+              label="Fichier du document"
+              description="Formats acceptés: PDF, DOC, DOCX, JPG, JPEG, PNG (max 10MB)"
               required={!document}
             />
-            <p className="text-xs text-gray-500 mt-1">
-              Formats acceptés: PDF, DOC, DOCX, JPG, JPEG, PNG (max 10MB)
-            </p>
             {document && document.url_pv && (
               <p className="text-xs text-blue-600 mt-1">
                 Fichier actuel: {document.url_pv.split('/').pop()}
+              </p>
+            )}
+          </div>
+          
+          <div className="flex justify-end space-x-3 pt-4">
+            <button
+              type="button"
+              onClick={onClose}
+              className="px-4 py-2 text-gray-600 border border-gray-300 rounded-lg hover:bg-gray-50"
+              disabled={loading}
+            >
+              Annuler
+            </button>
+            <button
+              type="submit"
+              className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50"
+              disabled={loading}
+            >
+              {loading ? 'Enregistrement...' : 'Enregistrer'}
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  );
+};
+
+// Composant pour l'onglet PV Arrondissement
+interface PvArrondissementTabProps {
+  pvs: PvArrondissementType[];
+  regions: Region[];
+  departements: Departement[];
+  arrondissements: Arrondissement[];
+  selectedRegion: number | '';
+  selectedDepartement: number | '';
+  selectedArrondissement: number | '';
+  onRegionChange: (region: number | '') => void;
+  onDepartementChange: (departement: number | '') => void;
+  onArrondissementChange: (arrondissement: number | '') => void;
+  onEdit: (pv: PvArrondissementType) => void;
+  onDelete: (id: number) => void;
+  onDownload: (pv: PvArrondissementType) => void;
+  onAdd: () => void;
+}
+
+const PvArrondissementTab: React.FC<PvArrondissementTabProps> = ({
+  pvs,
+  regions,
+  departements,
+  arrondissements,
+  selectedRegion,
+  selectedDepartement,
+  selectedArrondissement,
+  onRegionChange,
+  onDepartementChange,
+  onArrondissementChange,
+  onEdit,
+  onDelete,
+  onDownload,
+  onAdd
+}) => {
+  return (
+    <div className="p-6">
+      {/* Filtres */}
+      <div className="mb-6 grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-1">
+            Région
+          </label>
+          <select
+            value={selectedRegion}
+            onChange={(e) => onRegionChange(e.target.value ? Number(e.target.value) : '')}
+            className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+          >
+            <option value="">Toutes les régions</option>
+            {regions.map((region) => (
+              <option key={region.code} value={region.code}>
+                {region.libelle}
+              </option>
+            ))}
+          </select>
+        </div>
+
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-1">
+            Département
+          </label>
+          <select
+            value={selectedDepartement}
+            onChange={(e) => onDepartementChange(e.target.value ? Number(e.target.value) : '')}
+            className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            disabled={!selectedRegion}
+          >
+            <option value="">Tous les départements</option>
+            {departements.map((dept) => (
+              <option key={dept.code} value={dept.code}>
+                {dept.libelle}
+              </option>
+            ))}
+          </select>
+        </div>
+
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-1">
+            Arrondissement
+          </label>
+          <select
+            value={selectedArrondissement}
+            onChange={(e) => onArrondissementChange(e.target.value ? Number(e.target.value) : '')}
+            className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            disabled={!selectedDepartement}
+          >
+            <option value="">Tous les arrondissements</option>
+            {arrondissements.map((arr) => (
+              <option key={arr.code} value={arr.code}>
+                {arr.libelle}
+              </option>
+            ))}
+          </select>
+        </div>
+      </div>
+
+      {/* Actions */}
+      <div className="mb-6 flex justify-between items-center">
+        <h3 className="text-lg font-semibold text-gray-800">
+          PV Arrondissement ({pvs.length})
+        </h3>
+        <RoleBasedButton
+          entity={EntityType.DOCUMENT_ARRONDISSEMENT}
+          action={ActionType.CREATE}
+          onClick={onAdd}
+          className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700"
+        >
+          Ajouter un PV
+        </RoleBasedButton>
+      </div>
+
+      {/* Liste des PV */}
+      <div className="space-y-4">
+        {pvs.length === 0 ? (
+          <div className="text-center py-8 text-gray-500">
+            Aucun PV trouvé pour les critères sélectionnés
+          </div>
+        ) : (
+          pvs.map((pv) => (
+            <div key={pv.code} className="border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow">
+              <div className="flex justify-between items-start">
+                <div className="flex-1">
+                  <h4 className="font-medium text-gray-900">{pv.libelle}</h4>
+                  <p className="text-sm text-gray-600 mt-1">
+                    {pv.arrondissement?.libelle} - {pv.arrondissement?.departement?.libelle}
+                  </p>
+                  <p className="text-xs text-gray-500 mt-1">
+                    Créé le {new Date(pv.timestamp).toLocaleDateString()}
+                  </p>
+                </div>
+                <div className="flex space-x-2 ml-4">
+                  {pv.url_pv && (
+                    <button
+                      onClick={() => onDownload(pv)}
+                      className="text-blue-600 hover:text-blue-800 text-sm"
+                    >
+                      Télécharger
+                    </button>
+                  )}
+                  <RoleBasedButton
+                    entity={EntityType.DOCUMENT_ARRONDISSEMENT}
+                    action={ActionType.UPDATE}
+                    onClick={() => onEdit(pv)}
+                    className="text-blue-600 hover:text-blue-800 text-sm"
+                  >
+                    Modifier
+                  </RoleBasedButton>
+                  <RoleBasedButton
+                    entity={EntityType.DOCUMENT_ARRONDISSEMENT}
+                    action={ActionType.DELETE}
+                    onClick={() => onDelete(pv.code)}
+                    className="text-red-600 hover:text-red-800 text-sm"
+                  >
+                    Supprimer
+                  </RoleBasedButton>
+                </div>
+              </div>
+            </div>
+          ))
+        )}
+      </div>
+    </div>
+  );
+};
+
+// Composant pour la modale PV Arrondissement
+interface PvArrondissementModalProps {
+  pv: PvArrondissementType | null;
+  arrondissements: Arrondissement[];
+  onClose: () => void;
+  onSave: (pvData: PvArrondissementInput) => void;
+}
+
+const PvArrondissementModal: React.FC<PvArrondissementModalProps> = ({
+  pv,
+  arrondissements,
+  onClose,
+  onSave
+}) => {
+  const [formData, setFormData] = useState({
+    libelle: pv?.libelle || '',
+    code_arrondissement: pv?.code_arrondissement || ''
+  });
+  const [file, setFile] = useState<File | null>(null);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!formData.libelle || !formData.code_arrondissement) {
+      setError('Le libellé et l\'arrondissement sont requis');
+      return;
+    }
+
+    if (!pv && !file) {
+      setError('Un fichier est requis pour un nouveau PV');
+      return;
+    }
+
+    try {
+      setLoading(true);
+      setError(null);
+      
+      await onSave({
+        libelle: formData.libelle,
+        code_arrondissement: Number(formData.code_arrondissement),
+        file: file || undefined
+      });
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Erreur lors de la sauvegarde');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+      <div className="bg-white rounded-lg p-6 w-full max-w-md">
+        <h3 className="text-lg font-semibold mb-4">
+          {pv ? 'Modifier le PV' : 'Nouveau PV'}
+        </h3>
+        
+        {error && (
+          <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded text-red-600 text-sm">
+            {error}
+          </div>
+        )}
+        
+        <form onSubmit={handleSubmit} className="space-y-4">
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Libellé *
+            </label>
+            <input
+              type="text"
+              value={formData.libelle}
+              onChange={(e) => setFormData({ ...formData, libelle: e.target.value })}
+              className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              required
+            />
+          </div>
+          
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Arrondissement *
+            </label>
+            <select
+              value={formData.code_arrondissement}
+              onChange={(e) => setFormData({ ...formData, code_arrondissement: e.target.value })}
+              className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              required
+              disabled={!!pv} // Désactiver la modification de l'arrondissement pour un PV existant
+            >
+              <option value="">Sélectionner un arrondissement</option>
+              {arrondissements.map((arr) => (
+                <option key={arr.code} value={arr.code}>
+                  {arr.libelle} ({arr.abbreviation}) - {arr.departement?.libelle}
+                </option>
+              ))}
+            </select>
+          </div>
+          
+          <div>
+            <FileUpload
+              onFileSelect={setFile}
+              label="Fichier du PV"
+              description="Formats acceptés: PDF, DOC, DOCX, JPG, JPEG, PNG (max 10MB)"
+              required={!pv}
+            />
+            {pv && pv.url_pv && (
+              <p className="text-xs text-blue-600 mt-1">
+                Fichier actuel: {pv.url_pv.split('/').pop()}
               </p>
             )}
           </div>

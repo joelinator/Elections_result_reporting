@@ -97,7 +97,7 @@ export async function PUT(
       hash_file = fileResult.hash;
     }
 
-    const updateData: any = {
+    const updateData: Record<string, unknown> = {
       libelle
     };
 
