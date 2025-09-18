@@ -69,6 +69,12 @@ import CommissionManagement from './components/CommissionManagement'
 import ArrondissementManagement from './components/ArrondissementManagement'
 import ParticipationManagement from './components/ParticipationManagement'
 import RedressementManagement from './components/RedressementManagement'
+import ResultatDepartementManagement from './components/ResultatDepartementManagement'
+import MembreCommissionManagement from './components/MembreCommissionManagement'
+import PvDepartementManagement from './components/PvDepartementManagement'
+import RedressementBureauManagement from './components/RedressementBureauManagement'
+import RedressementCandidatManagement from './components/RedressementCandidatManagement'
+import DocumentArrondissementManagement from './components/DocumentArrondissementManagement'
 
 // Utility function to clean PV URLs by removing '/uploads' part
 const cleanPVUrl = (url: string): string => {
@@ -5141,7 +5147,7 @@ function AppContent() {
   
   const [activeMenu, setActiveMenu] = useState(getInitialMenu());
 
-  // Define full menu (admin sees everything) - Compressed with submenus
+  // Define full menu (admin sees everything) - Proper submenu structure
   const fullMenuItems: MenuItem[] = [
     {
       id: 'dashboard',
@@ -5193,29 +5199,68 @@ function AppContent() {
       ]
     },
     {
-      id: 'management',
-      label: 'Gestion',
-      icon: 'fas fa-cogs',
+      id: 'departmental-management',
+      label: 'Gestion Départementale',
+      icon: 'fas fa-building',
       children: [
         {
-          id: 'commissions',
-          label: 'Commissions',
+          id: 'resultat-departement',
+          label: 'Résultats Départementaux',
+          icon: 'fas fa-chart-bar'
+        },
+        {
+          id: 'commission-departementale',
+          label: 'Commissions Départementales',
           icon: 'fas fa-users-cog'
         },
+        {
+          id: 'membre-commission',
+          label: 'Membres de Commission',
+          icon: 'fas fa-user-friends'
+        },
+        {
+          id: 'participation-departement',
+          label: 'Participations Départementales',
+          icon: 'fas fa-chart-pie'
+        },
+        {
+          id: 'pv-departement',
+          label: 'PV Départementaux',
+          icon: 'fas fa-file-pdf'
+        }
+      ]
+    },
+    {
+      id: 'bureau-management',
+      label: 'Gestion des Bureaux',
+      icon: 'fas fa-vote-yea',
+      children: [
+        {
+          id: 'redressement-bureau',
+          label: 'Redressements Bureau',
+          icon: 'fas fa-undo'
+        },
+        {
+          id: 'redressement-candidat',
+          label: 'Redressements Candidat',
+          icon: 'fas fa-user-edit'
+        }
+      ]
+    },
+    {
+      id: 'arrondissement-management',
+      label: 'Gestion Arrondissements',
+      icon: 'fas fa-map-marked-alt',
+      children: [
         {
           id: 'arrondissements',
           label: 'Arrondissements',
           icon: 'fas fa-map-marked-alt'
         },
         {
-          id: 'participations',
-          label: 'Participations',
-          icon: 'fas fa-chart-pie'
-        },
-        {
-          id: 'redressements',
-          label: 'Redressements',
-          icon: 'fas fa-undo'
+          id: 'document-arrondissement',
+          label: 'Documents Arrondissement',
+          icon: 'fas fa-file-upload'
         }
       ]
     },
@@ -5256,8 +5301,8 @@ function AppContent() {
       return fullMenuItems;
     }
     if (isValidator) {
-      // Validateurs can see results and synthesis
-      return fullMenuItems.filter(item => ['dashboard', 'results', 'synthesis'].includes(item.id))
+      // Validateurs can see results, synthesis, and departmental management (read-only)
+      return fullMenuItems.filter(item => ['dashboard', 'results', 'synthesis', 'departmental-management'].includes(item.id))
         .map(item => {
           if (item.id === 'results') {
             return {
@@ -5268,7 +5313,13 @@ function AppContent() {
           if (item.id === 'synthesis') {
             return {
               ...item,
-              children: item.children?.filter(child => ['synthesis-communal'].includes(child.id))
+              children: item.children?.filter(child => ['synthesis-departemental'].includes(child.id))
+            };
+          }
+          if (item.id === 'departmental-management') {
+            return {
+              ...item,
+              children: item.children?.filter(child => ['resultat-departement', 'commission-departementale', 'membre-commission', 'participation-departement', 'pv-departement'].includes(child.id))
             };
           }
           return item;
@@ -5279,8 +5330,8 @@ function AppContent() {
       return fullMenuItems.filter(item => ['dashboard', 'synthesis', 'reports'].includes(item.id));
     }
     if (isLocalObserver) {
-      // Observateur-local can see only departmental synthesis
-      return fullMenuItems.filter(item => ['dashboard', 'synthesis'].includes(item.id))
+      // Observateur-local can see only departmental synthesis and management (read-only)
+      return fullMenuItems.filter(item => ['dashboard', 'synthesis', 'departmental-management'].includes(item.id))
         .map(item => {
           if (item.id === 'synthesis') {
             return {
@@ -5288,12 +5339,18 @@ function AppContent() {
               children: item.children?.filter(child => ['synthesis-departemental'].includes(child.id))
             };
           }
+          if (item.id === 'departmental-management') {
+            return {
+              ...item,
+              children: item.children?.filter(child => ['resultat-departement', 'commission-departementale', 'membre-commission', 'participation-departement', 'pv-departement'].includes(child.id))
+            };
+          }
           return item;
         });
     }
     if (isScrutateur) {
-      // Scrutateurs can see only results submission
-      return fullMenuItems.filter(item => ['dashboard', 'results'].includes(item.id))
+      // Scrutateurs can see results submission and departmental management (edit access)
+      return fullMenuItems.filter(item => ['dashboard', 'results', 'departmental-management', 'bureau-management'].includes(item.id))
         .map(item => {
           if (item.id === 'results') {
             return {
@@ -5301,12 +5358,24 @@ function AppContent() {
               children: item.children?.filter(child => ['submission'].includes(child.id))
             };
           }
+          if (item.id === 'departmental-management') {
+            return {
+              ...item,
+              children: item.children?.filter(child => ['resultat-departement', 'commission-departementale', 'membre-commission', 'participation-departement', 'pv-departement'].includes(child.id))
+            };
+          }
+          if (item.id === 'bureau-management') {
+            return {
+              ...item,
+              children: item.children?.filter(child => ['redressement-bureau', 'redressement-candidat'].includes(child.id))
+            };
+          }
           return item;
         });
     }
     if (isSuperviseurRegionale) {
-      // Superviseur-Regionale can see only regional synthesis
-      return fullMenuItems.filter(item => ['dashboard', 'synthesis'].includes(item.id))
+      // Superviseur-Regionale can see regional synthesis and departmental management (edit access)
+      return fullMenuItems.filter(item => ['dashboard', 'synthesis', 'departmental-management'].includes(item.id))
         .map(item => {
           if (item.id === 'synthesis') {
             return {
@@ -5314,12 +5383,18 @@ function AppContent() {
               children: item.children?.filter(child => ['synthesis'].includes(child.id))
             };
           }
+          if (item.id === 'departmental-management') {
+            return {
+              ...item,
+              children: item.children?.filter(child => ['resultat-departement', 'commission-departementale', 'membre-commission', 'participation-departement', 'pv-departement'].includes(child.id))
+            };
+          }
           return item;
         });
     }
     if (isSuperviseurDepartementale) {
-      // Superviseur-Departementale can see synthesis and management
-      return fullMenuItems.filter(item => ['dashboard', 'synthesis', 'management'].includes(item.id))
+      // Superviseur-Departementale can see synthesis and all management (edit access)
+      return fullMenuItems.filter(item => ['dashboard', 'synthesis', 'departmental-management', 'bureau-management', 'arrondissement-management'].includes(item.id))
         .map(item => {
           if (item.id === 'synthesis') {
             return {
@@ -5327,23 +5402,41 @@ function AppContent() {
               children: item.children?.filter(child => ['synthesis-departemental'].includes(child.id))
             };
           }
-          if (item.id === 'management') {
+          if (item.id === 'departmental-management') {
             return {
               ...item,
-              children: item.children?.filter(child => ['commissions', 'participations', 'redressements'].includes(child.id))
+              children: item.children?.filter(child => ['resultat-departement', 'commission-departementale', 'membre-commission', 'participation-departement', 'pv-departement'].includes(child.id))
+            };
+          }
+          if (item.id === 'bureau-management') {
+            return {
+              ...item,
+              children: item.children?.filter(child => ['redressement-bureau', 'redressement-candidat'].includes(child.id))
+            };
+          }
+          if (item.id === 'arrondissement-management') {
+            return {
+              ...item,
+              children: item.children?.filter(child => ['arrondissements', 'document-arrondissement'].includes(child.id))
             };
           }
           return item;
         });
     }
     if (isSuperviseurCommunale) {
-      // Superviseur-Communale can see only communal synthesis
-      return fullMenuItems.filter(item => ['dashboard', 'synthesis'].includes(item.id))
+      // Superviseur-Communale can see communal synthesis and arrondissement management
+      return fullMenuItems.filter(item => ['dashboard', 'synthesis', 'arrondissement-management'].includes(item.id))
         .map(item => {
           if (item.id === 'synthesis') {
             return {
               ...item,
               children: item.children?.filter(child => ['synthesis-communal'].includes(child.id))
+            };
+          }
+          if (item.id === 'arrondissement-management') {
+            return {
+              ...item,
+              children: item.children?.filter(child => ['arrondissements', 'document-arrondissement'].includes(child.id))
             };
           }
           return item;
@@ -5408,6 +5501,22 @@ function AppContent() {
         return <SynthesisDepartementalPage />;
       case 'synthesis-communal':
         return <SynthesisCommunalPage />;
+      case 'resultat-departement':
+        return <ResultatDepartementManagement className="max-w-7xl mx-auto" />;
+      case 'commission-departementale':
+        return <CommissionManagement className="max-w-7xl mx-auto" />;
+      case 'membre-commission':
+        return <MembreCommissionManagement className="max-w-7xl mx-auto" />;
+      case 'participation-departement':
+        return <ParticipationManagement className="max-w-7xl mx-auto" />;
+      case 'pv-departement':
+        return <PvDepartementManagement className="max-w-7xl mx-auto" />;
+      case 'redressement-bureau':
+        return <RedressementBureauManagement className="max-w-7xl mx-auto" />;
+      case 'redressement-candidat':
+        return <RedressementCandidatManagement className="max-w-7xl mx-auto" />;
+      case 'document-arrondissement':
+        return <DocumentArrondissementManagement className="max-w-7xl mx-auto" />;
       default:
         return (
           <div className="flex items-center justify-center h-96">
