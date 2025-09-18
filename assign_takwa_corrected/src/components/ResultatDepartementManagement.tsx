@@ -1,223 +1,229 @@
-/**
- * @file Composant de gestion des résultats départementaux avec contrôles d'accès basés sur les rôles
- */
-
-import React, { useState, useEffect, useMemo } from 'react';
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import React, { useState, useEffect } from 'react';
 import { 
-  resultatDepartementApi, 
-  roleBasedResultatDepartementApi,
-  type ResultatDepartement, 
-  type ResultatDepartementInput,
-  type ResultatDepartementFilters 
+  Card, 
+  CardContent, 
+  CardHeader, 
+  CardTitle 
+} from '@/components/ui/card';
+import { 
+  Select, 
+  SelectContent, 
+  SelectItem, 
+  SelectTrigger, 
+  SelectValue 
+} from '@/components/ui/select';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Badge } from '@/components/ui/badge';
+import { 
+  Table, 
+  TableBody, 
+  TableCell, 
+  TableHead, 
+  TableHeader, 
+  TableRow 
+} from '@/components/ui/table';
+import { 
+  AlertCircle, 
+  Filter, 
+  RefreshCw, 
+  TrendingUp, 
+  Users, 
+  BarChart3,
+  Download
+} from 'lucide-react';
+import { useAuth } from '../contexts/AuthContext';
+import { useTerritorialAccessControl } from '../hooks/useTerritorialAccessControl';
+import { 
+  getResultatsDepartement, 
+  getAccessibleDepartements,
+  type ResultatDepartement,
+  type Departement,
+  type ResultatDepartementFilters
 } from '../api/resultatDepartementApi';
-import { usePermissions } from '../hooks/usePermissions';
-import { EntityType, ActionType } from '../types/roles';
-import { RoleBasedView, RoleBasedButton, AccessDeniedMessage } from './RoleBasedView';
 
 interface ResultatDepartementManagementProps {
-  selectedDepartement?: number;
-  selectedRegion?: number;
-  onDepartementSelect?: (departement: number) => void;
-  onRegionSelect?: (region: number) => void;
+  className?: string;
 }
 
-const ResultatDepartementManagement: React.FC<ResultatDepartementManagementProps> = ({
-  selectedDepartement,
-  selectedRegion,
-  onDepartementSelect,
-  onRegionSelect
+export const ResultatDepartementManagement: React.FC<ResultatDepartementManagementProps> = ({ 
+  className = '' 
 }) => {
-  const { canAccess, canModify, canValidate, canApprove, canReject } = usePermissions();
-  const queryClient = useQueryClient();
+  const { user } = useAuth();
+  const { getUserRoleNames } = useTerritorialAccessControl();
   
-  // États locaux
-  const [filters, setFilters] = useState<ResultatDepartementFilters>({
-    departement: selectedDepartement,
-    region: selectedRegion,
-    validation_status: undefined
-  });
-  const [selectedResultats, setSelectedResultats] = useState<number[]>([]);
-  const [showCreateModal, setShowCreateModal] = useState(false);
-  const [showEditModal, setShowEditModal] = useState(false);
-  const [showValidationModal, setShowValidationModal] = useState(false);
-  const [editingResultat, setEditingResultat] = useState<ResultatDepartement | null>(null);
-  const [validationReason, setValidationReason] = useState('');
+  const [resultats, setResultats] = useState<ResultatDepartement[]>([]);
+  const [departements, setDepartements] = useState<Departement[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  
+  // Filters
+  const [selectedDepartement, setSelectedDepartement] = useState<number | undefined>();
+  const [selectedParti, setSelectedParti] = useState<number | undefined>();
+  const [searchTerm, setSearchTerm] = useState('');
+  
+  // Stats
+  const [totalVotes, setTotalVotes] = useState(0);
+  const [totalDepartements, setTotalDepartements] = useState(0);
+  const [partisUniques, setPartisUniques] = useState(0);
 
-  // Vérification des permissions globales
-  const hasAccess = canAccess(EntityType.RESULTAT_DEPARTEMENT, ActionType.READ);
-  const canCreate = canAccess(EntityType.RESULTAT_DEPARTEMENT, ActionType.CREATE);
-  const canUpdate = canAccess(EntityType.RESULTAT_DEPARTEMENT, ActionType.UPDATE);
-  const canDelete = canAccess(EntityType.RESULTAT_DEPARTEMENT, ActionType.DELETE);
-  const canValidateResults = canAccess(EntityType.RESULTAT_DEPARTEMENT, ActionType.VALIDATE);
-  const canApproveResults = canAccess(EntityType.RESULTAT_DEPARTEMENT, ActionType.APPROVE);
-  const canRejectResults = canAccess(EntityType.RESULTAT_DEPARTEMENT, ActionType.REJECT);
+  const userRoles = getUserRoleNames();
+  const isAdmin = userRoles.includes('administrateur');
 
-  // Récupération des données
-  const { 
-    data: resultats = [], 
-    isLoading, 
-    error 
-  } = useQuery({
-    queryKey: ['resultat-departement', filters],
-    queryFn: () => roleBasedResultatDepartementApi.getAllWithAccessControl(filters),
-    enabled: hasAccess
-  });
+  // Load accessible departments
+  useEffect(() => {
+    const loadDepartements = async () => {
+      if (!user?.code) return;
+      
+      try {
+        const depts = await getAccessibleDepartements(user.code);
+        setDepartements(depts);
+      } catch (err) {
+        console.error('Error loading departments:', err);
+        setError('Erreur lors du chargement des départements');
+      }
+    };
 
-  const { data: stats } = useQuery({
-    queryKey: ['resultat-departement-stats', filters],
-    queryFn: () => resultatDepartementApi.getStats(filters),
-    enabled: hasAccess
-  });
+    loadDepartements();
+  }, [user]);
 
-  // Mutations
-  const createMutation = useMutation({
-    mutationFn: roleBasedResultatDepartementApi.createWithAccessControl,
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['resultat-departement'] });
-      setShowCreateModal(false);
-    }
-  });
+  // Load resultats
+  useEffect(() => {
+    const loadResultats = async () => {
+      if (!user?.code) return;
+      
+      setLoading(true);
+      setError(null);
+      
+      try {
+        const filters: ResultatDepartementFilters = {
+          userId: user.code
+        };
+        
+        if (selectedDepartement) {
+          filters.departement = selectedDepartement;
+        }
+        
+        if (selectedParti) {
+          filters.parti = selectedParti;
+        }
+        
+        const data = await getResultatsDepartement(filters);
+        setResultats(data);
+        
+        // Calculate stats
+        const total = data.reduce((sum, r) => sum + r.nombre_vote, 0);
+        const uniqueDepts = new Set(data.map(r => r.code_departement)).size;
+        const uniquePartis = new Set(data.map(r => r.code_parti)).size;
+        
+        setTotalVotes(total);
+        setTotalDepartements(uniqueDepts);
+        setPartisUniques(uniquePartis);
+        
+      } catch (err) {
+        console.error('Error loading resultats:', err);
+        setError('Erreur lors du chargement des résultats');
+      } finally {
+        setLoading(false);
+      }
+    };
 
-  const updateMutation = useMutation({
-    mutationFn: ({ id, data }: { id: number; data: Partial<ResultatDepartementInput> }) =>
-      roleBasedResultatDepartementApi.updateWithAccessControl(id, data),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['resultat-departement'] });
-      setShowEditModal(false);
-      setEditingResultat(null);
-    }
-  });
+    loadResultats();
+  }, [user, selectedDepartement, selectedParti]);
 
-  const deleteMutation = useMutation({
-    mutationFn: roleBasedResultatDepartementApi.deleteWithAccessControl,
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['resultat-departement'] });
-    }
-  });
-
-  const validateMutation = useMutation({
-    mutationFn: roleBasedResultatDepartementApi.validateWithAccessControl,
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['resultat-departement'] });
-      setSelectedResultats([]);
-    }
-  });
-
-  const approveMutation = useMutation({
-    mutationFn: roleBasedResultatDepartementApi.approveWithAccessControl,
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['resultat-departement'] });
-      setSelectedResultats([]);
-    }
-  });
-
-  const rejectMutation = useMutation({
-    mutationFn: ({ id, reason }: { id: number; reason?: string }) =>
-      roleBasedResultatDepartementApi.rejectWithAccessControl(id, reason),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['resultat-departement'] });
-      setSelectedResultats([]);
-    }
-  });
-
-  const validateBulkMutation = useMutation({
-    mutationFn: resultatDepartementApi.validateBulk,
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['resultat-departement'] });
-      setSelectedResultats([]);
-    }
-  });
-
-  // Données calculées
-  const groupedResultats = useMemo(() => {
-    return resultatDepartementApi.groupByDepartement(resultats);
-  }, [resultats]);
-
-  const sortedResultats = useMemo(() => {
-    return resultatDepartementApi.sortByVotes(resultats);
-  }, [resultats]);
-
-  // Handlers
-  const handleFilterChange = (newFilters: Partial<ResultatDepartementFilters>) => {
-    setFilters(prev => ({ ...prev, ...newFilters }));
-  };
-
-  const handleCreate = (data: ResultatDepartementInput) => {
-    createMutation.mutate(data);
-  };
-
-  const handleEdit = (resultat: ResultatDepartement) => {
-    setEditingResultat(resultat);
-    setShowEditModal(true);
-  };
-
-  const handleUpdate = (data: Partial<ResultatDepartementInput>) => {
-    if (editingResultat) {
-      updateMutation.mutate({ id: editingResultat.code, data });
-    }
-  };
-
-  const handleDelete = (id: number) => {
-    if (window.confirm('Êtes-vous sûr de vouloir supprimer ce résultat ?')) {
-      deleteMutation.mutate(id);
-    }
-  };
-
-  const handleValidate = (id: number) => {
-    validateMutation.mutate(id);
-  };
-
-  const handleApprove = (id: number) => {
-    approveMutation.mutate(id);
-  };
-
-  const handleReject = (id: number) => {
-    if (validationReason.trim()) {
-      rejectMutation.mutate({ id, reason: validationReason });
-      setValidationReason('');
-    }
-  };
-
-  const handleBulkValidate = () => {
-    if (selectedResultats.length > 0) {
-      validateBulkMutation.mutate(selectedResultats);
-    }
-  };
-
-  const handleSelectResultat = (id: number) => {
-    setSelectedResultats(prev => 
-      prev.includes(id) 
-        ? prev.filter(resultId => resultId !== id)
-        : [...prev, id]
-    );
-  };
-
-  const handleSelectAll = () => {
-    if (selectedResultats.length === resultats.length) {
-      setSelectedResultats([]);
-    } else {
-      setSelectedResultats(resultats.map(r => r.code));
-    }
-  };
-
-  if (!hasAccess) {
-    return <AccessDeniedMessage entity="résultats départementaux" />;
-  }
-
-  if (isLoading) {
+  // Filter results by search term
+  const filteredResultats = resultats.filter(resultat => {
+    if (!searchTerm) return true;
+    
+    const searchLower = searchTerm.toLowerCase();
     return (
-      <div className="flex justify-center items-center p-8">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
-        <span className="ml-2">Chargement des résultats...</span>
-      </div>
+      resultat.departement.libelle.toLowerCase().includes(searchLower) ||
+      resultat.parti.designation.toLowerCase().includes(searchLower) ||
+      resultat.parti.abbreviation?.toLowerCase().includes(searchLower)
     );
-  }
+  });
 
-  if (error) {
+  // Get unique partis for filter
+  const uniquePartis = Array.from(
+    new Set(resultats.map(r => r.code_parti))
+  ).map(code => {
+    const resultat = resultats.find(r => r.code_parti === code);
+    return {
+      code: code,
+      designation: resultat?.parti.designation || '',
+      abbreviation: resultat?.parti.abbreviation || ''
+    };
+  });
+
+  const handleRefresh = () => {
+    if (user?.code) {
+      const loadResultats = async () => {
+        setLoading(true);
+        try {
+          const filters: ResultatDepartementFilters = {
+            userId: user.code
+          };
+          
+          if (selectedDepartement) {
+            filters.departement = selectedDepartement;
+          }
+          
+          if (selectedParti) {
+            filters.parti = selectedParti;
+          }
+          
+          const data = await getResultatsDepartement(filters);
+          setResultats(data);
+        } catch (err) {
+          console.error('Error refreshing resultats:', err);
+          setError('Erreur lors du rafraîchissement des données');
+        } finally {
+          setLoading(false);
+        }
+      };
+      
+      loadResultats();
+    }
+  };
+
+  const clearFilters = () => {
+    setSelectedDepartement(undefined);
+    setSelectedParti(undefined);
+    setSearchTerm('');
+  };
+
+  const exportToCSV = () => {
+    const csvContent = [
+      ['Département', 'Région', 'Parti', 'Votes', 'Pourcentage'].join(','),
+      ...filteredResultats.map(r => [
+        r.departement.libelle,
+        r.departement.region.libelle,
+        r.parti.designation,
+        r.nombre_vote,
+        r.pourcentage || 0
+      ].join(','))
+    ].join('\n');
+    
+    const blob = new Blob([csvContent], { type: 'text/csv' });
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `resultats_departement_${new Date().toISOString().split('T')[0]}.csv`;
+    a.click();
+    window.URL.revokeObjectURL(url);
+  };
+
+  if (loading && resultats.length === 0) {
     return (
-      <div className="bg-red-50 border border-red-200 rounded-md p-4">
-        <p className="text-red-800">Erreur lors du chargement des résultats : {error.message}</p>
+      <div className={`space-y-6 ${className}`}>
+        <Card>
+          <CardContent className="p-6">
+            <div className="flex items-center justify-center">
+              <RefreshCw className="h-6 w-6 animate-spin mr-2" />
+              <span>Chargement des résultats départementaux...</span>
+            </div>
+          </CardContent>
+        </Card>
       </div>
     );
   }

@@ -10,11 +10,10 @@ export async function OPTIONS(request: NextRequest) {
 // GET /api/membre-commission/[id] - Get member by ID
 export async function GET(
   request: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
+  { params }: { params: { id: string } }
 ) {
   try {
-    const { id } = await params
-    const membreId = parseInt(id);
+    const membreId = parseInt(params.id);
     
     const membre = await prisma.membreCommission.findUnique({
       where: { code: membreId },
@@ -63,11 +62,10 @@ export async function GET(
 // PUT /api/membre-commission/[id] - Update member
 export async function PUT(
   request: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
+  { params }: { params: { id: string } }
 ) {
   try {
-    const { id } = await params
-    const membreId = parseInt(id);
+    const membreId = parseInt(params.id);
     const body = await request.json();
     const {
       noms_prenoms,
@@ -124,11 +122,10 @@ export async function PUT(
 // DELETE /api/membre-commission/[id] - Delete member
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
+  { params }: { params: { id: string } }
 ) {
   try {
-    const { id } = await params
-    const membreId = parseInt(id);
+    const membreId = parseInt(params.id);
     
     await prisma.membreCommission.delete({
       where: { code: membreId }

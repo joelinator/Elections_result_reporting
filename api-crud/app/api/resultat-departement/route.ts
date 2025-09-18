@@ -13,12 +13,13 @@ export async function OPTIONS() {
   })
 }
 
-// GET /api/resultat-departement - Get all resultat departement data
+// GET /api/resultat-departement - Get all resultat departement data with role-based filtering
 export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url)
     const departementCode = searchParams.get('departement')
     const partiCode = searchParams.get('parti')
+    const userId = searchParams.get('userId') // For role-based filtering
     
     const where: any = {}
     
@@ -28,6 +29,45 @@ export async function GET(request: NextRequest) {
     
     if (partiCode) {
       where.code_parti = parseInt(partiCode)
+    }
+
+    // Role-based filtering: Get user's accessible departments
+    if (userId) {
+      try {
+        // Get user's role and territorial access
+        const user = await prisma.utilisateur.findUnique({
+          where: { code: parseInt(userId) },
+          include: { role: true }
+        })
+
+        if (user) {
+          const roleLibelle = user.role?.libelle?.toLowerCase()
+          
+          // Admin has access to all departments
+          if (roleLibelle !== 'administrateur') {
+            // Get user's accessible departments
+            const userDepartments = await prisma.utilisateurDepartement.findMany({
+              where: { code_utilisateur: parseInt(userId) },
+              select: { code_departement: true }
+            })
+            
+            const accessibleDepartmentCodes = userDepartments.map(ud => ud.code_departement)
+            
+            if (accessibleDepartmentCodes.length > 0) {
+              where.code_departement = {
+                in: accessibleDepartmentCodes
+              }
+            } else {
+              // User has no department access, return empty results
+              const response = NextResponse.json([])
+              response.headers.set('Access-Control-Allow-Origin', '*')
+              return response
+            }
+          }
+        }
+      } catch (roleError) {
+        console.warn('Error checking user role, proceeding without role filtering:', roleError)
+      }
     }
 
     const resultats = await prisma.resultatDepartement.findMany({

@@ -10,11 +10,10 @@ export async function OPTIONS(request: NextRequest) {
 // GET /api/redressement-bureau/[id] - Get redressement by ID
 export async function GET(
   request: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
+  { params }: { params: { id: string } }
 ) {
   try {
-    const { id } = await params
-    const redressementId = parseInt(id);
+    const redressementId = parseInt(params.id);
     
     const redressement = await prisma.redressementBureauVote.findUnique({
       where: { code: redressementId },
@@ -63,11 +62,10 @@ export async function GET(
 // PUT /api/redressement-bureau/[id] - Update redressement
 export async function PUT(
   request: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
+  { params }: { params: { id: string } }
 ) {
   try {
-    const { id } = await params
-    const redressementId = parseInt(id);
+    const redressementId = parseInt(params.id);
     const body = await request.json();
     const {
       code_bureau_vote,
@@ -125,11 +123,10 @@ export async function PUT(
 // DELETE /api/redressement-bureau/[id] - Delete redressement
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
+  { params }: { params: { id: string } }
 ) {
   try {
-    const { id } = await params
-    const redressementId = parseInt(id);
+    const redressementId = parseInt(params.id);
     
     await prisma.redressementBureauVote.delete({
       where: { code: redressementId }

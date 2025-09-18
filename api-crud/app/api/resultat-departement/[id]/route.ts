@@ -16,14 +16,13 @@ export async function OPTIONS() {
 // GET /api/resultat-departement/[id] - Get resultat departement by ID
 export async function GET(
   request: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
+  { params }: { params: { id: string } }
 ) {
   try {
-    const { id } = await params
-    const resultatId = parseInt(id)
+    const id = parseInt(params.id)
 
     const resultat = await prisma.resultatDepartement.findUnique({
-      where: { code: resultatId },
+      where: { code: id },
       include: {
         departement: {
           select: {
@@ -74,11 +73,10 @@ export async function GET(
 // PUT /api/resultat-departement/[id] - Update resultat departement
 export async function PUT(
   request: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
+  { params }: { params: { id: string } }
 ) {
   try {
-    const { id } = await params
-    const resultatId = parseInt(id)
+    const id = parseInt(params.id)
     const body = await request.json()
     const { 
       code_departement,
@@ -88,7 +86,7 @@ export async function PUT(
     } = body
 
     const resultat = await prisma.resultatDepartement.update({
-      where: { code: resultatId },
+      where: { code: id },
       data: {
         code_departement: code_departement ? parseInt(code_departement) : undefined,
         code_parti: code_parti ? parseInt(code_parti) : undefined,
@@ -136,14 +134,13 @@ export async function PUT(
 // DELETE /api/resultat-departement/[id] - Delete resultat departement
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
+  { params }: { params: { id: string } }
 ) {
   try {
-    const { id } = await params
-    const resultatId = parseInt(id)
+    const id = parseInt(params.id)
 
     await prisma.resultatDepartement.delete({
-      where: { code: resultatId }
+      where: { code: id }
     })
 
     const response = NextResponse.json({ message: 'Resultat departement deleted successfully' })

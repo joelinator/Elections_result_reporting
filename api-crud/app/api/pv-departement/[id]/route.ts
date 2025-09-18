@@ -10,11 +10,10 @@ export async function OPTIONS(request: NextRequest) {
 // GET /api/pv-departement/[id] - Get PV by ID
 export async function GET(
   request: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
+  { params }: { params: { id: string } }
 ) {
   try {
-    const { id } = await params
-    const pvId = parseInt(id);
+    const pvId = parseInt(params.id);
     
     const pv = await prisma.pvDepartement.findUnique({
       where: { code: pvId },
@@ -57,11 +56,10 @@ export async function GET(
 // PUT /api/pv-departement/[id] - Update PV
 export async function PUT(
   request: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
+  { params }: { params: { id: string } }
 ) {
   try {
-    const { id } = await params
-    const pvId = parseInt(id);
+    const pvId = parseInt(params.id);
     const body = await request.json();
     const {
       code_departement,
@@ -109,11 +107,10 @@ export async function PUT(
 // DELETE /api/pv-departement/[id] - Delete PV
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
+  { params }: { params: { id: string } }
 ) {
   try {
-    const { id } = await params
-    const pvId = parseInt(id);
+    const pvId = parseInt(params.id);
     
     await prisma.pvDepartement.delete({
       where: { code: pvId }
