@@ -1,5 +1,8 @@
 // API client for managing ParticipationCommune (arrondissement participation data)
 
+
+const API_BASE_URL = 'https://turbo-barnacle-7pqj6gpp75jhrpww-3000.app.github.dev/api';
+
 export interface ParticipationCommune {
   code: number;
   codeCommune: number;
@@ -41,7 +44,7 @@ export interface ParticipationCommuneUpdate extends Partial<ParticipationCommune
 // Get all participation commune data
 export const getAllParticipationCommune = async (): Promise<ParticipationCommune[]> => {
   try {
-    const response = await fetch('/api/participation-commune', {
+    const response = await fetch(`${API_BASE_URL}/participation-commune`, {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',
@@ -129,7 +132,7 @@ export const getParticipationCommuneById = async (id: number): Promise<Participa
 // Create new participation commune data
 export const createParticipationCommune = async (data: ParticipationCommuneInput): Promise<ParticipationCommune> => {
   try {
-    const response = await fetch('/api/participation-commune', {
+    const response = await fetch(`${API_BASE_URL}/participation-commune`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',

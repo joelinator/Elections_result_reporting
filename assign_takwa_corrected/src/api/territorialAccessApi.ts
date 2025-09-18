@@ -1,5 +1,7 @@
 // API for checking user territorial access and associations
 
+
+const API_BASE_URL = 'https://turbo-barnacle-7pqj6gpp75jhrpww-3000.app.github.dev/api';
 export interface UserDepartmentAccess {
   code_departement: number;
   libelle_departement: string;
@@ -39,7 +41,7 @@ export interface TerritorialAccess {
 // Check if user has access to a specific department
 export const checkUserDepartmentAccess = async (departmentCode: number): Promise<boolean> => {
   try {
-    const response = await fetch(`/api/territorial-access/department/${departmentCode}`, {
+    const response = await fetch(`${API_BASE_URL}/territorial-access/department/${departmentCode}`, {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',
@@ -62,7 +64,7 @@ export const checkUserDepartmentAccess = async (departmentCode: number): Promise
 // Check if user has access to a specific arrondissement
 export const checkUserArrondissementAccess = async (arrondissementCode: number): Promise<boolean> => {
   try {
-    const response = await fetch(`/api/territorial-access/arrondissement/${arrondissementCode}`, {
+    const response = await fetch(`${API_BASE_URL}/territorial-access/arrondissement/${arrondissementCode}`, {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',
@@ -85,7 +87,7 @@ export const checkUserArrondissementAccess = async (arrondissementCode: number):
 // Check if user has access to a specific bureau de vote
 export const checkUserBureauVoteAccess = async (bureauVoteCode: number): Promise<boolean> => {
   try {
-    const response = await fetch(`/api/territorial-access/bureau-vote/${bureauVoteCode}`, {
+    const response = await fetch(`${API_BASE_URL}/territorial-access/bureau-vote/${bureauVoteCode}`, {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',
@@ -108,7 +110,7 @@ export const checkUserBureauVoteAccess = async (bureauVoteCode: number): Promise
 // Get all territorial access for current user
 export const getUserTerritorialAccess = async (): Promise<TerritorialAccess> => {
   try {
-    const response = await fetch('/api/territorial-access/user', {
+    const response = await fetch(`${API_BASE_URL}/territorial-access/user`, {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',
@@ -134,7 +136,7 @@ export const getUserTerritorialAccess = async (): Promise<TerritorialAccess> => 
 // Check if user can edit data for a specific department
 export const canEditDepartmentData = async (departmentCode: number): Promise<boolean> => {
   try {
-    const response = await fetch(`/api/territorial-access/can-edit-department/${departmentCode}`, {
+    const response = await fetch(`${API_BASE_URL}/territorial-access/can-edit-department/${departmentCode}`, {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',
@@ -157,7 +159,7 @@ export const canEditDepartmentData = async (departmentCode: number): Promise<boo
 // Check if user can edit data for a specific arrondissement
 export const canEditArrondissementData = async (arrondissementCode: number): Promise<boolean> => {
   try {
-    const response = await fetch(`/api/territorial-access/can-edit-arrondissement/${arrondissementCode}`, {
+    const response = await fetch(`${API_BASE_URL}/territorial-access/can-edit-arrondissement/${arrondissementCode}`, {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',
@@ -180,7 +182,7 @@ export const canEditArrondissementData = async (arrondissementCode: number): Pro
 // Check if user can edit participation commune data for a specific arrondissement
 export const canEditParticipationCommuneData = async (arrondissementCode: number): Promise<boolean> => {
   try {
-    const response = await fetch(`/api/territorial-access/can-edit-participation-commune/${arrondissementCode}`, {
+    const response = await fetch(`${API_BASE_URL}/territorial-access/can-edit-participation-commune/${arrondissementCode}`, {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',
@@ -203,7 +205,7 @@ export const canEditParticipationCommuneData = async (arrondissementCode: number
 // Check if user can edit data for a specific bureau de vote
 export const canEditBureauVoteData = async (bureauVoteCode: number): Promise<boolean> => {
   try {
-    const response = await fetch(`/api/territorial-access/can-edit-bureau-vote/${bureauVoteCode}`, {
+    const response = await fetch(`${API_BASE_URL}/territorial-access/can-edit-bureau-vote/${bureauVoteCode}`, {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',
