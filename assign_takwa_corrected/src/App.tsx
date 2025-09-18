@@ -320,7 +320,7 @@ const Navigation = ({ menuItems, activeMenu, onMenuClick }: {
 
   return (
     <nav className="bg-gradient-to-r from-slate-700 to-slate-600 h-14 shadow-md relative">
-      <div className="px-6 h-full flex items-center gap-6 overflow-hidden">
+      <div className="px-6 h-full flex items-center gap-6">
         {menuItems.map((item) => (
         <div key={item.id} className="relative group flex-shrink">
           <button
@@ -335,7 +335,7 @@ const Navigation = ({ menuItems, activeMenu, onMenuClick }: {
           </button>
           
           {item.children && openDropdown === item.id && (
-            <div className="nav-dropdown">
+            <div className="nav-dropdown" style={{ zIndex: 9999 }}>
               {item.children.map((child) => (
                 <button
                   key={child.id}
