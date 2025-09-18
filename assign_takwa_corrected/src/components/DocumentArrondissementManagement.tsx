@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useTerritorialAccessControl } from '../hooks/useTerritorialAccessControl';
 import { useAuth } from '../contexts/AuthContext';
 
@@ -37,17 +37,7 @@ const DocumentArrondissementManagement: React.FC<DocumentArrondissementManagemen
   const canEdit = roleNames.includes('administrateur') || 
                   ['superviseur-departementale', 'superviseur-regionale', 'scrutateur', 'validateur'].some(role => roleNames.includes(role));
 
-  useEffect(() => {
-    if (!canViewData()) {
-      setError('Accès refusé. Vous n\'avez pas les permissions nécessaires.');
-      setLoading(false);
-      return;
-    }
-
-    loadData();
-  }, [canViewData]);
-
-  const loadData = async () => {
+  const loadData = useCallback(async () => {
     try {
       setLoading(true);
       // Load documents and arrondissements from API
@@ -60,7 +50,17 @@ const DocumentArrondissementManagement: React.FC<DocumentArrondissementManagemen
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
+
+  useEffect(() => {
+    if (!canViewData()) {
+      setError('Accès refusé. Vous n\'avez pas les permissions nécessaires.');
+      setLoading(false);
+      return;
+    }
+
+    loadData();
+  }, [user, loadData]);
 
   const handleCreate = async (documentData: Partial<DocumentArrondissement>) => {
     try {
