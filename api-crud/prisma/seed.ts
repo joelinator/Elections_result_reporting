@@ -10,6 +10,7 @@ async function main() {
   await prisma.redressementCandidat.deleteMany();
   await prisma.redressementBureauVote.deleteMany();
   await prisma.resultatDepartement.deleteMany();
+  await prisma.participationArrondissement.deleteMany();
   await prisma.participationDepartement.deleteMany();
   await prisma.utilisateurDepartement.deleteMany();
   await prisma.bureauVote.deleteMany();
@@ -406,6 +407,95 @@ async function main() {
     })
   ]);
 
+  // Insert Participation Arrondissement Data
+  console.log('📊 Creating participation arrondissement data...');
+  await Promise.all([
+    prisma.participationArrondissement.create({
+      data: {
+        code_arrondissement: arrondissements[0].code, // Douala 1er
+        nombre_bureau_vote: 65,
+        nombre_inscrit: 225000,
+        nombre_enveloppe_urnes: 142500,
+        nombre_enveloppe_bulletins_differents: 625,
+        nombre_bulletin_electeur_identifiable: 425,
+        nombre_bulletin_enveloppes_signes: 475,
+        nombre_enveloppe_non_elecam: 225,
+        nombre_bulletin_non_elecam: 160,
+        nombre_bulletin_sans_enveloppe: 90,
+        nombre_enveloppe_vide: 110,
+        nombre_suffrages_valable: 139750,
+        nombre_votant: 142500,
+        bulletin_nul: 2750,
+        suffrage_exprime: 139750,
+        taux_participation: 63.33,
+        date_creation: new Date().toISOString()
+      }
+    }),
+    prisma.participationArrondissement.create({
+      data: {
+        code_arrondissement: arrondissements[1].code, // Douala 2ème
+        nombre_bureau_vote: 60,
+        nombre_inscrit: 225000,
+        nombre_enveloppe_urnes: 142500,
+        nombre_enveloppe_bulletins_differents: 625,
+        nombre_bulletin_electeur_identifiable: 425,
+        nombre_bulletin_enveloppes_signes: 475,
+        nombre_enveloppe_non_elecam: 225,
+        nombre_bulletin_non_elecam: 160,
+        nombre_bulletin_sans_enveloppe: 90,
+        nombre_enveloppe_vide: 110,
+        nombre_suffrages_valable: 139750,
+        nombre_votant: 142500,
+        bulletin_nul: 2750,
+        suffrage_exprime: 139750,
+        taux_participation: 63.33,
+        date_creation: new Date().toISOString()
+      }
+    }),
+    prisma.participationArrondissement.create({
+      data: {
+        code_arrondissement: arrondissements[2].code, // Yaoundé 1er
+        nombre_bureau_vote: 49,
+        nombre_inscrit: 190000,
+        nombre_enveloppe_urnes: 122500,
+        nombre_enveloppe_bulletins_differents: 490,
+        nombre_bulletin_electeur_identifiable: 360,
+        nombre_bulletin_enveloppes_signes: 405,
+        nombre_enveloppe_non_elecam: 190,
+        nombre_bulletin_non_elecam: 145,
+        nombre_bulletin_sans_enveloppe: 75,
+        nombre_enveloppe_vide: 95,
+        nombre_suffrages_valable: 120600,
+        nombre_votant: 122500,
+        bulletin_nul: 1900,
+        suffrage_exprime: 120600,
+        taux_participation: 64.47,
+        date_creation: new Date().toISOString()
+      }
+    }),
+    prisma.participationArrondissement.create({
+      data: {
+        code_arrondissement: arrondissements[3].code, // Yaoundé 2ème
+        nombre_bureau_vote: 49,
+        nombre_inscrit: 190000,
+        nombre_enveloppe_urnes: 122500,
+        nombre_enveloppe_bulletins_differents: 490,
+        nombre_bulletin_electeur_identifiable: 360,
+        nombre_bulletin_enveloppes_signes: 405,
+        nombre_enveloppe_non_elecam: 190,
+        nombre_bulletin_non_elecam: 145,
+        nombre_bulletin_sans_enveloppe: 75,
+        nombre_enveloppe_vide: 95,
+        nombre_suffrages_valable: 120600,
+        nombre_votant: 122500,
+        bulletin_nul: 1900,
+        suffrage_exprime: 120600,
+        taux_participation: 64.47,
+        date_creation: new Date().toISOString()
+      }
+    })
+  ]);
+
   // Insert Election Results
   console.log('🎯 Creating election results...');
   const results = [];
@@ -459,6 +549,8 @@ async function main() {
   console.log(`   • ${parties.length} political parties created`);
   console.log(`   • ${users.length} users created`);
   console.log(`   • ${roles.length} roles created`);
+  console.log(`   • 2 participation departement records created`);
+  console.log(`   • 4 participation arrondissement records created`);
   console.log('');
   console.log('🔑 Demo Login Credentials:');
   console.log('   Username: admin');
@@ -466,6 +558,11 @@ async function main() {
   console.log('');
   console.log('   Username: jmballa');
   console.log('   Password: password123');
+  console.log('');
+  console.log('📋 Test Data:');
+  console.log('   • Douala 1er & 2ème: 63.33% participation rate');
+  console.log('   • Yaoundé 1er & 2ème: 64.47% participation rate');
+  console.log('   • All arrondissements have realistic election data');
 }
 
 main()
