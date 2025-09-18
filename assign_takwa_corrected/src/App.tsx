@@ -318,8 +318,11 @@ const Navigation = ({ menuItems, activeMenu, onMenuClick }: {
 
   const handleMenuClick = (item: MenuItem) => {
     if (item.children) {
+      // For parent menus, toggle dropdown AND select the menu
       setOpenDropdown(openDropdown === item.id ? null : item.id);
+      onMenuClick(item.id); // This will select the parent menu
     } else {
+      // For child menus, select the menu and close dropdown
       onMenuClick(item.id);
       setOpenDropdown(null);
     }
@@ -5152,6 +5155,7 @@ function AppContent() {
   const [activeMenu, setActiveMenu] = useState(getInitialMenu());
   
   const handleSetActiveMenu = (menuId: string) => {
+    console.log('Setting active menu to:', menuId);
     setActiveMenu(menuId);
   };
 
@@ -5305,7 +5309,7 @@ function AppContent() {
   const isSuperviseurRegionale = roleNames.includes('superviseur-regionale');
   const isSuperviseurDepartementale = roleNames.includes('superviseur-departementale');
   const isSuperviseurCommunale = roleNames.includes('superviseur-communale');
-    const isScrutateur = roleNames.includes('scrutateur'); // Add this line
+  const isScrutateur = roleNames.includes('scrutateur');
 
   // Filter menu by role (memoized) with submenu support
   const menuItems: MenuItem[] = useMemo(() => {
@@ -5515,7 +5519,7 @@ function AppContent() {
       case 'synthesis-communal':
         return <SynthesisCommunalPage />;
       case 'resultat-departement':
-        return <ResultatDepartementManagement className="max-w-7xl mx-auto" />;
+        return <ResultatDepartementManagement />;
       case 'commission-departementale':
         return <CommissionManagement className="max-w-7xl mx-auto" />;
       case 'membre-commission':
@@ -5538,11 +5542,35 @@ function AppContent() {
       case 'synthesis':
         return <SynthesisPage />; // Default to regional synthesis
       case 'departmental-management':
-        return <ResultatDepartementManagement className="max-w-7xl mx-auto" />; // Default to first child
+        return (
+          <div className="max-w-7xl mx-auto p-6">
+            <h1 className="text-2xl font-bold mb-4">Gestion Départementale</h1>
+            <p className="text-gray-600">Sélectionnez une option dans le sous-menu pour commencer.</p>
+            <div className="mt-4 p-4 bg-blue-50 rounded-lg">
+              <p className="text-sm text-blue-700">Menu actuel: {activeMenu}</p>
+            </div>
+          </div>
+        );
       case 'bureau-management':
-        return <RedressementBureauManagement className="max-w-7xl mx-auto" />; // Default to first child
+        return (
+          <div className="max-w-7xl mx-auto p-6">
+            <h1 className="text-2xl font-bold mb-4">Gestion des Bureaux</h1>
+            <p className="text-gray-600">Sélectionnez une option dans le sous-menu pour commencer.</p>
+            <div className="mt-4 p-4 bg-blue-50 rounded-lg">
+              <p className="text-sm text-blue-700">Menu actuel: {activeMenu}</p>
+            </div>
+          </div>
+        );
       case 'arrondissement-management':
-        return <ArrondissementManagement className="max-w-7xl mx-auto" />; // Default to first child
+        return (
+          <div className="max-w-7xl mx-auto p-6">
+            <h1 className="text-2xl font-bold mb-4">Gestion Arrondissements</h1>
+            <p className="text-gray-600">Sélectionnez une option dans le sous-menu pour commencer.</p>
+            <div className="mt-4 p-4 bg-blue-50 rounded-lg">
+              <p className="text-sm text-blue-700">Menu actuel: {activeMenu}</p>
+            </div>
+          </div>
+        );
       case 'reports':
         return <ReportsComponent />;
       default:
