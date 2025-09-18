@@ -31,10 +31,10 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     username: 'admin',
     email: 'admin@example.com',
     noms_prenoms: 'Admin',
-    roles: [{ code: 1, libelle: 'superviseur-departementale' }],
+    roles: [{ code: 6, libelle: 'superviseur-departementale' }],
     arrondissementCode: 1,
     arrondissements: [],
-    role: { code: 1, libelle: 'Administrateur' },
+    role: { code: 6, libelle: 'Administrateur' },
 
   });
   const [isLoading, setIsLoading] = useState(true);
