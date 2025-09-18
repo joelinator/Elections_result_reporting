@@ -229,500 +229,218 @@ export const ResultatDepartementManagement: React.FC<ResultatDepartementManageme
   }
 
   return (
-    <div className="space-y-6">
-      {/* En-tête avec statistiques */}
-      <div className="bg-white rounded-lg shadow p-6">
-        <div className="flex justify-between items-center mb-4">
+    <div className={`space-y-6 ${className}`}>
+      {/* Header */}
+      <div className="flex items-center justify-between">
+        <div>
           <h2 className="text-2xl font-bold text-gray-900">Résultats Départementaux</h2>
-          <RoleBasedButton
-            entity={EntityType.RESULTAT_DEPARTEMENT}
-            action={ActionType.CREATE}
-            onClick={() => setShowCreateModal(true)}
-            className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700"
-          >
-            Ajouter un résultat
-          </RoleBasedButton>
-        </div>
-
-        {stats && (
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-            <div className="bg-blue-50 p-4 rounded-lg">
-              <p className="text-sm text-blue-600">Total Départements</p>
-              <p className="text-2xl font-bold text-blue-900">{stats.total_departements}</p>
-            </div>
-            <div className="bg-green-50 p-4 rounded-lg">
-              <p className="text-sm text-green-600">Total Votes</p>
-              <p className="text-2xl font-bold text-green-900">{stats.total_votes.toLocaleString()}</p>
-            </div>
-            <div className="bg-yellow-50 p-4 rounded-lg">
-              <p className="text-sm text-yellow-600">En Attente</p>
-              <p className="text-2xl font-bold text-yellow-900">{stats.validation_pending}</p>
-            </div>
-            <div className="bg-purple-50 p-4 rounded-lg">
-              <p className="text-sm text-purple-600">Validés</p>
-              <p className="text-2xl font-bold text-purple-900">{stats.validation_completed}</p>
-            </div>
-          </div>
-        )}
-      </div>
-
-      {/* Filtres */}
-      <div className="bg-white rounded-lg shadow p-6">
-        <h3 className="text-lg font-semibold mb-4">Filtres</h3>
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Statut de validation
-            </label>
-            <select
-              value={filters.validation_status ?? ''}
-              onChange={(e) => handleFilterChange({ 
-                validation_status: e.target.value ? parseInt(e.target.value) : undefined 
-              })}
-              className="w-full border border-gray-300 rounded-md px-3 py-2"
-            >
-              <option value="">Tous</option>
-              <option value="0">En attente</option>
-              <option value="1">Validés</option>
-            </select>
-          </div>
-          
-          <div className="flex items-end">
-            <button
-              onClick={() => setFilters({})}
-              className="w-full bg-gray-500 text-white px-4 py-2 rounded-md hover:bg-gray-600"
-            >
-              Réinitialiser
-            </button>
-          </div>
-        </div>
-      </div>
-
-      {/* Actions en lot */}
-      {selectedResultats.length > 0 && (
-        <div className="bg-blue-50 border border-blue-200 rounded-md p-4">
-          <div className="flex items-center justify-between">
-            <span className="text-blue-800">
-              {selectedResultats.length} résultat(s) sélectionné(s)
-            </span>
-            <div className="space-x-2">
-              <RoleBasedButton
-                entity={EntityType.RESULTAT_DEPARTEMENT}
-                action={ActionType.VALIDATE}
-                onClick={handleBulkValidate}
-                className="bg-green-600 text-white px-3 py-1 rounded text-sm hover:bg-green-700"
-              >
-                Valider en lot
-              </RoleBasedButton>
-              <button
-                onClick={() => setSelectedResultats([])}
-                className="bg-gray-500 text-white px-3 py-1 rounded text-sm hover:bg-gray-600"
-              >
-                Annuler
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* Tableau des résultats */}
-      <div className="bg-white rounded-lg shadow overflow-hidden">
-        <div className="overflow-x-auto">
-          <table className="min-w-full divide-y divide-gray-200">
-            <thead className="bg-gray-50">
-              <tr>
-                <th className="px-6 py-3 text-left">
-                  <input
-                    type="checkbox"
-                    checked={selectedResultats.length === resultats.length && resultats.length > 0}
-                    onChange={handleSelectAll}
-                    className="rounded border-gray-300"
-                  />
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Département
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Parti
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Votes
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Pourcentage
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Statut
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Actions
-                </th>
-              </tr>
-            </thead>
-            <tbody className="bg-white divide-y divide-gray-200">
-              {sortedResultats.map((resultat) => (
-                <tr key={resultat.code} className="hover:bg-gray-50">
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <input
-                      type="checkbox"
-                      checked={selectedResultats.includes(resultat.code)}
-                      onChange={() => handleSelectResultat(resultat.code)}
-                      className="rounded border-gray-300"
-                    />
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                    {resultat.departement?.libelle || `Département ${resultat.code_departement}`}
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                    {resultat.parti?.abbreviation || resultat.parti?.libelle || `Parti ${resultat.code_parti}`}
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                    {resultat.nombre_vote.toLocaleString()}
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                    {resultat.pourcentage ? `${resultat.pourcentage.toFixed(2)}%` : 'N/A'}
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
-                      resultat.pourcentage !== undefined 
-                        ? 'bg-green-100 text-green-800' 
-                        : 'bg-yellow-100 text-yellow-800'
-                    }`}>
-                      {resultat.pourcentage !== undefined ? 'Validé' : 'En attente'}
-                    </span>
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm font-medium space-x-2">
-                    <RoleBasedButton
-                      entity={EntityType.RESULTAT_DEPARTEMENT}
-                      action={ActionType.UPDATE}
-                      onClick={() => handleEdit(resultat)}
-                      className="text-blue-600 hover:text-blue-900"
-                    >
-                      Modifier
-                    </RoleBasedButton>
-                    
-                    <RoleBasedButton
-                      entity={EntityType.RESULTAT_DEPARTEMENT}
-                      action={ActionType.VALIDATE}
-                      onClick={() => handleValidate(resultat.code)}
-                      className="text-green-600 hover:text-green-900"
-                    >
-                      Valider
-                    </RoleBasedButton>
-                    
-                    <RoleBasedButton
-                      entity={EntityType.RESULTAT_DEPARTEMENT}
-                      action={ActionType.APPROVE}
-                      onClick={() => handleApprove(resultat.code)}
-                      className="text-purple-600 hover:text-purple-900"
-                    >
-                      Approuver
-                    </RoleBasedButton>
-                    
-                    <RoleBasedButton
-                      entity={EntityType.RESULTAT_DEPARTEMENT}
-                      action={ActionType.REJECT}
-                      onClick={() => {
-                        setEditingResultat(resultat);
-                        setShowValidationModal(true);
-                      }}
-                      className="text-red-600 hover:text-red-900"
-                    >
-                      Rejeter
-                    </RoleBasedButton>
-                    
-                    <RoleBasedButton
-                      entity={EntityType.RESULTAT_DEPARTEMENT}
-                      action={ActionType.DELETE}
-                      onClick={() => handleDelete(resultat.code)}
-                      className="text-red-600 hover:text-red-900"
-                    >
-                      Supprimer
-                    </RoleBasedButton>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      </div>
-
-      {/* Modales */}
-      {showCreateModal && (
-        <CreateResultatModal
-          onClose={() => setShowCreateModal(false)}
-          onSubmit={handleCreate}
-          isLoading={createMutation.isPending}
-        />
-      )}
-
-      {showEditModal && editingResultat && (
-        <EditResultatModal
-          resultat={editingResultat}
-          onClose={() => {
-            setShowEditModal(false);
-            setEditingResultat(null);
-          }}
-          onSubmit={handleUpdate}
-          isLoading={updateMutation.isPending}
-        />
-      )}
-
-      {showValidationModal && editingResultat && (
-        <ValidationModal
-          resultat={editingResultat}
-          onClose={() => {
-            setShowValidationModal(false);
-            setEditingResultat(null);
-            setValidationReason('');
-          }}
-          onReject={handleReject}
-          isLoading={rejectMutation.isPending}
-        />
-      )}
-    </div>
-  );
-};
-
-// Composant modal de création
-interface CreateResultatModalProps {
-  onClose: () => void;
-  onSubmit: (data: ResultatDepartementInput) => void;
-  isLoading: boolean;
-}
-
-const CreateResultatModal: React.FC<CreateResultatModalProps> = ({
-  onClose,
-  onSubmit,
-  isLoading
-}) => {
-  const [formData, setFormData] = useState<ResultatDepartementInput>({
-    code_departement: 0,
-    code_parti: 0,
-    nombre_vote: 0,
-    pourcentage: 0
-  });
-
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    onSubmit(formData);
-  };
-
-  return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-      <div className="bg-white rounded-lg p-6 w-full max-w-md">
-        <h3 className="text-lg font-semibold mb-4">Créer un résultat départemental</h3>
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Code Département
-            </label>
-            <input
-              type="number"
-              value={formData.code_departement}
-              onChange={(e) => setFormData(prev => ({ ...prev, code_departement: parseInt(e.target.value) }))}
-              className="w-full border border-gray-300 rounded-md px-3 py-2"
-              required
-            />
-          </div>
-          
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Code Parti
-            </label>
-            <input
-              type="number"
-              value={formData.code_parti}
-              onChange={(e) => setFormData(prev => ({ ...prev, code_parti: parseInt(e.target.value) }))}
-              className="w-full border border-gray-300 rounded-md px-3 py-2"
-              required
-            />
-          </div>
-          
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Nombre de Votes
-            </label>
-            <input
-              type="number"
-              value={formData.nombre_vote}
-              onChange={(e) => setFormData(prev => ({ ...prev, nombre_vote: parseInt(e.target.value) }))}
-              className="w-full border border-gray-300 rounded-md px-3 py-2"
-              required
-            />
-          </div>
-          
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Pourcentage (optionnel)
-            </label>
-            <input
-              type="number"
-              step="0.01"
-              value={formData.pourcentage || ''}
-              onChange={(e) => setFormData(prev => ({ ...prev, pourcentage: parseFloat(e.target.value) }))}
-              className="w-full border border-gray-300 rounded-md px-3 py-2"
-            />
-          </div>
-          
-          <div className="flex justify-end space-x-2">
-            <button
-              type="button"
-              onClick={onClose}
-              className="px-4 py-2 text-gray-600 hover:text-gray-800"
-            >
-              Annuler
-            </button>
-            <button
-              type="submit"
-              disabled={isLoading}
-              className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:opacity-50"
-            >
-              {isLoading ? 'Création...' : 'Créer'}
-            </button>
-          </div>
-        </form>
-      </div>
-    </div>
-  );
-};
-
-// Composant modal d'édition
-interface EditResultatModalProps {
-  resultat: ResultatDepartement;
-  onClose: () => void;
-  onSubmit: (data: Partial<ResultatDepartementInput>) => void;
-  isLoading: boolean;
-}
-
-const EditResultatModal: React.FC<EditResultatModalProps> = ({
-  resultat,
-  onClose,
-  onSubmit,
-  isLoading
-}) => {
-  const [formData, setFormData] = useState<Partial<ResultatDepartementInput>>({
-    nombre_vote: resultat.nombre_vote,
-    pourcentage: resultat.pourcentage
-  });
-
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    onSubmit(formData);
-  };
-
-  return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-      <div className="bg-white rounded-lg p-6 w-full max-w-md">
-        <h3 className="text-lg font-semibold mb-4">Modifier le résultat</h3>
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Nombre de Votes
-            </label>
-            <input
-              type="number"
-              value={formData.nombre_vote || 0}
-              onChange={(e) => setFormData(prev => ({ ...prev, nombre_vote: parseInt(e.target.value) }))}
-              className="w-full border border-gray-300 rounded-md px-3 py-2"
-              required
-            />
-          </div>
-          
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Pourcentage
-            </label>
-            <input
-              type="number"
-              step="0.01"
-              value={formData.pourcentage || ''}
-              onChange={(e) => setFormData(prev => ({ ...prev, pourcentage: parseFloat(e.target.value) }))}
-              className="w-full border border-gray-300 rounded-md px-3 py-2"
-            />
-          </div>
-          
-          <div className="flex justify-end space-x-2">
-            <button
-              type="button"
-              onClick={onClose}
-              className="px-4 py-2 text-gray-600 hover:text-gray-800"
-            >
-              Annuler
-            </button>
-            <button
-              type="submit"
-              disabled={isLoading}
-              className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:opacity-50"
-            >
-              {isLoading ? 'Modification...' : 'Modifier'}
-            </button>
-          </div>
-        </form>
-      </div>
-    </div>
-  );
-};
-
-// Composant modal de validation
-interface ValidationModalProps {
-  resultat: ResultatDepartement;
-  onClose: () => void;
-  onReject: (id: number) => void;
-  isLoading: boolean;
-}
-
-const ValidationModal: React.FC<ValidationModalProps> = ({
-  resultat,
-  onClose,
-  onReject,
-  isLoading
-}) => {
-  const [reason, setReason] = useState('');
-
-  const handleReject = () => {
-    onReject(resultat.code);
-  };
-
-  return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-      <div className="bg-white rounded-lg p-6 w-full max-w-md">
-        <h3 className="text-lg font-semibold mb-4">Rejeter le résultat</h3>
-        <div className="space-y-4">
-          <p className="text-gray-700">
-            Êtes-vous sûr de vouloir rejeter ce résultat ?
+          <p className="text-gray-600">
+            {isAdmin ? 'Tous les départements' : 'Départements accessibles selon votre rôle'}
           </p>
-          
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Raison du rejet (optionnel)
-            </label>
-            <textarea
-              value={reason}
-              onChange={(e) => setReason(e.target.value)}
-              className="w-full border border-gray-300 rounded-md px-3 py-2"
-              rows={3}
-            />
-          </div>
-          
-          <div className="flex justify-end space-x-2">
-            <button
-              type="button"
-              onClick={onClose}
-              className="px-4 py-2 text-gray-600 hover:text-gray-800"
-            >
-              Annuler
-            </button>
-            <button
-              onClick={handleReject}
-              disabled={isLoading}
-              className="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 disabled:opacity-50"
-            >
-              {isLoading ? 'Rejet...' : 'Rejeter'}
-            </button>
-          </div>
+        </div>
+        <div className="flex space-x-2">
+          <Button onClick={handleRefresh} variant="outline" size="sm">
+            <RefreshCw className="h-4 w-4 mr-2" />
+            Actualiser
+          </Button>
+          <Button onClick={exportToCSV} variant="outline" size="sm">
+            <Download className="h-4 w-4 mr-2" />
+            Exporter CSV
+          </Button>
         </div>
       </div>
+
+      {/* Stats Cards */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <Card>
+          <CardContent className="p-4">
+            <div className="flex items-center">
+              <Users className="h-8 w-8 text-blue-600" />
+              <div className="ml-4">
+                <p className="text-sm font-medium text-gray-600">Total Votes</p>
+                <p className="text-2xl font-bold text-gray-900">{totalVotes.toLocaleString()}</p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+        
+        <Card>
+          <CardContent className="p-4">
+            <div className="flex items-center">
+              <BarChart3 className="h-8 w-8 text-green-600" />
+              <div className="ml-4">
+                <p className="text-sm font-medium text-gray-600">Départements</p>
+                <p className="text-2xl font-bold text-gray-900">{totalDepartements}</p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+        
+        <Card>
+          <CardContent className="p-4">
+            <div className="flex items-center">
+              <TrendingUp className="h-8 w-8 text-purple-600" />
+              <div className="ml-4">
+                <p className="text-sm font-medium text-gray-600">Partis Uniques</p>
+                <p className="text-2xl font-bold text-gray-900">{partisUniques}</p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+
+      {/* Filters */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center">
+            <Filter className="h-5 w-5 mr-2" />
+            Filtres
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Département
+              </label>
+              <Select 
+                value={selectedDepartement?.toString() || ''} 
+                onValueChange={(value) => setSelectedDepartement(value ? parseInt(value) : undefined)}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Tous les départements" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="">Tous les départements</SelectItem>
+                  {departements.map((dept) => (
+                    <SelectItem key={dept.code} value={dept.code.toString()}>
+                      {dept.libelle}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Parti Politique
+              </label>
+              <Select 
+                value={selectedParti?.toString() || ''} 
+                onValueChange={(value) => setSelectedParti(value ? parseInt(value) : undefined)}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Tous les partis" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="">Tous les partis</SelectItem>
+                  {uniquePartis.map((parti) => (
+                    <SelectItem key={parti.code} value={parti.code.toString()}>
+                      {parti.abbreviation || parti.designation}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Recherche
+              </label>
+              <Input
+                placeholder="Rechercher..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+              />
+            </div>
+            
+            <div className="flex items-end">
+              <Button onClick={clearFilters} variant="outline" className="w-full">
+                Effacer les filtres
+              </Button>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Error Message */}
+      {error && (
+        <Card className="border-red-200 bg-red-50">
+          <CardContent className="p-4">
+            <div className="flex items-center">
+              <AlertCircle className="h-5 w-5 text-red-600 mr-2" />
+              <span className="text-red-800">{error}</span>
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
+      {/* Results Table */}
+      <Card>
+        <CardHeader>
+          <CardTitle>
+            Résultats ({filteredResultats.length} entrée{filteredResultats.length !== 1 ? 's' : ''})
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          {filteredResultats.length === 0 ? (
+            <div className="text-center py-8">
+              <BarChart3 className="h-12 w-12 text-gray-400 mx-auto mb-4" />
+              <p className="text-gray-500">Aucun résultat trouvé</p>
+            </div>
+          ) : (
+            <div className="overflow-x-auto">
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Département</TableHead>
+                    <TableHead>Région</TableHead>
+                    <TableHead>Parti</TableHead>
+                    <TableHead className="text-right">Votes</TableHead>
+                    <TableHead className="text-right">Pourcentage</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {filteredResultats.map((resultat) => (
+                    <TableRow key={`${resultat.code_departement}-${resultat.code_parti}`}>
+                      <TableCell className="font-medium">
+                        {resultat.departement.libelle}
+                      </TableCell>
+                      <TableCell>
+                        <Badge variant="outline">
+                          {resultat.departement.region.libelle}
+                        </Badge>
+                      </TableCell>
+                      <TableCell>
+                        <div>
+                          <div className="font-medium">{resultat.parti.designation}</div>
+                          {resultat.parti.abbreviation && (
+                            <div className="text-sm text-gray-500">
+                              {resultat.parti.abbreviation}
+                            </div>
+                          )}
+                        </div>
+                      </TableCell>
+                      <TableCell className="text-right font-mono">
+                        {resultat.nombre_vote.toLocaleString()}
+                      </TableCell>
+                      <TableCell className="text-right">
+                        {resultat.pourcentage ? (
+                          <Badge variant="secondary">
+                            {resultat.pourcentage.toFixed(2)}%
+                          </Badge>
+                        ) : (
+                          <span className="text-gray-400">-</span>
+                        )}
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </div>
+          )}
+        </CardContent>
+      </Card>
     </div>
   );
 };
