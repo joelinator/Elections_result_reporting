@@ -42,8 +42,8 @@ export async function GET(request: NextRequest) {
         taux_participation: true
       },
       _sum: {
-        nombre_inscrits: true,
-        nombre_votants: true
+        nombre_inscrit: true,
+        nombre_votant: true
       }
     });
 
@@ -76,8 +76,8 @@ export async function GET(request: NextRequest) {
       },
       participation: {
         taux_moyen: participationStats._avg.taux_participation || 0,
-        total_inscrits: participationStats._sum.nombre_inscrits || 0,
-        total_votants: participationStats._sum.nombre_votants || 0
+        total_inscrits: participationStats._sum.nombre_inscrit || 0,
+        total_votants: participationStats._sum.nombre_votant || 0
       },
       results: {
         total_votes: resultsStats._sum.nombre_vote || 0

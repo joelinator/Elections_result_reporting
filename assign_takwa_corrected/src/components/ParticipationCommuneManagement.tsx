@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useTerritorialAccessControl } from '../hooks/useTerritorialAccessControl';
 import { useAuth } from '../contexts/AuthContext';
 import {
@@ -59,9 +59,9 @@ const ParticipationCommuneManagement: React.FC<ParticipationCommuneManagementPro
     }
 
     loadData();
-  }, [canViewData]);
+  }, [canViewData, loadData]);
 
-  const loadData = async () => {
+  const loadData = useCallback(async () => {
     try {
       setLoading(true);
       setError(null);
@@ -85,7 +85,7 @@ const ParticipationCommuneManagement: React.FC<ParticipationCommuneManagementPro
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
 
   const handleCreate = async (participationData: ParticipationCommuneInput) => {
     try {

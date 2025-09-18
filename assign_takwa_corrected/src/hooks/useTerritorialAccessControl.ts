@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import { 
   getUserTerritorialAccess, 
@@ -198,7 +198,7 @@ export const useTerritorialAccessControl = () => {
   };
 
   // Check if user can view data (read-only access)
-  const canViewData = (): boolean => {
+  const canViewData = useCallback((): boolean => {
     if (!user) return false;
     
     const roleNames = getUserRoleNames();
@@ -215,10 +215,10 @@ export const useTerritorialAccessControl = () => {
     ];
     
     return canViewRoles.some(role => roleNames.includes(role));
-  };
+  }, [user]);
 
   // Get user role names helper
-  const getUserRoleNames = (): string[] => {
+  const getUserRoleNames = useCallback((): string[] => {
     const normalize = (s: string) => s?.toString().trim().toLowerCase();
     if (!user) return [];
     if (user.roles && Array.isArray(user.roles)) {
@@ -228,7 +228,7 @@ export const useTerritorialAccessControl = () => {
       return [normalize(user.role.libelle)];
     }
     return [];
-  };
+  }, [user]);
 
   return {
     territorialAccess,
