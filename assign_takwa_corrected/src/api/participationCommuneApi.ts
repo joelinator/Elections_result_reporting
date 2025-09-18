@@ -3,6 +3,17 @@
 
 const API_BASE_URL = 'https://turbo-barnacle-7pqj6gpp75jhrpww-3000.app.github.dev/api';
 
+// Helper function to safely parse JSON response
+const parseJsonResponse = async (response: Response): Promise<any> => {
+  const text = await response.text();
+  try {
+    return JSON.parse(text);
+  } catch (error) {
+    console.error('Failed to parse JSON response:', text);
+    throw new Error('Invalid JSON response from server');
+  }
+};
+
 export interface ParticipationCommune {
   code: number;
   codeCommune: number;
@@ -56,7 +67,7 @@ export const getAllParticipationCommune = async (): Promise<ParticipationCommune
       throw new Error('Failed to fetch participation commune data');
     }
 
-    return await response.json();
+    return await parseJsonResponse(response);
   } catch (error) {
     console.error('Error fetching participation commune data:', error);
     throw error;
@@ -66,7 +77,7 @@ export const getAllParticipationCommune = async (): Promise<ParticipationCommune
 // Get participation commune data for a specific arrondissement
 export const getParticipationCommuneByArrondissement = async (arrondissementCode: number): Promise<ParticipationCommune[]> => {
   try {
-    const response = await fetch(`/api/participation-commune/arrondissement/${arrondissementCode}`, {
+    const response = await fetch(`${API_BASE_URL}/participation-commune/arrondissement/${arrondissementCode}`, {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',
@@ -88,7 +99,7 @@ export const getParticipationCommuneByArrondissement = async (arrondissementCode
 // Get participation commune data for user's assigned arrondissements
 export const getParticipationCommuneForUser = async (): Promise<ParticipationCommune[]> => {
   try {
-    const response = await fetch('/api/participation-commune/user', {
+    const response = await fetch(`${API_BASE_URL}/participation-commune/user`, {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',
@@ -100,7 +111,7 @@ export const getParticipationCommuneForUser = async (): Promise<ParticipationCom
       throw new Error('Failed to fetch user participation commune data');
     }
 
-    return await response.json();
+    return await parseJsonResponse(response);
   } catch (error) {
     console.error('Error fetching user participation commune data:', error);
     throw error;
@@ -110,7 +121,7 @@ export const getParticipationCommuneForUser = async (): Promise<ParticipationCom
 // Get participation commune by ID
 export const getParticipationCommuneById = async (id: number): Promise<ParticipationCommune> => {
   try {
-    const response = await fetch(`/api/participation-commune/${id}`, {
+    const response = await fetch(`${API_BASE_URL}/participation-commune/${id}`, {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',
@@ -156,7 +167,7 @@ export const createParticipationCommune = async (data: ParticipationCommuneInput
 // Update participation commune data
 export const updateParticipationCommune = async (id: number, data: ParticipationCommuneUpdate): Promise<ParticipationCommune> => {
   try {
-    const response = await fetch(`/api/participation-commune/${id}`, {
+    const response = await fetch(`${API_BASE_URL}/participation-commune/${id}`, {
       method: 'PUT',
       headers: {
         'Content-Type': 'application/json',
@@ -180,7 +191,7 @@ export const updateParticipationCommune = async (id: number, data: Participation
 // Delete participation commune data
 export const deleteParticipationCommune = async (id: number): Promise<void> => {
   try {
-    const response = await fetch(`/api/participation-commune/${id}`, {
+    const response = await fetch(`${API_BASE_URL}/participation-commune/${id}`, {
       method: 'DELETE',
       headers: {
         'Content-Type': 'application/json',
@@ -201,7 +212,7 @@ export const deleteParticipationCommune = async (id: number): Promise<void> => {
 // Validate participation commune data
 export const validateParticipationCommune = async (id: number): Promise<ParticipationCommune> => {
   try {
-    const response = await fetch(`/api/participation-commune/${id}/validate`, {
+    const response = await fetch(`${API_BASE_URL}/participation-commune/${id}/validate`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -224,7 +235,7 @@ export const validateParticipationCommune = async (id: number): Promise<Particip
 // Approve participation commune data
 export const approveParticipationCommune = async (id: number): Promise<ParticipationCommune> => {
   try {
-    const response = await fetch(`/api/participation-commune/${id}/approve`, {
+    const response = await fetch(`${API_BASE_URL}/participation-commune/${id}/approve`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -247,7 +258,7 @@ export const approveParticipationCommune = async (id: number): Promise<Participa
 // Reject participation commune data
 export const rejectParticipationCommune = async (id: number, reason?: string): Promise<ParticipationCommune> => {
   try {
-    const response = await fetch(`/api/participation-commune/${id}/reject`, {
+    const response = await fetch(`${API_BASE_URL}/participation-commune/${id}/reject`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',

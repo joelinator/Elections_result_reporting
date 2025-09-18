@@ -34,6 +34,12 @@ export const useTerritorialAccessControl = () => {
         setTerritorialAccess(access);
       } catch (error) {
         console.error('Error loading territorial access:', error);
+        // Set empty access data as fallback
+        setTerritorialAccess({
+          departments: [],
+          arrondissements: [],
+          bureauVotes: []
+        });
       } finally {
         setLoading(false);
       }

@@ -110,6 +110,7 @@ export const checkUserBureauVoteAccess = async (bureauVoteCode: number): Promise
 // Get all territorial access for current user
 export const getUserTerritorialAccess = async (): Promise<TerritorialAccess> => {
   try {
+    // Try the primary endpoint first
     const response = await fetch(`${API_BASE_URL}/territorial-access/user`, {
       method: 'GET',
       headers: {
@@ -119,17 +120,50 @@ export const getUserTerritorialAccess = async (): Promise<TerritorialAccess> => 
     });
     
     if (!response.ok) {
+      if (response.status === 404) {
+        console.warn('Primary territorial access endpoint not available, trying alternative endpoint');
+        // Try the alternative endpoint
+        return await getUserTerritorialAccessFallback();
+      }
       throw new Error('Failed to get territorial access');
     }
     
     return await response.json();
   } catch (error) {
     console.error('Error getting territorial access:', error);
-    return {
-      departments: [],
-      arrondissements: [],
-      bureauVotes: []
-    };
+    // Try the fallback endpoint
+    try {
+      return await getUserTerritorialAccessFallback();
+    } catch (fallbackError) {
+      console.error('Fallback endpoint also failed:', fallbackError);
+      return {
+        departments: [],
+        arrondissements: [],
+        bureauVotes: []
+      };
+    }
+  }
+};
+
+// Fallback function to get territorial access from alternative endpoint
+const getUserTerritorialAccessFallback = async (): Promise<TerritorialAccess> => {
+  try {
+    const response = await fetch(`${API_BASE_URL}/territorial-access/summary`, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${localStorage.getItem('accessToken')}`
+      }
+    });
+    
+    if (!response.ok) {
+      throw new Error('Fallback endpoint failed');
+    }
+    
+    return await response.json();
+  } catch (error) {
+    console.error('Error getting territorial access from fallback:', error);
+    throw error;
   }
 };
 
