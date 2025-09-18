@@ -227,29 +227,182 @@ const PvDepartementManagement: React.FC<PvDepartementManagementProps> = ({ class
         </div>
       </div>
 
-      {/* Create/Edit Modal would go here */}
+      {/* Create/Edit Modal */}
       {showCreateModal && (
         <div className="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50">
-          <div className="relative top-20 mx-auto p-5 border w-96 shadow-lg rounded-md bg-white">
+          <div className="relative top-10 mx-auto p-6 border w-full max-w-2xl shadow-lg rounded-md bg-white">
             <div className="mt-3">
-              <h3 className="text-lg font-medium text-gray-900 mb-4">
+              <h3 className="text-lg font-medium text-gray-900 mb-6">
                 Ajouter un PV départemental
               </h3>
-              {/* Form would go here */}
-              <div className="flex justify-end gap-2 mt-4">
-                <button
-                  onClick={() => setShowCreateModal(false)}
-                  className="px-4 py-2 bg-gray-300 text-gray-700 rounded hover:bg-gray-400"
-                >
-                  Annuler
-                </button>
-                <button
-                  onClick={() => handleCreate({})}
-                  className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
-                >
-                  Créer
-                </button>
-              </div>
+              
+              <form onSubmit={(e) => {
+                e.preventDefault();
+                const formData = new FormData(e.target as HTMLFormElement);
+                const pvData: PvDepartementInput = {
+                  codeDepartement: parseInt(formData.get('codeDepartement') as string) || 0,
+                  numeroPv: formData.get('numeroPv') as string || '',
+                  dateEtablissement: formData.get('dateEtablissement') as string || new Date().toISOString(),
+                  nombreInscrits: parseInt(formData.get('nombreInscrits') as string) || 0,
+                  nombreVotants: parseInt(formData.get('nombreVotants') as string) || 0,
+                  nombreBulletinsNuls: parseInt(formData.get('nombreBulletinsNuls') as string) || 0,
+                  nombreBulletinsBlancs: parseInt(formData.get('nombreBulletinsBlancs') as string) || 0,
+                  nombreSuffragesExprimes: parseInt(formData.get('nombreSuffragesExprimes') as string) || 0,
+                  observations: formData.get('observations') as string || '',
+                  statut: formData.get('statut') as string || 'brouillon',
+                  urlDocument: formData.get('urlDocument') as string || ''
+                };
+                handleCreate(pvData);
+              }} className="space-y-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      Code Département
+                    </label>
+                    <input
+                      type="number"
+                      name="codeDepartement"
+                      required
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    />
+                  </div>
+                  
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      Numéro PV
+                    </label>
+                    <input
+                      type="text"
+                      name="numeroPv"
+                      required
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    />
+                  </div>
+                  
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      Date d'établissement
+                    </label>
+                    <input
+                      type="datetime-local"
+                      name="dateEtablissement"
+                      required
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    />
+                  </div>
+                  
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      Nombre d'inscrits
+                    </label>
+                    <input
+                      type="number"
+                      name="nombreInscrits"
+                      required
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    />
+                  </div>
+                  
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      Nombre de votants
+                    </label>
+                    <input
+                      type="number"
+                      name="nombreVotants"
+                      required
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    />
+                  </div>
+                  
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      Bulletins nuls
+                    </label>
+                    <input
+                      type="number"
+                      name="nombreBulletinsNuls"
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    />
+                  </div>
+                  
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      Bulletins blancs
+                    </label>
+                    <input
+                      type="number"
+                      name="nombreBulletinsBlancs"
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    />
+                  </div>
+                  
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      Suffrages exprimés
+                    </label>
+                    <input
+                      type="number"
+                      name="nombreSuffragesExprimes"
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    />
+                  </div>
+                  
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      Statut
+                    </label>
+                    <select
+                      name="statut"
+                      required
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    >
+                      <option value="brouillon">Brouillon</option>
+                      <option value="en_revision">En révision</option>
+                      <option value="approuve">Approuvé</option>
+                      <option value="publie">Publié</option>
+                    </select>
+                  </div>
+                  
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      URL du document
+                    </label>
+                    <input
+                      type="url"
+                      name="urlDocument"
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    />
+                  </div>
+                </div>
+                
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Observations
+                  </label>
+                  <textarea
+                    name="observations"
+                    rows={3}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  />
+                </div>
+                
+                <div className="flex justify-end gap-2 mt-6">
+                  <button
+                    type="button"
+                    onClick={() => setShowCreateModal(false)}
+                    className="px-4 py-2 bg-gray-300 text-gray-700 rounded hover:bg-gray-400"
+                  >
+                    Annuler
+                  </button>
+                  <button
+                    type="submit"
+                    className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
+                  >
+                    Créer
+                  </button>
+                </div>
+              </form>
             </div>
           </div>
         </div>

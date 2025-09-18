@@ -286,29 +286,219 @@ const RedressementBureauManagement: React.FC<RedressementBureauManagementProps> 
         </div>
       </div>
 
-      {/* Create/Edit Modal would go here */}
+      {/* Create/Edit Modal */}
       {showCreateModal && (
         <div className="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50">
-          <div className="relative top-20 mx-auto p-5 border w-96 shadow-lg rounded-md bg-white">
+          <div className="relative top-10 mx-auto p-6 border w-full max-w-2xl shadow-lg rounded-md bg-white">
             <div className="mt-3">
-              <h3 className="text-lg font-medium text-gray-900 mb-4">
+              <h3 className="text-lg font-medium text-gray-900 mb-6">
                 Ajouter un redressement de bureau de vote
               </h3>
-              {/* Form would go here */}
-              <div className="flex justify-end gap-2 mt-4">
-                <button
-                  onClick={() => setShowCreateModal(false)}
-                  className="px-4 py-2 bg-gray-300 text-gray-700 rounded hover:bg-gray-400"
-                >
-                  Annuler
-                </button>
-                <button
-                  onClick={() => handleCreate({})}
-                  className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
-                >
-                  Créer
-                </button>
-              </div>
+              
+              <form onSubmit={(e) => {
+                e.preventDefault();
+                const formData = new FormData(e.target as HTMLFormElement);
+                const redressementData: RedressementBureauInput = {
+                  codeBureauVote: parseInt(formData.get('codeBureauVote') as string) || 0,
+                  nombreInscritInitial: parseInt(formData.get('nombreInscritInitial') as string) || 0,
+                  nombreInscritRedresse: parseInt(formData.get('nombreInscritRedresse') as string) || 0,
+                  nombreVotantInitial: parseInt(formData.get('nombreVotantInitial') as string) || 0,
+                  nombreVotantRedresse: parseInt(formData.get('nombreVotantRedresse') as string) || 0,
+                  tauxParticipationInitial: parseFloat(formData.get('tauxParticipationInitial') as string) || 0,
+                  tauxParticipationRedresse: parseFloat(formData.get('tauxParticipationRedresse') as string) || 0,
+                  bulletinNulInitial: parseInt(formData.get('bulletinNulInitial') as string) || 0,
+                  bulletinNulRedresse: parseInt(formData.get('bulletinNulRedresse') as string) || 0,
+                  suffrageExprimeValablesInitial: parseInt(formData.get('suffrageExprimeValablesInitial') as string) || 0,
+                  suffrageExprimeValablesRedresse: parseInt(formData.get('suffrageExprimeValablesRedresse') as string) || 0,
+                  erreursMateriellesInitiales: formData.get('erreursMateriellesInitiales') as string || '',
+                  erreursMateriellesRedresse: formData.get('erreursMateriellesRedresse') as string || '',
+                  raisonRedressement: formData.get('raisonRedressement') as string || '',
+                  dateRedressement: new Date().toISOString()
+                };
+                handleCreate(redressementData);
+              }} className="space-y-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      Code Bureau de Vote
+                    </label>
+                    <input
+                      type="number"
+                      name="codeBureauVote"
+                      required
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    />
+                  </div>
+                  
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      Nombre d'inscrits initial
+                    </label>
+                    <input
+                      type="number"
+                      name="nombreInscritInitial"
+                      required
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    />
+                  </div>
+                  
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      Nombre d'inscrits redressé
+                    </label>
+                    <input
+                      type="number"
+                      name="nombreInscritRedresse"
+                      required
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    />
+                  </div>
+                  
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      Nombre de votants initial
+                    </label>
+                    <input
+                      type="number"
+                      name="nombreVotantInitial"
+                      required
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    />
+                  </div>
+                  
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      Nombre de votants redressé
+                    </label>
+                    <input
+                      type="number"
+                      name="nombreVotantRedresse"
+                      required
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    />
+                  </div>
+                  
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      Taux de participation initial (%)
+                    </label>
+                    <input
+                      type="number"
+                      step="0.01"
+                      name="tauxParticipationInitial"
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    />
+                  </div>
+                  
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      Taux de participation redressé (%)
+                    </label>
+                    <input
+                      type="number"
+                      step="0.01"
+                      name="tauxParticipationRedresse"
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    />
+                  </div>
+                  
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      Bulletins nuls initial
+                    </label>
+                    <input
+                      type="number"
+                      name="bulletinNulInitial"
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    />
+                  </div>
+                  
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      Bulletins nuls redressé
+                    </label>
+                    <input
+                      type="number"
+                      name="bulletinNulRedresse"
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    />
+                  </div>
+                  
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      Suffrages exprimés valables initial
+                    </label>
+                    <input
+                      type="number"
+                      name="suffrageExprimeValablesInitial"
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    />
+                  </div>
+                  
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      Suffrages exprimés valables redressé
+                    </label>
+                    <input
+                      type="number"
+                      name="suffrageExprimeValablesRedresse"
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    />
+                  </div>
+                </div>
+                
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      Erreurs matérielles initiales
+                    </label>
+                    <textarea
+                      name="erreursMateriellesInitiales"
+                      rows={2}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    />
+                  </div>
+                  
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      Erreurs matérielles redressées
+                    </label>
+                    <textarea
+                      name="erreursMateriellesRedresse"
+                      rows={2}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    />
+                  </div>
+                </div>
+                
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Raison du redressement
+                  </label>
+                  <textarea
+                    name="raisonRedressement"
+                    rows={3}
+                    required
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  />
+                </div>
+                
+                <div className="flex justify-end gap-2 mt-6">
+                  <button
+                    type="button"
+                    onClick={() => setShowCreateModal(false)}
+                    className="px-4 py-2 bg-gray-300 text-gray-700 rounded hover:bg-gray-400"
+                  >
+                    Annuler
+                  </button>
+                  <button
+                    type="submit"
+                    className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
+                  >
+                    Créer
+                  </button>
+                </div>
+              </form>
             </div>
           </div>
         </div>

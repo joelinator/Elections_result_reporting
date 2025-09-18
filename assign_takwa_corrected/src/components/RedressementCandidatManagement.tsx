@@ -277,29 +277,118 @@ const RedressementCandidatManagement: React.FC<RedressementCandidatManagementPro
         </div>
       </div>
 
-      {/* Create/Edit Modal would go here */}
+      {/* Create/Edit Modal */}
       {showCreateModal && (
         <div className="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50">
-          <div className="relative top-20 mx-auto p-5 border w-96 shadow-lg rounded-md bg-white">
+          <div className="relative top-10 mx-auto p-6 border w-full max-w-2xl shadow-lg rounded-md bg-white">
             <div className="mt-3">
-              <h3 className="text-lg font-medium text-gray-900 mb-4">
+              <h3 className="text-lg font-medium text-gray-900 mb-6">
                 Ajouter un redressement de candidat
               </h3>
-              {/* Form would go here */}
-              <div className="flex justify-end gap-2 mt-4">
-                <button
-                  onClick={() => setShowCreateModal(false)}
-                  className="px-4 py-2 bg-gray-300 text-gray-700 rounded hover:bg-gray-400"
-                >
-                  Annuler
-                </button>
-                <button
-                  onClick={() => handleCreate({})}
-                  className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
-                >
-                  Créer
-                </button>
-              </div>
+              
+              <form onSubmit={(e) => {
+                e.preventDefault();
+                const formData = new FormData(e.target as HTMLFormElement);
+                const redressementData: RedressementCandidatInput = {
+                  codeCandidat: parseInt(formData.get('codeCandidat') as string) || 0,
+                  codeBureauVote: parseInt(formData.get('codeBureauVote') as string) || 0,
+                  nombreVoteInitial: parseInt(formData.get('nombreVoteInitial') as string) || 0,
+                  nombreVoteRedresse: parseInt(formData.get('nombreVoteRedresse') as string) || 0,
+                  raisonRedressement: formData.get('raisonRedressement') as string || '',
+                  dateRedressement: new Date().toISOString(),
+                  codeCreateur: formData.get('codeCreateur') as string || ''
+                };
+                handleCreate(redressementData);
+              }} className="space-y-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      Code Candidat
+                    </label>
+                    <input
+                      type="number"
+                      name="codeCandidat"
+                      required
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    />
+                  </div>
+                  
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      Code Bureau de Vote
+                    </label>
+                    <input
+                      type="number"
+                      name="codeBureauVote"
+                      required
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    />
+                  </div>
+                  
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      Nombre de votes initial
+                    </label>
+                    <input
+                      type="number"
+                      name="nombreVoteInitial"
+                      required
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    />
+                  </div>
+                  
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      Nombre de votes redressé
+                    </label>
+                    <input
+                      type="number"
+                      name="nombreVoteRedresse"
+                      required
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    />
+                  </div>
+                  
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      Code Créateur
+                    </label>
+                    <input
+                      type="text"
+                      name="codeCreateur"
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    />
+                  </div>
+                </div>
+                
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Raison du redressement
+                  </label>
+                  <textarea
+                    name="raisonRedressement"
+                    rows={3}
+                    required
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  />
+                </div>
+                
+                <div className="flex justify-end gap-2 mt-6">
+                  <button
+                    type="button"
+                    onClick={() => setShowCreateModal(false)}
+                    className="px-4 py-2 bg-gray-300 text-gray-700 rounded hover:bg-gray-400"
+                  >
+                    Annuler
+                  </button>
+                  <button
+                    type="submit"
+                    className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
+                  >
+                    Créer
+                  </button>
+                </div>
+              </form>
             </div>
           </div>
         </div>

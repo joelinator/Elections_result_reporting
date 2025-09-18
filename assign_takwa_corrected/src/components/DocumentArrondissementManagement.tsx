@@ -281,29 +281,127 @@ const DocumentArrondissementManagement: React.FC<DocumentArrondissementManagemen
         </div>
       </div>
 
-      {/* Create/Edit Modal would go here */}
+      {/* Create/Edit Modal */}
       {showCreateModal && (
         <div className="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50">
-          <div className="relative top-20 mx-auto p-5 border w-96 shadow-lg rounded-md bg-white">
+          <div className="relative top-10 mx-auto p-6 border w-full max-w-2xl shadow-lg rounded-md bg-white">
             <div className="mt-3">
-              <h3 className="text-lg font-medium text-gray-900 mb-4">
+              <h3 className="text-lg font-medium text-gray-900 mb-6">
                 Ajouter un document d'arrondissement
               </h3>
-              {/* Form would go here */}
-              <div className="flex justify-end gap-2 mt-4">
-                <button
-                  onClick={() => setShowCreateModal(false)}
-                  className="px-4 py-2 bg-gray-300 text-gray-700 rounded hover:bg-gray-400"
-                >
-                  Annuler
-                </button>
-                <button
-                  onClick={() => handleCreate({})}
-                  className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
-                >
-                  Créer
-                </button>
-              </div>
+              
+              <form onSubmit={(e) => {
+                e.preventDefault();
+                const formData = new FormData(e.target as HTMLFormElement);
+                const documentData: DocumentArrondissementInput = {
+                  codeArrondissement: parseInt(formData.get('codeArrondissement') as string) || 0,
+                  typeDocument: formData.get('typeDocument') as string || '',
+                  titre: formData.get('titre') as string || '',
+                  description: formData.get('description') as string || '',
+                  urlDocument: formData.get('urlDocument') as string || '',
+                  dateCreation: new Date().toISOString(),
+                  statut: formData.get('statut') as string || 'brouillon'
+                };
+                handleCreate(documentData);
+              }} className="space-y-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      Code Arrondissement
+                    </label>
+                    <input
+                      type="number"
+                      name="codeArrondissement"
+                      required
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    />
+                  </div>
+                  
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      Type de document
+                    </label>
+                    <select
+                      name="typeDocument"
+                      required
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    >
+                      <option value="">Sélectionner un type</option>
+                      <option value="rapport">Rapport</option>
+                      <option value="proces_verbal">Procès-verbal</option>
+                      <option value="decision">Décision</option>
+                      <option value="circulaire">Circulaire</option>
+                      <option value="autre">Autre</option>
+                    </select>
+                  </div>
+                  
+                  <div className="md:col-span-2">
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      Titre du document
+                    </label>
+                    <input
+                      type="text"
+                      name="titre"
+                      required
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    />
+                  </div>
+                  
+                  <div className="md:col-span-2">
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      Description
+                    </label>
+                    <textarea
+                      name="description"
+                      rows={3}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    />
+                  </div>
+                  
+                  <div className="md:col-span-2">
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      URL du document
+                    </label>
+                    <input
+                      type="url"
+                      name="urlDocument"
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    />
+                  </div>
+                  
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      Statut
+                    </label>
+                    <select
+                      name="statut"
+                      required
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    >
+                      <option value="brouillon">Brouillon</option>
+                      <option value="en_revision">En révision</option>
+                      <option value="approuve">Approuvé</option>
+                      <option value="publie">Publié</option>
+                    </select>
+                  </div>
+                </div>
+                
+                <div className="flex justify-end gap-2 mt-6">
+                  <button
+                    type="button"
+                    onClick={() => setShowCreateModal(false)}
+                    className="px-4 py-2 bg-gray-300 text-gray-700 rounded hover:bg-gray-400"
+                  >
+                    Annuler
+                  </button>
+                  <button
+                    type="submit"
+                    className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
+                  >
+                    Créer
+                  </button>
+                </div>
+              </form>
             </div>
           </div>
         </div>

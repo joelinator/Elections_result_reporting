@@ -216,6 +216,7 @@ const StatCard = ({ icon, title, subtitle, color }: StatCardProps) => {
 const Header = () => {
   const { user, logout } = useAuth();
   const [showUserMenu, setShowUserMenu] = useState(false);
+  const [hoverTimeout, setHoverTimeout] = useState<number | null>(null);
 
   const handleLogout = () => {
     logout();
@@ -223,12 +224,31 @@ const Header = () => {
   };
 
   const handleMouseEnter = () => {
+    // Clear any existing timeout
+    if (hoverTimeout) {
+      clearTimeout(hoverTimeout);
+      setHoverTimeout(null);
+    }
     setShowUserMenu(true);
   };
 
   const handleMouseLeave = () => {
-    setShowUserMenu(false);
+    // Add a small delay before closing to allow mouse to move to menu
+    const timeout = setTimeout(() => {
+      setShowUserMenu(false);
+    }, 150); // 150ms delay
+    
+    setHoverTimeout(timeout);
   };
+
+  // Cleanup timeout on unmount
+  useEffect(() => {
+    return () => {
+      if (hoverTimeout) {
+        clearTimeout(hoverTimeout);
+      }
+    };
+  }, [hoverTimeout]);
 
   return (
     <header className="bg-gradient-to-r from-slate-800 to-slate-700 text-white px-6 h-16 flex items-center justify-between shadow-lg">
@@ -264,7 +284,11 @@ const Header = () => {
           </div>
           
           {showUserMenu && (
-            <div className="absolute right-0 top-full mt-2 w-64 bg-white rounded-lg shadow-xl border border-gray-200 py-2 z-50">
+            <div 
+              className="absolute right-0 top-full mt-2 w-64 bg-white rounded-lg shadow-xl border border-gray-200 py-2 z-50"
+              onMouseEnter={handleMouseEnter}
+              onMouseLeave={handleMouseLeave}
+            >
               <div className="px-4 py-3 border-b border-gray-100">
                 <div className="text-sm font-medium text-gray-900">{user?.noms_prenoms}</div>
                 <div className="text-sm text-gray-500">{user?.email}</div>
@@ -324,6 +348,7 @@ const Navigation = ({ menuItems, activeMenu, onMenuClick }: {
   onMenuClick: (menuId: string) => void;
 }) => {
   const [openDropdown, setOpenDropdown] = useState<string | null>(null);
+  const [hoverTimeout, setHoverTimeout] = useState<number | null>(null);
 
   const handleMenuClick = (item: MenuItem) => {
     if (item.children) {
@@ -337,14 +362,34 @@ const Navigation = ({ menuItems, activeMenu, onMenuClick }: {
   };
 
   const handleMouseEnter = (item: MenuItem) => {
+    // Clear any existing timeout
+    if (hoverTimeout) {
+      clearTimeout(hoverTimeout);
+      setHoverTimeout(null);
+    }
+    
     if (item.children) {
       setOpenDropdown(item.id);
     }
   };
 
   const handleMouseLeave = () => {
-    setOpenDropdown(null);
+    // Add a small delay before closing to allow mouse to move to submenu
+    const timeout = setTimeout(() => {
+      setOpenDropdown(null);
+    }, 150); // 150ms delay
+    
+    setHoverTimeout(timeout);
   };
+
+  // Cleanup timeout on unmount
+  useEffect(() => {
+    return () => {
+      if (hoverTimeout) {
+        clearTimeout(hoverTimeout);
+      }
+    };
+  }, [hoverTimeout]);
 
   return (
     <nav className="bg-gradient-to-r from-slate-700 to-slate-600 h-14 shadow-md">
@@ -368,7 +413,11 @@ const Navigation = ({ menuItems, activeMenu, onMenuClick }: {
           </button>
           
           {item.children && openDropdown === item.id && (
-            <div className="nav-dropdown">
+            <div 
+              className="nav-dropdown"
+              onMouseEnter={() => handleMouseEnter(item)}
+              onMouseLeave={handleMouseLeave}
+            >
               {item.children.map((child) => (
                 <button
                   key={child.id}
