@@ -199,6 +199,11 @@ export const ROLE_PERMISSIONS: Record<RoleType, Permission[]> = {
       entity: EntityType.REDRESSEMENT_CANDIDAT,
       actions: [ActionType.CREATE, ActionType.READ, ActionType.UPDATE, ActionType.DELETE, ActionType.VALIDATE, ActionType.APPROVE, ActionType.REJECT],
       scope: 'all'
+    },
+    {
+      entity: EntityType.RESULTAT_DEPARTEMENT,
+      actions: [ActionType.CREATE, ActionType.READ, ActionType.UPDATE, ActionType.DELETE, ActionType.VALIDATE, ActionType.APPROVE, ActionType.REJECT],
+      scope: 'all'
     }
   ]
 };

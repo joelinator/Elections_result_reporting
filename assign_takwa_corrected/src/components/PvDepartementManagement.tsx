@@ -2,6 +2,15 @@ import React, { useState, useEffect } from 'react';
 import { useTerritorialAccessControl } from '../hooks/useTerritorialAccessControl';
 import { useAuth } from '../contexts/AuthContext';
 import { departementApi, type Departement } from '../api/arrondissementApi';
+import { 
+  getAllPvs, 
+  createPv, 
+  updatePv, 
+  deletePv,
+  type PvDepartement as PvDepartementType,
+  type PvDepartementInput
+} from '../api/pvDepartementApi';
+import FileUpload from './FileUpload';
 
 interface PvDepartement {
   code: number;
@@ -24,12 +33,13 @@ interface PvDepartementManagementProps {
 const PvDepartementManagement: React.FC<PvDepartementManagementProps> = ({ className = '' }) => {
   const { user } = useAuth();
   const { canViewData, canEditDepartment, getUserRoleNames } = useTerritorialAccessControl();
-  const [pvs, setPvs] = useState<PvDepartement[]>([]);
+  const [pvs, setPvs] = useState<PvDepartementType[]>([]);
   const [departements, setDepartements] = useState<Departement[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [showCreateModal, setShowCreateModal] = useState(false);
-  const [editingPv, setEditingPv] = useState<PvDepartement | null>(null);
+  const [editingPv, setEditingPv] = useState<PvDepartementType | null>(null);
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
 
   const roleNames = getUserRoleNames();
   const canEdit = roleNames.includes('administrateur') || 
@@ -48,12 +58,15 @@ const PvDepartementManagement: React.FC<PvDepartementManagementProps> = ({ class
   const loadData = async () => {
     try {
       setLoading(true);
-      // Load PVs and departements from API
-      // This would be replaced with actual API calls
-      setPvs([]);
+      setError(null);
       
-      // Load départements from API
-      const departementsData = await departementApi.getAll();
+      // Load PVs and départements from API
+      const [pvsData, departementsData] = await Promise.all([
+        getAllPvs(),
+        departementApi.getAll()
+      ]);
+      
+      setPvs(pvsData);
       setDepartements(departementsData);
     } catch (err) {
       setError('Erreur lors du chargement des données');
@@ -63,25 +76,37 @@ const PvDepartementManagement: React.FC<PvDepartementManagementProps> = ({ class
     }
   };
 
-  const handleCreate = async (pvData: Partial<PvDepartement>) => {
+  const handleCreate = async (pvData: PvDepartementInput) => {
     try {
-      // API call to create PV
-      console.log('Creating PV:', pvData);
+      const dataWithFile = {
+        ...pvData,
+        file: selectedFile || undefined
+      };
+      await createPv(dataWithFile);
       await loadData();
       setShowCreateModal(false);
+      setSelectedFile(null);
     } catch (err) {
       setError('Erreur lors de la création du PV');
+      console.error('Error creating PV:', err);
     }
   };
 
-  const handleUpdate = async (pvData: Partial<PvDepartement>) => {
+  const handleUpdate = async (pvData: Partial<PvDepartementInput>) => {
     try {
-      // API call to update PV
-      console.log('Updating PV:', pvData);
-      await loadData();
-      setEditingPv(null);
+      if (editingPv) {
+        const dataWithFile = {
+          ...pvData,
+          file: selectedFile || undefined
+        };
+        await updatePv(editingPv.code, dataWithFile);
+        await loadData();
+        setEditingPv(null);
+        setSelectedFile(null);
+      }
     } catch (err) {
       setError('Erreur lors de la mise à jour du PV');
+      console.error('Error updating PV:', err);
     }
   };
 
@@ -91,11 +116,11 @@ const PvDepartementManagement: React.FC<PvDepartementManagementProps> = ({ class
     }
 
     try {
-      // API call to delete PV
-      console.log('Deleting PV:', code);
+      await deletePv(code);
       await loadData();
     } catch (err) {
       setError('Erreur lors de la suppression du PV');
+      console.error('Error deleting PV:', err);
     }
   };
 
@@ -244,17 +269,10 @@ const PvDepartementManagement: React.FC<PvDepartementManagementProps> = ({ class
                 e.preventDefault();
                 const formData = new FormData(e.target as HTMLFormElement);
                 const pvData: PvDepartementInput = {
-                  codeDepartement: parseInt(formData.get('codeDepartement') as string) || 0,
-                  numeroPv: formData.get('numeroPv') as string || '',
-                  dateEtablissement: formData.get('dateEtablissement') as string || new Date().toISOString(),
-                  nombreInscrits: parseInt(formData.get('nombreInscrits') as string) || 0,
-                  nombreVotants: parseInt(formData.get('nombreVotants') as string) || 0,
-                  nombreBulletinsNuls: parseInt(formData.get('nombreBulletinsNuls') as string) || 0,
-                  nombreBulletinsBlancs: parseInt(formData.get('nombreBulletinsBlancs') as string) || 0,
-                  nombreSuffragesExprimes: parseInt(formData.get('nombreSuffragesExprimes') as string) || 0,
-                  observations: formData.get('observations') as string || '',
-                  statut: formData.get('statut') as string || 'brouillon',
-                  urlDocument: formData.get('urlDocument') as string || ''
+                  code_departement: parseInt(formData.get('codeDepartement') as string) || 0,
+                  numero_pv: formData.get('numeroPv') as string || '',
+                  date_etablissement: formData.get('dateEtablissement') as string || new Date().toISOString(),
+                  url_pv: formData.get('urlDocument') as string || ''
                 };
                 handleCreate(pvData);
               }} className="space-y-4">
@@ -375,13 +393,11 @@ const PvDepartementManagement: React.FC<PvDepartementManagementProps> = ({ class
                   </div>
                   
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
-                      URL du document
-                    </label>
-                    <input
-                      type="url"
-                      name="urlDocument"
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    <FileUpload
+                      onFileSelect={setSelectedFile}
+                      label="Fichier du PV"
+                      description="Formats acceptés: PDF, DOC, DOCX, JPG, JPEG, PNG (max 10MB)"
+                      required={false}
                     />
                   </div>
                 </div>

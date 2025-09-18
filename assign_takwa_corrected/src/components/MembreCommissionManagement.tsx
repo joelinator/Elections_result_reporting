@@ -2,6 +2,14 @@ import React, { useState, useEffect } from 'react';
 import { useTerritorialAccessControl } from '../hooks/useTerritorialAccessControl';
 import { useAuth } from '../contexts/AuthContext';
 import { commissionApi, fonctionCommissionApi, type Commission as CommissionApi, type FonctionCommission as FonctionCommissionApi } from '../api/arrondissementApi';
+import { 
+  getAllMembres, 
+  createMembre, 
+  updateMembre, 
+  deleteMembre,
+  type MembreCommission as MembreCommissionType,
+  type MembreCommissionInput
+} from '../api/membreCommissionApi';
 
 interface MembreCommission {
   code: number;
@@ -32,13 +40,13 @@ interface MembreCommissionManagementProps {
 const MembreCommissionManagement: React.FC<MembreCommissionManagementProps> = ({ className = '' }) => {
   const { user } = useAuth();
   const { canViewData, canEditDepartment, getUserRoleNames } = useTerritorialAccessControl();
-  const [membres, setMembres] = useState<MembreCommission[]>([]);
+  const [membres, setMembres] = useState<MembreCommissionType[]>([]);
   const [commissions, setCommissions] = useState<CommissionApi[]>([]);
   const [fonctions, setFonctions] = useState<FonctionCommissionApi[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [showCreateModal, setShowCreateModal] = useState(false);
-  const [editingMembre, setEditingMembre] = useState<MembreCommission | null>(null);
+  const [editingMembre, setEditingMembre] = useState<MembreCommissionType | null>(null);
 
   const roleNames = getUserRoleNames();
   const canEdit = roleNames.includes('administrateur') || 
@@ -57,15 +65,16 @@ const MembreCommissionManagement: React.FC<MembreCommissionManagementProps> = ({
   const loadData = async () => {
     try {
       setLoading(true);
-      // Load membres, commissions, and fonctions from API
-      // This would be replaced with actual API calls
-      setMembres([]);
+      setError(null);
       
-      // Load commissions and fonctions from API
-      const [commissionsData, fonctionsData] = await Promise.all([
+      // Load membres, commissions, and fonctions from API
+      const [membresData, commissionsData, fonctionsData] = await Promise.all([
+        getAllMembres(),
         commissionApi.getAll(),
         fonctionCommissionApi.getAll()
       ]);
+      
+      setMembres(membresData);
       setCommissions(commissionsData);
       setFonctions(fonctionsData);
     } catch (err) {
@@ -76,25 +85,27 @@ const MembreCommissionManagement: React.FC<MembreCommissionManagementProps> = ({
     }
   };
 
-  const handleCreate = async (membreData: Partial<MembreCommission>) => {
+  const handleCreate = async (membreData: MembreCommissionInput) => {
     try {
-      // API call to create membre
-      console.log('Creating membre:', membreData);
+      await createMembre(membreData);
       await loadData();
       setShowCreateModal(false);
     } catch (err) {
       setError('Erreur lors de la création du membre');
+      console.error('Error creating member:', err);
     }
   };
 
-  const handleUpdate = async (membreData: Partial<MembreCommission>) => {
+  const handleUpdate = async (membreData: Partial<MembreCommissionInput>) => {
     try {
-      // API call to update membre
-      console.log('Updating membre:', membreData);
-      await loadData();
-      setEditingMembre(null);
+      if (editingMembre) {
+        await updateMembre(editingMembre.code, membreData);
+        await loadData();
+        setEditingMembre(null);
+      }
     } catch (err) {
       setError('Erreur lors de la mise à jour du membre');
+      console.error('Error updating member:', err);
     }
   };
 
@@ -104,11 +115,11 @@ const MembreCommissionManagement: React.FC<MembreCommissionManagementProps> = ({
     }
 
     try {
-      // API call to delete membre
-      console.log('Deleting membre:', code);
+      await deleteMembre(code);
       await loadData();
     } catch (err) {
       setError('Erreur lors de la suppression du membre');
+      console.error('Error deleting member:', err);
     }
   };
 
@@ -248,13 +259,12 @@ const MembreCommissionManagement: React.FC<MembreCommissionManagementProps> = ({
               <form onSubmit={(e) => {
                 e.preventDefault();
                 const formData = new FormData(e.target as HTMLFormElement);
-                const membreData: Partial<MembreCommission> = {
+                const membreData: MembreCommissionInput = {
                   noms_prenoms: formData.get('noms_prenoms') as string || '',
                   contact: formData.get('contact') as string || '',
                   email: formData.get('email') as string || '',
                   code_commission: parseInt(formData.get('codeCommission') as string) || 0,
-                  code_fonction: parseInt(formData.get('codeFonction') as string) || 0,
-                  date_creation: new Date().toISOString()
+                  code_fonction: parseInt(formData.get('codeFonction') as string) || 0
                 };
                 handleCreate(membreData);
               }} className="space-y-4">

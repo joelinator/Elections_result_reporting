@@ -2,6 +2,14 @@ import React, { useState, useEffect } from 'react';
 import { useTerritorialAccessControl } from '../hooks/useTerritorialAccessControl';
 import { useAuth } from '../contexts/AuthContext';
 import { bureauVoteApi, type BureauVote as BureauVoteApi } from '../api/arrondissementApi';
+import { 
+  getAllRedressementsBureau, 
+  createRedressementBureau, 
+  updateRedressementBureau, 
+  deleteRedressementBureau,
+  type RedressementBureau as RedressementBureauType,
+  type RedressementBureauInput
+} from '../api/redressementBureauApi';
 
 interface RedressementBureau {
   code: number;
@@ -33,12 +41,12 @@ interface RedressementBureauManagementProps {
 const RedressementBureauManagement: React.FC<RedressementBureauManagementProps> = ({ className = '' }) => {
   const { user } = useAuth();
   const { canViewData, canEditBureauVote, getUserRoleNames } = useTerritorialAccessControl();
-  const [redressements, setRedressements] = useState<RedressementBureau[]>([]);
+  const [redressements, setRedressements] = useState<RedressementBureauType[]>([]);
   const [bureauxVote, setBureauxVote] = useState<BureauVoteApi[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [showCreateModal, setShowCreateModal] = useState(false);
-  const [editingRedressement, setEditingRedressement] = useState<RedressementBureau | null>(null);
+  const [editingRedressement, setEditingRedressement] = useState<RedressementBureauType | null>(null);
 
   const roleNames = getUserRoleNames();
   const canEdit = roleNames.includes('administrateur') || 
@@ -57,12 +65,15 @@ const RedressementBureauManagement: React.FC<RedressementBureauManagementProps> 
   const loadData = async () => {
     try {
       setLoading(true);
-      // Load redressements and bureaux vote from API
-      // This would be replaced with actual API calls
-      setRedressements([]);
+      setError(null);
       
-      // Load bureaux de vote from API
-      const bureauxVoteData = await bureauVoteApi.getAll();
+      // Load redressements and bureaux vote from API
+      const [redressementsData, bureauxVoteData] = await Promise.all([
+        getAllRedressementsBureau(),
+        bureauVoteApi.getAll()
+      ]);
+      
+      setRedressements(redressementsData);
       setBureauxVote(bureauxVoteData);
     } catch (err) {
       setError('Erreur lors du chargement des données');
@@ -72,25 +83,27 @@ const RedressementBureauManagement: React.FC<RedressementBureauManagementProps> 
     }
   };
 
-  const handleCreate = async (redressementData: Partial<RedressementBureau>) => {
+  const handleCreate = async (redressementData: RedressementBureauInput) => {
     try {
-      // API call to create redressement
-      console.log('Creating redressement:', redressementData);
+      await createRedressementBureau(redressementData);
       await loadData();
       setShowCreateModal(false);
     } catch (err) {
       setError('Erreur lors de la création du redressement');
+      console.error('Error creating redressement:', err);
     }
   };
 
-  const handleUpdate = async (redressementData: Partial<RedressementBureau>) => {
+  const handleUpdate = async (redressementData: Partial<RedressementBureauInput>) => {
     try {
-      // API call to update redressement
-      console.log('Updating redressement:', redressementData);
-      await loadData();
-      setEditingRedressement(null);
+      if (editingRedressement) {
+        await updateRedressementBureau(editingRedressement.code, redressementData);
+        await loadData();
+        setEditingRedressement(null);
+      }
     } catch (err) {
       setError('Erreur lors de la mise à jour du redressement');
+      console.error('Error updating redressement:', err);
     }
   };
 
@@ -100,11 +113,11 @@ const RedressementBureauManagement: React.FC<RedressementBureauManagementProps> 
     }
 
     try {
-      // API call to delete redressement
-      console.log('Deleting redressement:', code);
+      await deleteRedressementBureau(code);
       await loadData();
     } catch (err) {
       setError('Erreur lors de la suppression du redressement');
+      console.error('Error deleting redressement:', err);
     }
   };
 
@@ -239,25 +252,27 @@ const RedressementBureauManagement: React.FC<RedressementBureauManagementProps> 
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                       <div className="flex flex-col">
-                        <span className="text-red-600">{redressement.bulletin_nul_initial}</span>
-                        <span className="text-green-600">→ {redressement.bulletin_nul_redresse}</span>
+                        <span className="text-red-600">{(redressement as any).nombre_bulletin_nul_initial}</span>
+                        <span className="text-green-600">→ {(redressement as any).nombre_bulletin_nul_redresse}</span>
                       </div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                       <div className="flex flex-col">
-                        <span className="text-red-600">{redressement.suffrage_exprime_initial}</span>
-                        <span className="text-green-600">→ {redressement.suffrage_exprime_redresse}</span>
+                        <span className="text-red-600">{(redressement as any).suffrages_exprimes_initial}</span>
+                        <span className="text-green-600">→ {(redressement as any).suffrages_exprimes_redresse}</span>
                       </div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
-                      {getStatusBadge(redressement.statut_validation)}
+                      {getStatusBadge((redressement as any).statut_validation)}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                      {new Date(redressement.date_redressement).toLocaleDateString('fr-FR')}
+                      {(redressement as any).date_redressement
+                        ? new Date((redressement as any).date_redressement).toLocaleDateString('fr-FR')
+                        : 'N/A'}
                     </td>
                     {canEdit && (
                       <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                        {redressement.statut_validation === 0 && (
+                        {(redressement as any).statut_validation === 0 && (
                           <button
                             onClick={() => handleValidate(redressement.code)}
                             className="text-green-600 hover:text-green-900 mr-3"
@@ -302,18 +317,13 @@ const RedressementBureauManagement: React.FC<RedressementBureauManagementProps> 
               <form onSubmit={(e) => {
                 e.preventDefault();
                 const formData = new FormData(e.target as HTMLFormElement);
-                const redressementData: Partial<RedressementBureau> = {
+                const redressementData: RedressementBureauInput = {
                   code_bureau_vote: parseInt(formData.get('codeBureauVote') as string) || 0,
                   nombre_inscrit_initial: parseInt(formData.get('nombreInscritInitial') as string) || 0,
                   nombre_inscrit_redresse: parseInt(formData.get('nombreInscritRedresse') as string) || 0,
                   nombre_votant_initial: parseInt(formData.get('nombreVotantInitial') as string) || 0,
                   nombre_votant_redresse: parseInt(formData.get('nombreVotantRedresse') as string) || 0,
-                  bulletin_nul_initial: parseInt(formData.get('bulletinNulInitial') as string) || 0,
-                  bulletin_nul_redresse: parseInt(formData.get('bulletinNulRedresse') as string) || 0,
-                  suffrage_exprime_initial: parseInt(formData.get('suffrageExprimeValablesInitial') as string) || 0,
-                  suffrage_exprime_redresse: parseInt(formData.get('suffrageExprimeValablesRedresse') as string) || 0,
-                  raison_redressement: formData.get('raisonRedressement')?.toString() || '',
-                  date_redressement: new Date().toISOString(),
+                  raison_redressement: formData.get('raisonRedressement')?.toString() || ''
                 };
                 handleCreate(redressementData);
               }} className="space-y-4">

@@ -1,46 +1,23 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
+import { addCorsHeaders, createCorsPreflightResponse } from '@/lib/cors'
 
 // Handle CORS preflight requests
-export async function OPTIONS() {
-  return new NextResponse(null, {
-    status: 200,
-    headers: {
-      'Access-Control-Allow-Origin': '*',
-      'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
-      'Access-Control-Allow-Headers': 'Content-Type, Authorization',
-    },
-  })
+export async function OPTIONS(request: NextRequest) {
+  return createCorsPreflightResponse(request);
 }
 
 // GET /api/membre-commission/[id] - Get member by ID
 export async function GET(
   request: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
+  { params }: { params: { id: string } }
 ) {
   try {
-    const { id } = await params
-    const membreId = parseInt(id)
-
-    if (isNaN(membreId)) {
-      const response = NextResponse.json(
-        { error: 'Invalid member ID' },
-        { status: 400 }
-      )
-      response.headers.set('Access-Control-Allow-Origin', '*')
-      return response
-    }
-
+    const membreId = parseInt(params.id);
+    
     const membre = await prisma.membreCommission.findUnique({
       where: { code: membreId },
       include: {
-        fonction: {
-          select: {
-            code: true,
-            libelle: true,
-            description: true
-          }
-        },
         commission: {
           select: {
             code: true,
@@ -48,147 +25,120 @@ export async function GET(
             departement: {
               select: {
                 code: true,
-                libelle: true,
-                abbreviation: true
+                libelle: true
               }
             }
           }
+        },
+        fonction: {
+          select: {
+            code: true,
+            libelle: true
+          }
         }
       }
-    })
+    });
 
     if (!membre) {
       const response = NextResponse.json(
         { error: 'Member not found' },
         { status: 404 }
-      )
-      response.headers.set('Access-Control-Allow-Origin', '*')
-      return response
+      );
+      return addCorsHeaders(request, response);
     }
 
-    const response = NextResponse.json(membre)
-    response.headers.set('Access-Control-Allow-Origin', '*')
-    return response
+    const response = NextResponse.json(membre);
+    return addCorsHeaders(request, response);
   } catch (error) {
-    console.error('Error fetching member:', error)
+    console.error('Error fetching member:', error);
     const response = NextResponse.json(
       { error: 'Failed to fetch member' },
       { status: 500 }
-    )
-    response.headers.set('Access-Control-Allow-Origin', '*')
-    return response
+    );
+    return addCorsHeaders(request, response);
   }
 }
 
 // PUT /api/membre-commission/[id] - Update member
 export async function PUT(
   request: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
+  { params }: { params: { id: string } }
 ) {
   try {
-    const { id } = await params
-    const membreId = parseInt(id)
-
-    if (isNaN(membreId)) {
-      const response = NextResponse.json(
-        { error: 'Invalid member ID' },
-        { status: 400 }
-      )
-      response.headers.set('Access-Control-Allow-Origin', '*')
-      return response
-    }
-
-    const body = await request.json()
-    const { 
-      nom, 
-      code_fonction, 
-      code_commission, 
-      contact, 
-      email, 
-      est_membre_secretariat 
-    } = body
-
-    if (!nom || !code_fonction) {
-      const response = NextResponse.json(
-        { error: 'nom and code_fonction are required' },
-        { status: 400 }
-      )
-      response.headers.set('Access-Control-Allow-Origin', '*')
-      return response
-    }
+    const membreId = parseInt(params.id);
+    const body = await request.json();
+    const {
+      noms_prenoms,
+      contact,
+      email,
+      code_commission,
+      code_fonction
+    } = body;
 
     const membre = await prisma.membreCommission.update({
       where: { code: membreId },
       data: {
-        nom,
-        code_fonction: parseInt(code_fonction),
-        code_commission: code_commission ? parseInt(code_commission) : null,
+        noms_prenoms,
         contact,
         email,
-        est_membre_secretariat: Boolean(est_membre_secretariat)
+        code_commission: parseInt(code_commission),
+        code_fonction: parseInt(code_fonction),
+        date_modification: new Date().toISOString()
       },
       include: {
-        fonction: {
+        commission: {
           select: {
             code: true,
-            libelle: true
+            libelle: true,
+            departement: {
+              select: {
+                code: true,
+                libelle: true
+              }
+            }
           }
         },
-        commission: {
+        fonction: {
           select: {
             code: true,
             libelle: true
           }
         }
       }
-    })
+    });
 
-    const response = NextResponse.json(membre)
-    response.headers.set('Access-Control-Allow-Origin', '*')
-    return response
+    const response = NextResponse.json(membre);
+    return addCorsHeaders(request, response);
   } catch (error) {
-    console.error('Error updating member:', error)
+    console.error('Error updating member:', error);
     const response = NextResponse.json(
       { error: 'Failed to update member' },
       { status: 500 }
-    )
-    response.headers.set('Access-Control-Allow-Origin', '*')
-    return response
+    );
+    return addCorsHeaders(request, response);
   }
 }
 
 // DELETE /api/membre-commission/[id] - Delete member
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
+  { params }: { params: { id: string } }
 ) {
   try {
-    const { id } = await params
-    const membreId = parseInt(id)
-
-    if (isNaN(membreId)) {
-      const response = NextResponse.json(
-        { error: 'Invalid member ID' },
-        { status: 400 }
-      )
-      response.headers.set('Access-Control-Allow-Origin', '*')
-      return response
-    }
-
+    const membreId = parseInt(params.id);
+    
     await prisma.membreCommission.delete({
       where: { code: membreId }
-    })
+    });
 
-    const response = NextResponse.json({ message: 'Member deleted successfully' })
-    response.headers.set('Access-Control-Allow-Origin', '*')
-    return response
+    const response = NextResponse.json({ message: 'Member deleted successfully' });
+    return addCorsHeaders(request, response);
   } catch (error) {
-    console.error('Error deleting member:', error)
+    console.error('Error deleting member:', error);
     const response = NextResponse.json(
       { error: 'Failed to delete member' },
       { status: 500 }
-    )
-    response.headers.set('Access-Control-Allow-Origin', '*')
-    return response
+    );
+    return addCorsHeaders(request, response);
   }
 }

@@ -1,45 +1,22 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
+import { addCorsHeaders, createCorsPreflightResponse } from '@/lib/cors'
+import { extractFileFromRequest, saveFile, validateFile } from '@/lib/fileUpload'
 
 // Handle CORS preflight requests
-export async function OPTIONS() {
-  return new NextResponse(null, {
-    status: 200,
-    headers: {
-      'Access-Control-Allow-Origin': '*',
-      'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
-      'Access-Control-Allow-Headers': 'Content-Type, Authorization',
-    },
-  })
+export async function OPTIONS(request: NextRequest) {
+  return createCorsPreflightResponse(request);
 }
 
-// GET /api/pv-departement - Get all PV departement data
+// GET /api/pv-departement - Get all PVs
 export async function GET(request: NextRequest) {
   try {
-    const { searchParams } = new URL(request.url)
-    const departementCode = searchParams.get('departement')
-    const regionCode = searchParams.get('region')
-    
-    const where: any = {}
-    
-    if (departementCode) {
-      where.code_departement = parseInt(departementCode)
-    }
-    
-    if (regionCode) {
-      where.departement = {
-        code_region: parseInt(regionCode)
-      }
-    }
-
     const pvs = await prisma.pvDepartement.findMany({
-      where,
       include: {
         departement: {
           select: {
             code: true,
             libelle: true,
-            code_region: true,
             region: {
               select: {
                 code: true,
@@ -49,61 +26,69 @@ export async function GET(request: NextRequest) {
           }
         }
       },
-      orderBy: [
-        { departement: { region: { libelle: 'asc' } } },
-        { departement: { libelle: 'asc' } },
-        { timestamp: 'desc' }
-      ]
-    })
+      orderBy: {
+        date_creation: 'desc'
+      }
+    });
 
-    const response = NextResponse.json(pvs)
-    response.headers.set('Access-Control-Allow-Origin', '*')
-    return response
+    const response = NextResponse.json(pvs);
+    return addCorsHeaders(request, response);
   } catch (error) {
-    console.error('Error fetching PV departement data:', error)
+    console.error('Error fetching PVs:', error);
     const response = NextResponse.json(
-      { error: 'Failed to fetch PV departement data' },
+      { error: 'Failed to fetch PVs' },
       { status: 500 }
-    )
-    response.headers.set('Access-Control-Allow-Origin', '*')
-    return response
+    );
+    return addCorsHeaders(request, response);
   }
 }
 
-// POST /api/pv-departement - Create new PV departement data
+// POST /api/pv-departement - Create new PV
 export async function POST(request: NextRequest) {
   try {
-    const body = await request.json()
-    const { 
-      code_departement,
-      url_pv,
-      hash_file,
-      libelle
-    } = body
+    // Extraire le fichier et les données du formulaire
+    const { file, formData } = await extractFileFromRequest(request);
+    
+    const code_departement = formData.get('code_departement') as string;
+    const numero_pv = formData.get('numero_pv') as string;
+    const date_etablissement = formData.get('date_etablissement') as string;
+    const statut = formData.get('statut') as string;
 
-    if (!code_departement || !url_pv) {
-      const response = NextResponse.json(
-        { error: 'code_departement and url_pv are required' },
-        { status: 400 }
-      )
-      response.headers.set('Access-Control-Allow-Origin', '*')
-      return response
+    let url_pv = '';
+    let hash_file = '';
+
+    // Si un fichier est fourni, le sauvegarder
+    if (file) {
+      const validation = validateFile(file);
+      if (!validation.isValid) {
+        const response = NextResponse.json(
+          { error: validation.error },
+          { status: 400 }
+        );
+        return addCorsHeaders(request, response);
+      }
+
+      const fileResult = await saveFile(file);
+      url_pv = fileResult.path;
+      hash_file = fileResult.hash;
     }
 
     const pv = await prisma.pvDepartement.create({
       data: {
         code_departement: parseInt(code_departement),
+        numero_pv,
+        date_etablissement,
         url_pv,
-        hash_file: hash_file || null,
-        libelle: libelle || null,
-        timestamp: new Date()
+        hash_file,
+        statut: statut || 'brouillon',
+        date_creation: new Date().toISOString(),
+        date_modification: new Date().toISOString()
       },
       include: {
         departement: {
           select: {
             code: true,
             libelle: true,
-            code_region: true,
             region: {
               select: {
                 code: true,
@@ -113,18 +98,16 @@ export async function POST(request: NextRequest) {
           }
         }
       }
-    })
+    });
 
-    const response = NextResponse.json(pv, { status: 201 })
-    response.headers.set('Access-Control-Allow-Origin', '*')
-    return response
+    const response = NextResponse.json(pv, { status: 201 });
+    return addCorsHeaders(request, response);
   } catch (error) {
-    console.error('Error creating PV departement data:', error)
+    console.error('Error creating PV:', error);
     const response = NextResponse.json(
-      { error: 'Failed to create PV departement data' },
+      { error: 'Failed to create PV' },
       { status: 500 }
-    )
-    response.headers.set('Access-Control-Allow-Origin', '*')
-    return response
+    );
+    return addCorsHeaders(request, response);
   }
 }

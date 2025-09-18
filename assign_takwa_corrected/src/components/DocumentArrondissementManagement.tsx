@@ -2,6 +2,15 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { useTerritorialAccessControl } from '../hooks/useTerritorialAccessControl';
 import { useAuth } from '../contexts/AuthContext';
 import { arrondissementApi, type Arrondissement as Commune } from '../api/arrondissementApi';
+import { 
+  getAllDocuments, 
+  createDocument, 
+  updateDocument, 
+  deleteDocument,
+  type DocumentArrondissement as DocumentArrondissementType,
+  type DocumentArrondissementInput
+} from '../api/documentArrondissementApi';
+import FileUpload from './FileUpload';
 
 interface DocumentArrondissement {
   code: number;
@@ -27,13 +36,14 @@ interface DocumentArrondissementManagementProps {
 const DocumentArrondissementManagement: React.FC<DocumentArrondissementManagementProps> = ({ className = '' }) => {
   const { user } = useAuth();
   const { canViewData, canEditArrondissement, getUserRoleNames } = useTerritorialAccessControl();
-  const [documents, setDocuments] = useState<DocumentArrondissement[]>([]);
+  const [documents, setDocuments] = useState<DocumentArrondissementType[]>([]);
   const [arrondissements, setArrondissements] = useState<Arrondissement[]>([]);
   const [communes, setCommunes] = useState<Commune[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [showCreateModal, setShowCreateModal] = useState(false);
-  const [editingDocument, setEditingDocument] = useState<DocumentArrondissement | null>(null);
+  const [editingDocument, setEditingDocument] = useState<DocumentArrondissementType | null>(null);
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
 
   const roleNames = getUserRoleNames();
   const canEdit = roleNames.includes('administrateur') || 
@@ -42,14 +52,30 @@ const DocumentArrondissementManagement: React.FC<DocumentArrondissementManagemen
   const loadData = useCallback(async () => {
     try {
       setLoading(true);
-      // Load documents and arrondissements from API
-      // This would be replaced with actual API calls
-      setDocuments([]);
-      setArrondissements([]);
+      setError(null);
       
-      // Load communes (arrondissements) from API
-      const communesData = await arrondissementApi.getAll();
+      // Load documents and communes from API
+      const [documentsData, communesData] = await Promise.all([
+        getAllDocuments(),
+        arrondissementApi.getAll()
+      ]);
+      
+      setDocuments(documentsData);
       setCommunes(communesData);
+      
+      // Extract unique arrondissements from documents
+      const uniqueArrondissements = documentsData.reduce((acc, document) => {
+        if (document.arrondissement && !acc.find(a => a.code === document.arrondissement!.code)) {
+          acc.push({
+            code: document.arrondissement.code,
+            libelle: document.arrondissement.libelle,
+            codeDepartement: document.arrondissement.departement?.code || 0
+          });
+        }
+        return acc;
+      }, [] as Arrondissement[]);
+      setArrondissements(uniqueArrondissements);
+      
     } catch (err) {
       setError('Erreur lors du chargement des données');
       console.error('Error loading data:', err);
@@ -68,25 +94,37 @@ const DocumentArrondissementManagement: React.FC<DocumentArrondissementManagemen
     loadData();
   }, [user, loadData]);
 
-  const handleCreate = async (documentData: Partial<DocumentArrondissement>) => {
+  const handleCreate = async (documentData: DocumentArrondissementInput) => {
     try {
-      // API call to create document
-      console.log('Creating document:', documentData);
+      const dataWithFile = {
+        ...documentData,
+        file: selectedFile || undefined
+      };
+      await createDocument(dataWithFile);
       await loadData();
       setShowCreateModal(false);
+      setSelectedFile(null);
     } catch (err) {
       setError('Erreur lors de la création du document');
+      console.error('Error creating document:', err);
     }
   };
 
-  const handleUpdate = async (documentData: Partial<DocumentArrondissement>) => {
+  const handleUpdate = async (documentData: Partial<DocumentArrondissementInput>) => {
     try {
-      // API call to update document
-      console.log('Updating document:', documentData);
+      if (editingDocument) {
+        const dataWithFile = {
+          ...documentData,
+          file: selectedFile || undefined
+        };
+        await updateDocument(editingDocument.code, dataWithFile);
       await loadData();
       setEditingDocument(null);
+        setSelectedFile(null);
+      }
     } catch (err) {
       setError('Erreur lors de la mise à jour du document');
+      console.error('Error updating document:', err);
     }
   };
 
@@ -96,17 +134,18 @@ const DocumentArrondissementManagement: React.FC<DocumentArrondissementManagemen
     }
 
     try {
-      // API call to delete document
-      console.log('Deleting document:', code);
+      await deleteDocument(code);
       await loadData();
     } catch (err) {
       setError('Erreur lors de la suppression du document');
+      console.error('Error deleting document:', err);
     }
   };
 
   const handleDownload = (url: string) => {
     // Open document in new tab
-    window.open(url, '_blank');
+    const fullUrl = url.startsWith('http') ? url : `${process.env.REACT_APP_API_URL || 'https://turbo-barnacle-7pqj6gpp75jhrpww-3000.app.github.dev'}${url}`;
+    window.open(fullUrl, '_blank');
   };
 
   const getStatusBadge = (status: number) => {
@@ -204,7 +243,7 @@ const DocumentArrondissementManagement: React.FC<DocumentArrondissementManagemen
                   Type
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Hash
+                  Fichier
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                   Statut
@@ -243,8 +282,18 @@ const DocumentArrondissementManagement: React.FC<DocumentArrondissementManagemen
                         {document.type_document.toUpperCase()}
                       </span>
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 font-mono">
-                      {document.hash_file ? `${document.hash_file.substring(0, 16)}...` : 'N/A'}
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                      {document.url_document ? (
+                        <button
+                          onClick={() => handleDownload(document.url_document)}
+                          className="text-blue-600 hover:text-blue-800 flex items-center gap-1"
+                        >
+                          <i className="fas fa-download"></i>
+                          Télécharger
+                        </button>
+                      ) : (
+                        <span className="text-gray-400">Aucun fichier</span>
+                      )}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
                       {getStatusBadge(document.statut_validation)}
@@ -300,12 +349,11 @@ const DocumentArrondissementManagement: React.FC<DocumentArrondissementManagemen
                 e.preventDefault();
                 const formData = new FormData(e.target as HTMLFormElement);
                 const documentData: DocumentArrondissementInput = {
-                  codeArrondissement: parseInt(formData.get('codeArrondissement') as string) || 0,
-                  typeDocument: formData.get('typeDocument') as string || '',
+                  code_arrondissement: parseInt(formData.get('codeArrondissement') as string) || 0,
+                  type_document: formData.get('typeDocument') as string || '',
                   titre: formData.get('titre') as string || '',
                   description: formData.get('description') as string || '',
-                  urlDocument: formData.get('urlDocument') as string || '',
-                  dateCreation: new Date().toISOString(),
+                  url_document: formData.get('urlDocument') as string || '',
                   statut: formData.get('statut') as string || 'brouillon'
                 };
                 handleCreate(documentData);
@@ -371,13 +419,11 @@ const DocumentArrondissementManagement: React.FC<DocumentArrondissementManagemen
                   </div>
                   
                   <div className="md:col-span-2">
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
-                      URL du document
-                    </label>
-                    <input
-                      type="url"
-                      name="urlDocument"
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    <FileUpload
+                      onFileSelect={setSelectedFile}
+                      label="Fichier du document"
+                      description="Formats acceptés: PDF, DOC, DOCX, JPG, JPEG, PNG (max 10MB)"
+                      required={false}
                     />
                   </div>
                   
@@ -399,20 +445,20 @@ const DocumentArrondissementManagement: React.FC<DocumentArrondissementManagemen
                 </div>
                 
                 <div className="flex justify-end gap-2 mt-6">
-                  <button
+                <button
                     type="button"
-                    onClick={() => setShowCreateModal(false)}
-                    className="px-4 py-2 bg-gray-300 text-gray-700 rounded hover:bg-gray-400"
-                  >
-                    Annuler
-                  </button>
-                  <button
+                  onClick={() => setShowCreateModal(false)}
+                  className="px-4 py-2 bg-gray-300 text-gray-700 rounded hover:bg-gray-400"
+                >
+                  Annuler
+                </button>
+                <button
                     type="submit"
-                    className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
-                  >
-                    Créer
-                  </button>
-                </div>
+                  className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
+                >
+                  Créer
+                </button>
+              </div>
               </form>
             </div>
           </div>
