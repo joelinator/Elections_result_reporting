@@ -201,10 +201,10 @@ const MembreCommissionManagement: React.FC<MembreCommissionManagementProps> = ({
                       {membre.noms_prenoms}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                      {commissions.find(c => c.code === membre.code_commission)?.libelle || 'N/A'}
+                      {commissions.find(c => String(c.code) === String(membre.code_commission))?.libelle || 'N/A'}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                      {fonctions.find(f => f.code === membre.code_fonction)?.libelle || 'N/A'}
+                      {fonctions.find(f => String(f.code) === String(membre.code_fonction))?.libelle || 'N/A'}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                       {membre.contact}
