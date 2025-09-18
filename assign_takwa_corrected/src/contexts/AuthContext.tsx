@@ -34,7 +34,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     roles: [{ code: 1, libelle: 'Administrateur' }],
     arrondissementCode: 1,
     arrondissements: [],
-    role: { code: 1, libelle: 'Administrateur' },
+    role: { code: 1, libelle: 'scrutateur' },
 
   });
   const [isLoading, setIsLoading] = useState(true);
