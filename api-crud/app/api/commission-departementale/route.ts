@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
+import { extractUserFromToken, getDepartmentFilter } from '@/lib/auth-helper'
 
 // Handle CORS preflight requests
 export async function OPTIONS() {
@@ -19,9 +20,19 @@ export async function GET(request: NextRequest) {
     const { searchParams } = new URL(request.url)
     const departementCode = searchParams.get('departement')
     
-    const where = departementCode 
+    // Extract user info from JWT token
+    const authHeader = request.headers.get('authorization')
+    const userInfo = extractUserFromToken(authHeader)
+    
+    let where: any = departementCode 
       ? { code_departement: parseInt(departementCode) }
       : {}
+
+    // Apply department-based filtering for scrutateur-departementale and validateur-departemental roles
+    if (userInfo && (userInfo.role === 'scrutateur-departementale' || userInfo.role === 'validateur-departemental')) {
+      const departmentFilter = await getDepartmentFilter(userInfo.id, userInfo.role)
+      where = { ...where, ...departmentFilter }
+    }
 
     const commissions = await prisma.commissionDepartementale.findMany({
       where,
@@ -66,6 +77,10 @@ export async function GET(request: NextRequest) {
 // POST /api/commission-departementale - Create a new commission
 export async function POST(request: NextRequest) {
   try {
+    // Extract user info from JWT token
+    const authHeader = request.headers.get('authorization')
+    const userInfo = extractUserFromToken(authHeader)
+
     const body = await request.json()
     const { code_departement, libelle, description } = body
 
@@ -76,6 +91,25 @@ export async function POST(request: NextRequest) {
       )
       response.headers.set('Access-Control-Allow-Origin', '*')
       return response
+    }
+
+    // For scrutateur-departementale and validateur-departemental roles, verify access to the department
+    if (userInfo && (userInfo.role === 'scrutateur-departementale' || userInfo.role === 'validateur-departemental')) {
+      const hasAccess = await prisma.utilisateurDepartement.findFirst({
+        where: {
+          code_utilisateur: userInfo.id,
+          code_departement: parseInt(code_departement)
+        }
+      })
+
+      if (!hasAccess) {
+        const response = NextResponse.json(
+          { error: 'Access denied. You can only create commissions for your assigned departments.' },
+          { status: 403 }
+        )
+        response.headers.set('Access-Control-Allow-Origin', '*')
+        return response
+      }
     }
 
     const commission = await prisma.commissionDepartementale.create({

@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
+import { extractUserFromToken, getDepartmentFilter } from '@/lib/auth-helper'
 import { saveFile, validateFile, extractFileFromRequest } from '@/lib/fileUpload'
 
 // Handle CORS preflight requests
@@ -21,6 +22,10 @@ export async function GET(request: NextRequest) {
     const departementCode = searchParams.get('departement')
     const regionCode = searchParams.get('region')
     
+    // Extract user info from JWT token
+    const authHeader = request.headers.get('authorization')
+    const userInfo = extractUserFromToken(authHeader)
+    
     const where: Record<string, unknown> = {}
     
     if (departementCode) {
@@ -32,6 +37,12 @@ export async function GET(request: NextRequest) {
       where.departement = {
         code_region: parseInt(regionCode)
       }
+    }
+
+    // Apply department-based filtering for scrutateur-departementale and validateur-departemental roles
+    if (userInfo && (userInfo.role === 'scrutateur-departementale' || userInfo.role === 'validateur-departemental')) {
+      const departmentFilter = await getDepartmentFilter(userInfo.id, userInfo.role)
+      where = { ...where, ...departmentFilter }
     }
 
     const pvList = await prisma.pvDepartement.findMany({

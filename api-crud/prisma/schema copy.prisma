@@ -1,0 +1,364 @@
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+// prisma/schema.prisma (full schema based on your SQL)
+
+model arrondissement {
+  code              Int                   @id @default(autoincrement())
+  code_departement  Int?
+  code_region       Int?
+  abbreviation      String?
+  libelle           String?
+  description       String?
+  code_createur     String?
+  code_modificateur String?
+  date_creation     String?
+  date_modification String?
+  departement       Departement?          @relation(fields: [code_departement], references: [code])
+  region            Region?               @relation(fields: [code_region], references: [code])
+  bureauVotes       BureauVote[]
+  pvArrondissements PvArrondissement[]
+  utilisateurArrondissements UtilisateurArrondissement[]
+  participationArrondissements ParticipationArrondissement[]
+}
+
+model bureauVote {
+  code              Int                   @id @default(autoincrement())
+  designation       String?
+  description       String?
+  latitude          Float?
+  longitude         Float?
+  altitude          Float?
+  data_filled       Int                   @default(0)
+  code_arrondissement Int?
+  code_createur     String?
+  code_modificateur String?
+  date_modification String?
+  date_creation     String?
+  data_incoherent   Int?
+  effectif          BigInt?
+  arrondissement    Arrondissement?       @relation(fields: [code_arrondissement], references: [code])
+  redressementBureauVotes RedressementBureauVote[]
+  redressementCandidats RedressementCandidat[]
+  utilisateurBureauVotes UtilisateurBureauVote[]
+}
+
+model candidat {
+  code              Int                   @id @default(autoincrement())
+  noms_prenoms      String?
+  photo             String?
+  date_creation     String?
+  date_modification String?
+  code_createur     String?
+  code_modificateur String?
+  partiPolitiques   PartiPolitique[]
+}
+
+model commissionDepartementale {
+  code              Int                   @id @default(autoincrement())
+  code_departement  Int
+  libelle           String?
+  description       String?
+  date_creation     DateTime              @default(now())
+  date_modification DateTime              @default(now())
+  departement       Departement           @relation(fields: [code_departement], references: [code])
+  membreCommissions MembreCommission[]
+}
+
+model departement {
+  code              Int                   @id @default(autoincrement())
+  abbreviation      String?
+  chef_lieu         String?
+  libelle           String?
+  description       String?
+  code_createur     String?
+  code_modificateur String?
+  date_creation     String?
+  date_modification String?
+  code_region       Int?
+  region            Region?               @relation(fields: [code_region], references: [code])
+  arrondissements   Arrondissement[]
+  commissionDepartementales CommissionDepartementale[]
+  participationDepartements ParticipationDepartement[]
+  resultatDepartements ResultatDepartement[]
+  utilisateurDepartements UtilisateurDepartement[]
+  pvDepartements PvDepartement[]
+}
+
+model fonctionCommission {
+  code              Int                   @id @default(autoincrement())
+  libelle           String
+  description       String?
+  date_ajout        DateTime              @default(now())
+  membreCommissions MembreCommission[]
+}
+
+model journal {
+  code              Int                   @id @default(autoincrement())
+  code_utilisateur  String?
+  action            String?
+  description       String?
+  timestamp         String?
+  code_createur     String?
+  code_modificateur String?
+  date_creation     String?
+  date_modification String?
+}
+
+model membreCommission {
+  code              Int                   @id @default(autoincrement())
+  nom               String
+  code_fonction     Int
+  contact           String?
+  email             String?
+  date_ajout        DateTime              @default(now())
+  est_membre_secretariat Boolean          @default(false)
+  code_commission   Int?
+  fonction          FonctionCommission    @relation(fields: [code_fonction], references: [code])
+  commission        CommissionDepartementale? @relation(fields: [code_commission], references: [code])
+}
+
+model partipolitique {
+  code              Int                   @id @default(autoincrement())
+  designation       String?
+  abbreviation      String?
+  description       String?
+  coloration_bulletin String?
+  image             String?
+  code_candidat     Int?
+  code_createur     String?
+  code_modificateur String?
+  date_creation     String?
+  date_modification String?
+  candidat          Candidat?             @relation(fields: [code_candidat], references: [code])
+  redressementCandidats RedressementCandidat[]
+  resultatDepartements ResultatDepartement[]
+}
+
+model participationdepartement {
+  code                            Int                   @id @default(autoincrement())
+  code_departement                Int                   @unique
+  nombre_bureau_vote              Int                   @default(0)
+  nombre_inscrit                  Int                   @default(0)
+  nombre_enveloppe_urnes          Int                   @default(0)
+  nombre_enveloppe_bulletins_differents Int             @default(0)
+  nombre_bulletin_electeur_identifiable Int             @default(0)
+  nombre_bulletin_enveloppes_signes Int                 @default(0)
+  nombre_enveloppe_non_elecam     Int                   @default(0)
+  nombre_bulletin_non_elecam      Int                   @default(0)
+  nombre_bulletin_sans_enveloppe  Int                   @default(0)
+  nombre_enveloppe_vide           Int                   @default(0)
+  nombre_suffrages_valable        Int                   @default(0)
+  nombre_votant                   Int                   @default(0)
+  bulletin_nul                    Int                   @default(0)
+  suffrage_exprime                Float?
+  taux_participation              Float?
+  date_creation                   String?
+  departement                     Departement           @relation(fields: [code_departement], references: [code])
+}
+
+model participationarrondissement {
+  code                            Int                   @id @default(autoincrement())
+  code_arrondissement             Int                   @unique
+  nombre_bureau_vote              Int                   @default(0)
+  nombre_inscrit                  Int                   @default(0)
+  nombre_enveloppe_urnes          Int                   @default(0)
+  nombre_enveloppe_bulletins_differents Int             @default(0)
+  nombre_bulletin_electeur_identifiable Int             @default(0)
+  nombre_bulletin_enveloppes_signes Int                 @default(0)
+  nombre_enveloppe_non_elecam     Int                   @default(0)
+  nombre_bulletin_non_elecam      Int                   @default(0)
+  nombre_bulletin_sans_enveloppe  Int                   @default(0)
+  nombre_enveloppe_vide           Int                   @default(0)
+  nombre_suffrages_valable        Int                   @default(0)
+  nombre_votant                   Int                   @default(0)
+  bulletin_nul                    Int                   @default(0)
+  suffrage_exprime                Float?
+  taux_participation              Float?
+  taux_abstention                 Float?
+  date_creation                   String?
+  arrondissement                  Arrondissement        @relation(fields: [code_arrondissement], references: [code])
+}
+
+model permission {
+  code              Int                   @id
+  nom_permission    String?
+  description       String?
+  code_createur     Int?
+  code_modificateur Int?
+  date_modification String?
+  date_creation     String?
+  rolePermissions   RolePermission[]
+}
+
+model pvarrondissement {
+  code              Int                   @id @default(autoincrement())
+  code_arrondissement Int
+  url_pv            String?
+  hash_file         String?
+  libelle           String?
+  timestamp         DateTime              @default(now())
+  arrondissement    Arrondissement        @relation(fields: [code_arrondissement], references: [code])
+}
+
+model pvdepartement {
+  code              Int                   @id @default(autoincrement())
+  code_departement  Int
+  url_pv            String?
+  hash_file         String?
+  libelle           String?
+  timestamp         DateTime              @default(now())
+  departement       Departement           @relation(fields: [code_departement], references: [code])
+}
+
+model redressementbureauVote {
+  code                            Int                   @id @default(autoincrement())
+  code_bureau_vote                Int?                  @unique
+  nombre_inscrit_initial          Int?
+  nombre_inscrit_redresse         Int?
+  nombre_votant_initial           Int?
+  nombre_votant_redresse          Int?
+  taux_participation_initial      Float?
+  taux_participation_redresse     Float?
+  bulletin_nul_initial            Int?
+  bulletin_nul_redresse           Int?
+  suffrage_exprime_valables_initial Int?
+  suffrage_exprime_valables_redresse Int?
+  erreurs_materielles_initiales   String?
+  erreurs_materielles_initiales_redresse String?
+  raison_redressement             String?
+  date_redressement               DateTime              @default(now())
+  bureauVote                      BureauVote?           @relation(fields: [code_bureau_vote], references: [code])
+}
+
+model redressementcandidat {
+  code              Int                   @id @default(autoincrement())
+  code_bureau_vote  Int?
+  code_parti        Int?
+  nombre_vote_initial Int?
+  nombre_vote_redresse Int?
+  raison_redressement String?
+  date_redressement DateTime              @default(now())
+  bureauVote        bureauVote?           @relation(fields: [code_bureau_vote], references: [code])
+  parti             partipolitique?       @relation(fields: [code_parti], references: [code])
+}
+
+model region {
+  code              Int                   @id @default(autoincrement())
+  abbreviation      String?
+  libelle           String?
+  chef_lieu         String?
+  description       String?
+  code_createur     String?
+  code_modificateur String?
+  date_creation     String?
+  date_modification String?
+  arrondissements   arrondissement[]
+  departements      departement[]
+  utilisateurregions utilisateurregion[]
+}
+
+model resultatdepartement {
+  code              Int                   @id @default(autoincrement())
+  code_departement  Int
+  code_parti        Int
+  nombre_vote       Int                   @default(0)
+  pourcentage       Float?
+  date_creation     String?
+  departement       departement           @relation(fields: [code_departement], references: [code])
+  parti             partipolitique        @relation(fields: [code_parti], references: [code])
+  candidat          candidat?              @relation(fields: [code_candidat], references: [code])
+}
+
+model role {
+  code              Int                   @id @default(autoincrement())
+  libelle           String?
+  rolePermissions   rolePermission[]
+  utilisateurs      utilisateur[]
+}
+
+model rolepermission {
+  code              Int                   @id @default(autoincrement())
+  code_permission   Int?
+  code_role         Int?
+  permission        permission?           @relation(fields: [code_permission], references: [code])
+  role              role?                 @relation(fields: [code_role], references: [code])
+}
+
+model utilisateur {
+  code              Int                   @id @default(autoincrement())
+  noms_prenoms      String
+  email             String
+  password          String?
+  last_login        String?
+  boite_postale     String?
+  adresse           String?
+  contact           String?
+  code_role         Int?
+  code_createur     String?
+  code_modificateur String?
+  date_creation     String?
+  date_modification String?
+  username          String                @unique
+  statut_vie        Int?
+  role              Role?                 @relation(fields: [code_role], references: [code])
+  utilisateuraffectationterritoriales utilisateuraffectationterritoriale[]
+  utilisateuraffectationterritorialesaffectePar utilisateuraffectationterrttoriale[] @relation("affecte_par")
+  utilisateurarrondissements utilisateurarrondissement[]
+  utilisateurbureauVotes utilisateurbureauVote[]
+  utilisateurdepartements utilisateurdepartement[]
+  utilisateurregions utilisateurregion[]
+}
+
+model utilisateuraffectationterritoriale {
+  code              Int                   @id @default(autoincrement())
+  code_utilisateur  Int
+  type_territorial  String // Enum-like: 'region' | 'departement' | 'arrondissement'
+  code_territorial  Int
+  affecte_par       Int?
+  date_affectation  DateTime              @default(now())
+  date_modification DateTime              @default(now())
+  est_actif         Boolean               @default(true)
+  notes             String?
+  utilisateur       Utilisateur           @relation(fields: [code_utilisateur], references: [code])
+  affectePar        Utilisateur?          @relation("affecte_par", fields: [affecte_par], references: [code])
+}
+
+model utilisateurarrondissement {
+  code              Int                   @id @default(autoincrement())
+  code_arrondissement Int?
+  code_utilisateur  Int?
+  arrondissement    arrondissement?       @relation(fields: [code_arrondissement], references: [code])
+  utilisateur       utilisateur?          @relation(fields: [code_utilisateur], references: [code])
+}
+
+model utilisateurbureauVote {
+  code              Int                   @id @default(autoincrement())
+  code_bureau_vote  Int?
+  code_utilisateur  Int?
+  bureauVote        bureauvote?           @relation(fields: [code_bureau_vote], references: [code])
+  utilisateur       utilisateur?          @relation(fields: [code_utilisateur], references: [code])
+}
+
+model utilisateurdepartement {
+  code              Int                   @id @default(autoincrement())
+  code_departement  Int?
+  code_utilisateur  Int?
+  departement       departement?          @relation(fields: [code_departement], references: [code])
+  utilisateur       utilisateur?          @relation(fields: [code_utilisateur], references: [code])
+}
+
+model utilisateurregion {
+  code              Int                   @id @default(autoincrement())
+  code_region       Int?
+  code_utilisateur  Int?
+  region            region?               @relation(fields: [code_region], references: [code])
+  utilisateur       utilisateur?          @relation(fields: [code_utilisateur], references: [code])
+}
+

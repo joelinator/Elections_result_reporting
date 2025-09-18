@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
+import { extractUserFromToken, hasDepartmentAccess } from '@/lib/auth-helper'
 
 // Handle CORS preflight requests
 export async function OPTIONS() {
@@ -19,6 +20,10 @@ export async function GET(
   { params }: { params: { id: string } }
 ) {
   try {
+    // Extract user info from JWT token
+    const authHeader = request.headers.get('authorization')
+    const userInfo = extractUserFromToken(authHeader)
+
     const participation = await prisma.participationArrondissement.findUnique({
       where: { code: parseInt(params.id) },
       include: {
@@ -27,6 +32,7 @@ export async function GET(
             code: true,
             libelle: true,
             abbreviation: true,
+            code_departement: true,
             departement: {
               select: {
                 code: true,
@@ -56,6 +62,28 @@ export async function GET(
       return response
     }
 
+    // For scrutateur-departementale and validateur-departemental roles, verify access to the arrondissement's department
+    if (userInfo && (userInfo.role === 'scrutateur-departementale' || userInfo.role === 'validateur-departemental')) {
+      if (!participation.arrondissement.code_departement) {
+        const response = NextResponse.json(
+          { error: 'Arrondissement department not found' },
+          { status: 404 }
+        )
+        response.headers.set('Access-Control-Allow-Origin', '*')
+        return response
+      }
+
+      const hasAccess = await hasDepartmentAccess(userInfo.id, participation.arrondissement.code_departement)
+      if (!hasAccess) {
+        const response = NextResponse.json(
+          { error: 'Access denied. You can only view data for your assigned departments.' },
+          { status: 403 }
+        )
+        response.headers.set('Access-Control-Allow-Origin', '*')
+        return response
+      }
+    }
+
     const response = NextResponse.json(participation)
     response.headers.set('Access-Control-Allow-Origin', '*')
     return response
@@ -76,6 +104,42 @@ export async function PUT(
   { params }: { params: { id: string } }
 ) {
   try {
+    // Extract user info from JWT token
+    const authHeader = request.headers.get('authorization')
+    const userInfo = extractUserFromToken(authHeader)
+
+    // For scrutateur-departementale and validateur-departemental roles, verify access to the arrondissement's department
+    if (userInfo && (userInfo.role === 'scrutateur-departementale' || userInfo.role === 'validateur-departemental')) {
+      // Get the participation's arrondissement department
+      const existingParticipation = await prisma.participationArrondissement.findUnique({
+        where: { code: parseInt(params.id) },
+        select: {
+          arrondissement: {
+            select: { code_departement: true }
+          }
+        }
+      })
+
+      if (!existingParticipation || !existingParticipation.arrondissement.code_departement) {
+        const response = NextResponse.json(
+          { error: 'Participation arrondissement not found' },
+          { status: 404 }
+        )
+        response.headers.set('Access-Control-Allow-Origin', '*')
+        return response
+      }
+
+      const hasAccess = await hasDepartmentAccess(userInfo.id, existingParticipation.arrondissement.code_departement)
+      if (!hasAccess) {
+        const response = NextResponse.json(
+          { error: 'Access denied. You can only edit data for your assigned departments.' },
+          { status: 403 }
+        )
+        response.headers.set('Access-Control-Allow-Origin', '*')
+        return response
+      }
+    }
+
     const body = await request.json()
     const {
       nombre_bureau_vote,
@@ -159,6 +223,42 @@ export async function DELETE(
   { params }: { params: { id: string } }
 ) {
   try {
+    // Extract user info from JWT token
+    const authHeader = request.headers.get('authorization')
+    const userInfo = extractUserFromToken(authHeader)
+
+    // For scrutateur-departementale and validateur-departemental roles, verify access to the arrondissement's department
+    if (userInfo && (userInfo.role === 'scrutateur-departementale' || userInfo.role === 'validateur-departemental')) {
+      // Get the participation's arrondissement department
+      const existingParticipation = await prisma.participationArrondissement.findUnique({
+        where: { code: parseInt(params.id) },
+        select: {
+          arrondissement: {
+            select: { code_departement: true }
+          }
+        }
+      })
+
+      if (!existingParticipation || !existingParticipation.arrondissement.code_departement) {
+        const response = NextResponse.json(
+          { error: 'Participation arrondissement not found' },
+          { status: 404 }
+        )
+        response.headers.set('Access-Control-Allow-Origin', '*')
+        return response
+      }
+
+      const hasAccess = await hasDepartmentAccess(userInfo.id, existingParticipation.arrondissement.code_departement)
+      if (!hasAccess) {
+        const response = NextResponse.json(
+          { error: 'Access denied. You can only delete data for your assigned departments.' },
+          { status: 403 }
+        )
+        response.headers.set('Access-Control-Allow-Origin', '*')
+        return response
+      }
+    }
+
     await prisma.participationArrondissement.delete({
       where: { code: parseInt(params.id) }
     })

@@ -110,6 +110,7 @@ INSERT INTO role (libelle) VALUES
 ('Administrateur Système'),
 ('Coordinateur Régional'),
 ('Superviseur Départemental'),
+('Validateur Départemental'),
 ('Opérateur de Saisie'),
 ('Observateur');
 

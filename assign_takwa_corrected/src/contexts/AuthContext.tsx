@@ -81,9 +81,9 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
         if (storedUser && storedToken) {
           const userData = JSON.parse(storedUser);
           
-          // Check if user has allowed role names (Observateur, Observateur-local, Validateur, Administrateur)
+          // Check if user has allowed role names (Observateur, Observateur-local, Validateur, Administrateur, Validateur-Départemental)
           const hasValidRole = (() => {
-            const allowedNames = ['observateur', 'observateur-local', 'validateur', 'administrateur', 'scrutateur'];
+            const allowedNames = ['observateur', 'observateur-local', 'validateur', 'validateur-départemental', 'administrateur', 'scrutateur'];
             const normalize = (s: string) => s?.toString().trim().toLowerCase();
             if (userData.roles && Array.isArray(userData.roles)) {
               return userData.roles.some((role: any) => allowedNames.includes(normalize(role.libelle)));
@@ -154,9 +154,9 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     try {
       const response = await apiLogin(credentials);
       
-      // Verify user has allowed role names (Observateur, Observateur-local, Validateur, Administrateur, Superviseur roles)
+      // Verify user has allowed role names (Observateur, Observateur-local, Validateur, Administrateur, Superviseur roles, Validateur-Départemental)
       const hasValidRole = (() => {
-        const allowedNames = ['observateur', 'observateur-local', 'scrutateur', 'validateur', 'administrateur', 'superviseur-regionale', 'superviseur-departementale', 'superviseur-communale'];
+        const allowedNames = ['observateur', 'observateur-local', 'scrutateur', 'validateur', 'validateur-départemental', 'administrateur', 'superviseur-regionale', 'superviseur-departementale', 'superviseur-communale'];
         const normalize = (s: string) => s?.toString().trim().toLowerCase();
         if (response.user.roles && Array.isArray(response.user.roles)) {
           return response.user.roles.some(role => allowedNames.includes(normalize(role.libelle)));

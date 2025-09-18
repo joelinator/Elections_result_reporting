@@ -23,8 +23,11 @@ export const ResultatsDepartementManagement: React.FC<ResultatsDepartementManage
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  // Vérifier les permissions - seuls les administrateurs peuvent accéder
-  if (!user || !hasRole([1])) { // 1 = Administrateur
+  // Vérifier les permissions - administrateurs et scrutateurs départementaux peuvent accéder
+  const isAdmin = user && hasRole([1]); // 1 = Administrateur
+  const isScrutateurDepartementale = user && hasRole(['scrutateur-departementale']);
+  
+  if (!user || (!isAdmin && !isScrutateurDepartementale)) {
     return (
       <div className={`flex items-center justify-center p-8 ${className}`}>
         <div className="text-center">
@@ -33,7 +36,7 @@ export const ResultatsDepartementManagement: React.FC<ResultatsDepartementManage
           </div>
           <h2 className="text-2xl font-bold text-gray-900 mb-4">Accès refusé</h2>
           <p className="text-gray-600 mb-6">
-            Seuls les administrateurs peuvent accéder à la gestion des résultats par département.
+            Seuls les administrateurs et scrutateurs départementaux peuvent accéder à la gestion des résultats par département.
           </p>
           <p className="text-sm text-gray-500">
             Votre rôle actuel ne vous permet pas d'accéder à cette fonctionnalité.

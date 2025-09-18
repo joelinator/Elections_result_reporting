@@ -5197,7 +5197,9 @@ function AppContent() {
   const isSuperviseurRegionale = roleNames.includes('superviseur-regionale');
   const isSuperviseurDepartementale = roleNames.includes('superviseur-departementale');
   const isSuperviseurCommunale = roleNames.includes('superviseur-communale');
-    const isScrutateur = roleNames.includes('scrutateur'); // Add this line
+  const isScrutateur = roleNames.includes('scrutateur');
+  const isScrutateurDepartementale = roleNames.includes('scrutateur-departementale');
+  const isValidateurDepartemental = roleNames.includes('validateur-départemental');
 
   // Filter menu by role (memoized)
   const menuItems: MenuItem[] = useMemo(() => {
@@ -5221,6 +5223,14 @@ function AppContent() {
     // Scrutateurs can see only the submission page
     return fullMenuItems.filter(item => ['submission'].includes(item.id));
   }
+    if (isScrutateurDepartementale) {
+      // Scrutateurs départementaux can see submission and administration menu
+      return fullMenuItems.filter(item => ['submission', 'administration'].includes(item.id));
+    }
+    if (isValidateurDepartemental) {
+      // Validateurs départementaux can only see administration menu and its submenus
+      return fullMenuItems.filter(item => ['administration'].includes(item.id));
+    }
     if (isSuperviseurRegionale) {
       // Superviseur-Regionale can see only regional synthesis
       return fullMenuItems.filter(item => ['synthesis'].includes(item.id));
