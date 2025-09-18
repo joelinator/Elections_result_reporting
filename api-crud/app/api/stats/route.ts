@@ -1,7 +1,13 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { PrismaClient } from '@prisma/client';
+import { addCorsHeaders, createCorsPreflightResponse } from '@/lib/cors';
 
 const prisma = new PrismaClient();
+
+// Handle CORS preflight requests
+export async function OPTIONS(request: NextRequest) {
+  return createCorsPreflightResponse(request);
+}
 
 export async function GET(request: NextRequest) {
   try {
@@ -81,16 +87,23 @@ export async function GET(request: NextRequest) {
       },
       results: {
         total_votes: resultsStats._sum.nombre_vote || 0
+      },
+      pollingStations: {
+        total: totalBureauxVote,
+        reported: totalPvDepartement,
+        displayText: `${totalPvDepartement}/${totalBureauxVote}`
       }
     };
 
-    return NextResponse.json(stats);
+    const response = NextResponse.json(stats);
+    return addCorsHeaders(request, response);
   } catch (error) {
     console.error('Error fetching stats:', error);
-    return NextResponse.json(
+    const response = NextResponse.json(
       { error: 'Failed to fetch statistics' },
       { status: 500 }
     );
+    return addCorsHeaders(request, response);
   } finally {
     await prisma.$disconnect();
   }

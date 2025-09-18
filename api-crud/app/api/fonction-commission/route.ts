@@ -1,20 +1,14 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
+import { addCorsHeaders, createCorsPreflightResponse } from '@/lib/cors'
 
 // Handle CORS preflight requests
-export async function OPTIONS() {
-  return new NextResponse(null, {
-    status: 200,
-    headers: {
-      'Access-Control-Allow-Origin': '*',
-      'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
-      'Access-Control-Allow-Headers': 'Content-Type, Authorization',
-    },
-  })
+export async function OPTIONS(request: NextRequest) {
+  return createCorsPreflightResponse(request);
 }
 
 // GET /api/fonction-commission - Get all functions
-export async function GET() {
+export async function GET(request: NextRequest) {
   try {
     const fonctions = await prisma.fonctionCommission.findMany({
       include: {
@@ -31,16 +25,14 @@ export async function GET() {
     })
 
     const response = NextResponse.json(fonctions)
-    response.headers.set('Access-Control-Allow-Origin', '*')
-    return response
+    return addCorsHeaders(request, response)
   } catch (error) {
     console.error('Error fetching functions:', error)
     const response = NextResponse.json(
       { error: 'Failed to fetch functions' },
       { status: 500 }
     )
-    response.headers.set('Access-Control-Allow-Origin', '*')
-    return response
+    return addCorsHeaders(request, response)
   }
 }
 
@@ -55,8 +47,7 @@ export async function POST(request: NextRequest) {
         { error: 'libelle is required' },
         { status: 400 }
       )
-      response.headers.set('Access-Control-Allow-Origin', '*')
-      return response
+      return addCorsHeaders(request, response)
     }
 
     const fonction = await prisma.fonctionCommission.create({
@@ -67,15 +58,13 @@ export async function POST(request: NextRequest) {
     })
 
     const response = NextResponse.json(fonction, { status: 201 })
-    response.headers.set('Access-Control-Allow-Origin', '*')
-    return response
+    return addCorsHeaders(request, response)
   } catch (error) {
     console.error('Error creating function:', error)
     const response = NextResponse.json(
       { error: 'Failed to create function' },
       { status: 500 }
     )
-    response.headers.set('Access-Control-Allow-Origin', '*')
-    return response
+    return addCorsHeaders(request, response)
   }
 }
