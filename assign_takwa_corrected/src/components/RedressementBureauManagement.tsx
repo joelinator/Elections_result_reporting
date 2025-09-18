@@ -303,21 +303,17 @@ const RedressementBureauManagement: React.FC<RedressementBureauManagementProps> 
                 e.preventDefault();
                 const formData = new FormData(e.target as HTMLFormElement);
                 const redressementData: Partial<RedressementBureau> = {
-                  codeBureauVote: parseInt(formData.get('codeBureauVote') as string) || 0,
-                  nombreInscritInitial: parseInt(formData.get('nombreInscritInitial') as string) || 0,
-                  nombreInscritRedresse: parseInt(formData.get('nombreInscritRedresse') as string) || 0,
-                  nombreVotantInitial: parseInt(formData.get('nombreVotantInitial') as string) || 0,
-                  nombreVotantRedresse: parseInt(formData.get('nombreVotantRedresse') as string) || 0,
-                  tauxParticipationInitial: parseFloat(formData.get('tauxParticipationInitial') as string) || 0,
-                  tauxParticipationRedresse: parseFloat(formData.get('tauxParticipationRedresse') as string) || 0,
-                  bulletinNulInitial: parseInt(formData.get('bulletinNulInitial') as string) || 0,
-                  bulletinNulRedresse: parseInt(formData.get('bulletinNulRedresse') as string) || 0,
-                  suffrageExprimeValablesInitial: parseInt(formData.get('suffrageExprimeValablesInitial') as string) || 0,
-                  suffrageExprimeValablesRedresse: parseInt(formData.get('suffrageExprimeValablesRedresse') as string) || 0,
-                  erreursMateriellesInitiales: formData.get('erreursMateriellesInitiales') as string || '',
-                  erreursMateriellesRedresse: formData.get('erreursMateriellesRedresse') as string || '',
-                  raisonRedressement: formData.get('raisonRedressement') as string || '',
-                  dateRedressement: new Date().toISOString()
+                  code_bureau_vote: parseInt(formData.get('codeBureauVote') as string) || 0,
+                  nombre_inscrit_initial: parseInt(formData.get('nombreInscritInitial') as string) || 0,
+                  nombre_inscrit_redresse: parseInt(formData.get('nombreInscritRedresse') as string) || 0,
+                  nombre_votant_initial: parseInt(formData.get('nombreVotantInitial') as string) || 0,
+                  nombre_votant_redresse: parseInt(formData.get('nombreVotantRedresse') as string) || 0,
+                  bulletin_nul_initial: parseInt(formData.get('bulletinNulInitial') as string) || 0,
+                  bulletin_nul_redresse: parseInt(formData.get('bulletinNulRedresse') as string) || 0,
+                  suffrage_exprime_initial: parseInt(formData.get('suffrageExprimeValablesInitial') as string) || 0,
+                  suffrage_exprime_redresse: parseInt(formData.get('suffrageExprimeValablesRedresse') as string) || 0,
+                  raison_redressement: formData.get('raisonRedressement')?.toString() || '',
+                  date_redressement: new Date().toISOString(),
                 };
                 handleCreate(redressementData);
               }} className="space-y-4">

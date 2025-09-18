@@ -249,24 +249,23 @@ const MembreCommissionManagement: React.FC<MembreCommissionManagementProps> = ({
                 e.preventDefault();
                 const formData = new FormData(e.target as HTMLFormElement);
                 const membreData: Partial<MembreCommission> = {
-                  code: formData.get('code') as string || '',
-                  codeMembre: formData.get('codeMembre') as string || '',
-                  codeCommission: formData.get('codeCommission') as string || '',
-                  codeFonction: formData.get('codeFonction') as string || '',
-                  dateAffectation: formData.get('dateAffectation') as string || new Date().toISOString(),
-                  statut: formData.get('statut') as string || 'actif',
-                  observations: formData.get('observations') as string || ''
+                  noms_prenoms: formData.get('noms_prenoms') as string || '',
+                  contact: formData.get('contact') as string || '',
+                  email: formData.get('email') as string || '',
+                  code_commission: parseInt(formData.get('codeCommission') as string) || 0,
+                  code_fonction: parseInt(formData.get('codeFonction') as string) || 0,
+                  date_creation: new Date().toISOString()
                 };
                 handleCreate(membreData);
               }} className="space-y-4">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1">
-                      Code
+                      Nom et Prénoms
                     </label>
                     <input
                       type="text"
-                      name="code"
+                      name="noms_prenoms"
                       required
                       className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                     />
@@ -274,11 +273,11 @@ const MembreCommissionManagement: React.FC<MembreCommissionManagementProps> = ({
                   
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1">
-                      Code Membre
+                      Contact
                     </label>
                     <input
                       type="text"
-                      name="codeMembre"
+                      name="contact"
                       required
                       className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                     />
@@ -322,6 +321,18 @@ const MembreCommissionManagement: React.FC<MembreCommissionManagementProps> = ({
                   
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1">
+                      Email
+                    </label>
+                    <input
+                      type="email"
+                      name="email"
+                      required
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    />
+                  </div>
+                  
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
                       Date d'affectation
                     </label>
                     <input
@@ -330,22 +341,6 @@ const MembreCommissionManagement: React.FC<MembreCommissionManagementProps> = ({
                       required
                       className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                     />
-                  </div>
-                  
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
-                      Statut
-                    </label>
-                    <select
-                      name="statut"
-                      required
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    >
-                      <option value="actif">Actif</option>
-                      <option value="inactif">Inactif</option>
-                      <option value="suspendu">Suspendu</option>
-                      <option value="demissionnaire">Démissionnaire</option>
-                    </select>
                   </div>
                 </div>
                 

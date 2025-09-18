@@ -298,14 +298,13 @@ const RedressementCandidatManagement: React.FC<RedressementCandidatManagementPro
               <form onSubmit={(e) => {
                 e.preventDefault();
                 const formData = new FormData(e.target as HTMLFormElement);
-                const redressementData: RedressementCandidatInput = {
-                  codeCandidat: parseInt(formData.get('codeCandidat') as string) || 0,
-                  codeBureauVote: parseInt(formData.get('codeBureauVote') as string) || 0,
-                  nombreVoteInitial: parseInt(formData.get('nombreVoteInitial') as string) || 0,
-                  nombreVoteRedresse: parseInt(formData.get('nombreVoteRedresse') as string) || 0,
-                  raisonRedressement: formData.get('raisonRedressement') as string || '',
-                  dateRedressement: new Date().toISOString(),
-                  codeCreateur: formData.get('codeCreateur') as string || ''
+                const redressementData: Partial<RedressementCandidat> = {
+                  code_candidat: parseInt(formData.get('codeCandidat') as string) || 0,
+                  code_bureau_vote: parseInt(formData.get('codeBureauVote') as string) || 0,
+                  nombre_vote_initial: parseInt(formData.get('nombreVoteInitial') as string) || 0,
+                  nombre_vote_redresse: parseInt(formData.get('nombreVoteRedresse') as string) || 0,
+                  raison_redressement: formData.get('raisonRedressement') as string || '',
+                  date_redressement: new Date().toISOString()
                 };
                 handleCreate(redressementData);
               }} className="space-y-4">
@@ -372,11 +371,11 @@ const RedressementCandidatManagement: React.FC<RedressementCandidatManagementPro
                   
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1">
-                      Code Créateur
+                      Raison du redressement
                     </label>
                     <input
                       type="text"
-                      name="codeCreateur"
+                      name="raisonRedressement"
                       className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                     />
                   </div>
