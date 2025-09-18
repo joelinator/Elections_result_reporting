@@ -5155,7 +5155,6 @@ function AppContent() {
   const [activeMenu, setActiveMenu] = useState(getInitialMenu());
   
   const handleSetActiveMenu = (menuId: string) => {
-    console.log('Setting active menu to:', menuId);
     setActiveMenu(menuId);
   };
 
@@ -5542,39 +5541,14 @@ function AppContent() {
       case 'synthesis':
         return <SynthesisPage />; // Default to regional synthesis
       case 'departmental-management':
-        return (
-          <div className="max-w-7xl mx-auto p-6">
-            <h1 className="text-2xl font-bold mb-4">Gestion Départementale</h1>
-            <p className="text-gray-600">Sélectionnez une option dans le sous-menu pour commencer.</p>
-            <div className="mt-4 p-4 bg-blue-50 rounded-lg">
-              <p className="text-sm text-blue-700">Menu actuel: {activeMenu}</p>
-            </div>
-          </div>
-        );
+        return <ResultatDepartementManagement />; // Default to first child
       case 'bureau-management':
-        return (
-          <div className="max-w-7xl mx-auto p-6">
-            <h1 className="text-2xl font-bold mb-4">Gestion des Bureaux</h1>
-            <p className="text-gray-600">Sélectionnez une option dans le sous-menu pour commencer.</p>
-            <div className="mt-4 p-4 bg-blue-50 rounded-lg">
-              <p className="text-sm text-blue-700">Menu actuel: {activeMenu}</p>
-            </div>
-          </div>
-        );
+        return <RedressementBureauManagement className="max-w-7xl mx-auto" />; // Default to first child
       case 'arrondissement-management':
-        return (
-          <div className="max-w-7xl mx-auto p-6">
-            <h1 className="text-2xl font-bold mb-4">Gestion Arrondissements</h1>
-            <p className="text-gray-600">Sélectionnez une option dans le sous-menu pour commencer.</p>
-            <div className="mt-4 p-4 bg-blue-50 rounded-lg">
-              <p className="text-sm text-blue-700">Menu actuel: {activeMenu}</p>
-            </div>
-          </div>
-        );
+        return <ArrondissementManagement className="max-w-7xl mx-auto" />; // Default to first child
       case 'reports':
         return <ReportsComponent />;
       default:
-        console.log('Unknown menu item:', activeMenu);
         return (
           <div className="flex items-center justify-center h-96">
             <div className="text-center">
