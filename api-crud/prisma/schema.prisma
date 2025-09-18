@@ -25,6 +25,7 @@ model Arrondissement {
   bureauVotes       BureauVote[]
   pvArrondissements PvArrondissement[]
   utilisateurArrondissements UtilisateurArrondissement[]
+  participationCommunes ParticipationCommune[]
 }
 
 model BureauVote {
@@ -87,6 +88,7 @@ model Departement {
   participationDepartements ParticipationDepartement[]
   resultatDepartements ResultatDepartement[]
   utilisateurDepartements UtilisateurDepartement[]
+  pvDepartements PvDepartement[]
 }
 
 model FonctionCommission {
@@ -161,6 +163,23 @@ model ParticipationDepartement {
   departement                     Departement           @relation(fields: [code_departement], references: [code])
 }
 
+model ParticipationCommune {
+  code              Int                   @id @default(autoincrement())
+  codeCommune       Int                   @map("code_commune")
+  nombreBureaux     Int?                  @map("nombre_bureaux")
+  nombreInscrits    Int?                  @map("nombre_inscrits")
+  nombreVotants     Int?                  @map("nombre_votants")
+  tauxParticipation Decimal?              @map("taux_participation") @db.Decimal(5, 2)
+  bulletinsNuls     Int?                  @map("bulletins_nuls")
+  suffragesValables Int?                  @map("suffrages_valables")
+  tauxAbstention    Decimal?              @map("taux_abstention") @db.Decimal(5, 2)
+  dateCreation      DateTime              @default(now()) @map("date_creation")
+  dateModification  DateTime              @updatedAt @map("date_modification")
+  commune           Arrondissement        @relation(fields: [codeCommune], references: [code])
+  
+  @@map("participation_commune")
+}
+
 model Permission {
   code              Int                   @id
   nom_permission    String?
@@ -180,6 +199,16 @@ model PvArrondissement {
   libelle           String?
   timestamp         DateTime              @default(now())
   arrondissement    Arrondissement        @relation(fields: [code_arrondissement], references: [code])
+}
+
+model PvDepartement {
+  code              Int                   @id @default(autoincrement())
+  code_departement  Int
+  url_pv            String?
+  hash_file         String?
+  libelle           String?
+  timestamp         DateTime              @default(now())
+  departement       Departement           @relation(fields: [code_departement], references: [code])
 }
 
 model RedressementBureauVote {
