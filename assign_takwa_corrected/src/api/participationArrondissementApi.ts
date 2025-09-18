@@ -2,7 +2,7 @@
  * @file API client pour la gestion des participations d'arrondissement
  */
 
-const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:3000/api';
+const API_BASE_URL = 'https://turbo-barnacle-7pqj6gpp75jhrpww-3000.app.github.dev/api'
 
 export interface ParticipationArrondissement {
   code: number;
