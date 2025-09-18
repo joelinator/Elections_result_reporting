@@ -25,6 +25,8 @@ model Arrondissement {
   bureauVotes       BureauVote[]
   pvArrondissements PvArrondissement[]
   utilisateurArrondissements UtilisateurArrondissement[]
+
+  @@map("arrondissement")
 }
 
 model BureauVote {
@@ -46,6 +48,8 @@ model BureauVote {
   redressementBureauVotes RedressementBureauVote[]
   redressementCandidats RedressementCandidat[]
   utilisateurBureauVotes UtilisateurBureauVote[]
+
+  @@map("bureau_vote")
 }
 
 model Candidat {
@@ -57,6 +61,8 @@ model Candidat {
   code_createur     String?
   code_modificateur String?
   partiPolitiques   PartiPolitique[]
+
+  @@map("candidat")
 }
 
 model CommissionDepartementale {
@@ -68,6 +74,8 @@ model CommissionDepartementale {
   date_modification DateTime              @default(now())
   departement       Departement           @relation(fields: [code_departement], references: [code])
   membreCommissions MembreCommission[]
+
+  @@map("commission_departementale")
 }
 
 model Departement {
@@ -87,6 +95,8 @@ model Departement {
   participationDepartements ParticipationDepartement[]
   resultatDepartements ResultatDepartement[]
   utilisateurDepartements UtilisateurDepartement[]
+
+  @@map("departement")
 }
 
 model FonctionCommission {
@@ -95,6 +105,8 @@ model FonctionCommission {
   description       String?
   date_ajout        DateTime              @default(now())
   membreCommissions MembreCommission[]
+
+  @@map("fonction_commission")
 }
 
 model Journal {
@@ -107,6 +119,8 @@ model Journal {
   code_modificateur String?
   date_creation     String?
   date_modification String?
+
+  @@map("journal")
 }
 
 model MembreCommission {
@@ -120,6 +134,8 @@ model MembreCommission {
   code_commission   Int?
   fonction          FonctionCommission    @relation(fields: [code_fonction], references: [code])
   commission        CommissionDepartementale? @relation(fields: [code_commission], references: [code])
+
+  @@map("membre_commission")
 }
 
 model PartiPolitique {
@@ -137,6 +153,8 @@ model PartiPolitique {
   candidat          Candidat?             @relation(fields: [code_candidat], references: [code])
   redressementCandidats RedressementCandidat[]
   resultatDepartements ResultatDepartement[]
+
+  @@map("parti_politique")
 }
 
 model ParticipationDepartement {
@@ -159,6 +177,8 @@ model ParticipationDepartement {
   taux_participation              Float?
   date_creation                   String?
   departement                     Departement           @relation(fields: [code_departement], references: [code])
+
+  @@map("participation_departement")
 }
 
 model Permission {
@@ -170,6 +190,8 @@ model Permission {
   date_modification String?
   date_creation     String?
   rolePermissions   RolePermission[]
+
+  @@map("permission")
 }
 
 model PvArrondissement {
@@ -180,6 +202,8 @@ model PvArrondissement {
   libelle           String?
   timestamp         DateTime              @default(now())
   arrondissement    Arrondissement        @relation(fields: [code_arrondissement], references: [code])
+
+  @@map("pv_arrondissement")
 }
 
 model RedressementBureauVote {
@@ -200,6 +224,8 @@ model RedressementBureauVote {
   raison_redressement             String?
   date_redressement               DateTime              @default(now())
   bureauVote                      BureauVote?           @relation(fields: [code_bureau_vote], references: [code])
+
+  @@map("redressement_bureau_vote")
 }
 
 model RedressementCandidat {
@@ -212,6 +238,8 @@ model RedressementCandidat {
   date_redressement DateTime              @default(now())
   bureauVote        BureauVote?           @relation(fields: [code_bureau_vote], references: [code])
   parti             PartiPolitique?       @relation(fields: [code_parti], references: [code])
+
+  @@map("redressement_candidat")
 }
 
 model Region {
@@ -227,6 +255,8 @@ model Region {
   arrondissements   Arrondissement[]
   departements      Departement[]
   utilisateurRegions UtilisateurRegion[]
+
+  @@map("region")
 }
 
 model ResultatDepartement {
@@ -238,6 +268,8 @@ model ResultatDepartement {
   date_creation     String?
   departement       Departement           @relation(fields: [code_departement], references: [code])
   parti             PartiPolitique        @relation(fields: [code_parti], references: [code])
+
+  @@map("resultat_departement")
 }
 
 model Role {
@@ -245,6 +277,8 @@ model Role {
   libelle           String?
   rolePermissions   RolePermission[]
   utilisateurs      Utilisateur[]
+
+  @@map("role")
 }
 
 model RolePermission {
@@ -253,6 +287,8 @@ model RolePermission {
   code_role         Int?
   permission        Permission?           @relation(fields: [code_permission], references: [code])
   role              Role?                 @relation(fields: [code_role], references: [code])
+
+  @@map("role_permission")
 }
 
 model Utilisateur {
@@ -278,6 +314,8 @@ model Utilisateur {
   utilisateurBureauVotes UtilisateurBureauVote[]
   utilisateurDepartements UtilisateurDepartement[]
   utilisateurRegions UtilisateurRegion[]
+
+  @@map("utilisateur")
 }
 
 model UtilisateurAffectationTerritoriale {
@@ -292,6 +330,8 @@ model UtilisateurAffectationTerritoriale {
   notes             String?
   utilisateur       Utilisateur           @relation(fields: [code_utilisateur], references: [code])
   affectePar        Utilisateur?          @relation("affecte_par", fields: [affecte_par], references: [code])
+
+  @@map("utilisateur_affectation_territoriale")
 }
 
 model UtilisateurArrondissement {
@@ -300,6 +340,8 @@ model UtilisateurArrondissement {
   code_utilisateur  Int?
   arrondissement    Arrondissement?       @relation(fields: [code_arrondissement], references: [code])
   utilisateur       Utilisateur?          @relation(fields: [code_utilisateur], references: [code])
+
+  @@map("utilisateur_arrondissement")
 }
 
 model UtilisateurBureauVote {
@@ -308,6 +350,8 @@ model UtilisateurBureauVote {
   code_utilisateur  Int?
   bureauVote        BureauVote?           @relation(fields: [code_bureau_vote], references: [code])
   utilisateur       Utilisateur?          @relation(fields: [code_utilisateur], references: [code])
+
+  @@map("utilisateur_bureau_vote")
 }
 
 model UtilisateurDepartement {
@@ -316,6 +360,8 @@ model UtilisateurDepartement {
   code_utilisateur  Int?
   departement       Departement?          @relation(fields: [code_departement], references: [code])
   utilisateur       Utilisateur?          @relation(fields: [code_utilisateur], references: [code])
+
+  @@map("utilisateur_departement")
 }
 
 model UtilisateurRegion {
@@ -324,5 +370,7 @@ model UtilisateurRegion {
   code_utilisateur  Int?
   region            Region?               @relation(fields: [code_region], references: [code])
   utilisateur       Utilisateur?          @relation(fields: [code_utilisateur], references: [code])
+
+  @@map("utilisateur_region")
 }
 
