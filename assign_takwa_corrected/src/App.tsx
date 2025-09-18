@@ -68,6 +68,7 @@ import SubmissionPage from './components/submissionPageView'
 import CommissionManagement from './components/CommissionManagement'
 import ArrondissementManagement from './components/ArrondissementManagement'
 import ParticipationManagement from './components/ParticipationManagement'
+import ParticipationArrondissementManagement from './components/ParticipationArrondissementManagement'
 import RedressementManagement from './components/RedressementManagement'
 import ResultatsDepartementManagement from './components/ResultatsDepartementManagement'
 import PvDepartementManagement from './components/PvDepartementManagement'
@@ -5152,6 +5153,11 @@ function AppContent() {
           icon: 'fas fa-chart-pie'
         },
         {
+          id: 'participations-arrondissement',
+          label: 'Participations d\'Arrondissement',
+          icon: 'fas fa-chart-line'
+        },
+        {
           id: 'redressements',
           label: 'Gestion des Redressements',
           icon: 'fas fa-edit'
@@ -5278,6 +5284,8 @@ function AppContent() {
         return <ArrondissementManagement className="max-w-7xl mx-auto" />;
       case 'participations':
         return <ParticipationManagement className="max-w-7xl mx-auto" />;
+      case 'participations-arrondissement':
+        return <ParticipationArrondissementManagement className="max-w-7xl mx-auto" />;
       case 'redressements':
         return <RedressementManagement className="max-w-7xl mx-auto" />;
       case 'resultats-departement':

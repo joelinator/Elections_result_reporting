@@ -25,6 +25,7 @@ model Arrondissement {
   bureauVotes       BureauVote[]
   pvArrondissements PvArrondissement[]
   utilisateurArrondissements UtilisateurArrondissement[]
+  participationArrondissements ParticipationArrondissement[]
 }
 
 model BureauVote {
@@ -160,6 +161,28 @@ model ParticipationDepartement {
   taux_participation              Float?
   date_creation                   String?
   departement                     Departement           @relation(fields: [code_departement], references: [code])
+}
+
+model ParticipationArrondissement {
+  code                            Int                   @id @default(autoincrement())
+  code_arrondissement             Int                   @unique
+  nombre_bureau_vote              Int                   @default(0)
+  nombre_inscrit                  Int                   @default(0)
+  nombre_enveloppe_urnes          Int                   @default(0)
+  nombre_enveloppe_bulletins_differents Int             @default(0)
+  nombre_bulletin_electeur_identifiable Int             @default(0)
+  nombre_bulletin_enveloppes_signes Int                 @default(0)
+  nombre_enveloppe_non_elecam     Int                   @default(0)
+  nombre_bulletin_non_elecam      Int                   @default(0)
+  nombre_bulletin_sans_enveloppe  Int                   @default(0)
+  nombre_enveloppe_vide           Int                   @default(0)
+  nombre_suffrages_valable        Int                   @default(0)
+  nombre_votant                   Int                   @default(0)
+  bulletin_nul                    Int                   @default(0)
+  suffrage_exprime                Float?
+  taux_participation              Float?
+  date_creation                   String?
+  arrondissement                  Arrondissement        @relation(fields: [code_arrondissement], references: [code])
 }
 
 model Permission {
