@@ -270,9 +270,8 @@ const PvDepartementManagement: React.FC<PvDepartementManagementProps> = ({ class
                 const formData = new FormData(e.target as HTMLFormElement);
                 const pvData: PvDepartementInput = {
                   code_departement: parseInt(formData.get('codeDepartement') as string) || 0,
-                  numero_pv: formData.get('numeroPv') as string || '',
-                  date_etablissement: formData.get('dateEtablissement') as string || new Date().toISOString(),
-                  url_pv: formData.get('urlDocument') as string || ''
+                  libelle: formData.get('libelle') as string || '',
+                  file: selectedFile || undefined
                 };
                 handleCreate(pvData);
               }} className="space-y-4">
@@ -297,99 +296,15 @@ const PvDepartementManagement: React.FC<PvDepartementManagementProps> = ({ class
                   
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1">
-                      Numéro PV
+                      Libellé du PV
                     </label>
                     <input
                       type="text"
-                      name="numeroPv"
+                      name="libelle"
                       required
+                      placeholder="Ex: PV Département Yaoundé I"
                       className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                     />
-                  </div>
-                  
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
-                      Date d'établissement
-                    </label>
-                    <input
-                      type="datetime-local"
-                      name="dateEtablissement"
-                      required
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    />
-                  </div>
-                  
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
-                      Nombre d'inscrits
-                    </label>
-                    <input
-                      type="number"
-                      name="nombreInscrits"
-                      required
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    />
-                  </div>
-                  
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
-                      Nombre de votants
-                    </label>
-                    <input
-                      type="number"
-                      name="nombreVotants"
-                      required
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    />
-                  </div>
-                  
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
-                      Bulletins nuls
-                    </label>
-                    <input
-                      type="number"
-                      name="nombreBulletinsNuls"
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    />
-                  </div>
-                  
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
-                      Bulletins blancs
-                    </label>
-                    <input
-                      type="number"
-                      name="nombreBulletinsBlancs"
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    />
-                  </div>
-                  
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
-                      Suffrages exprimés
-                    </label>
-                    <input
-                      type="number"
-                      name="nombreSuffragesExprimes"
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    />
-                  </div>
-                  
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
-                      Statut
-                    </label>
-                    <select
-                      name="statut"
-                      required
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    >
-                      <option value="brouillon">Brouillon</option>
-                      <option value="en_revision">En révision</option>
-                      <option value="approuve">Approuvé</option>
-                      <option value="publie">Publié</option>
-                    </select>
                   </div>
                   
                   <div>
@@ -400,17 +315,6 @@ const PvDepartementManagement: React.FC<PvDepartementManagementProps> = ({ class
                       required={false}
                     />
                   </div>
-                </div>
-                
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Observations
-                  </label>
-                  <textarea
-                    name="observations"
-                    rows={3}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  />
                 </div>
                 
                 <div className="flex justify-end gap-2 mt-6">

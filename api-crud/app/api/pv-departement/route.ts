@@ -50,9 +50,7 @@ export async function POST(request: NextRequest) {
     const { file, formData } = await extractFileFromRequest(request);
     
     const code_departement = formData.get('code_departement') as string;
-    const numero_pv = formData.get('numero_pv') as string;
-    const date_etablissement = formData.get('date_etablissement') as string;
-    const statut = formData.get('statut') as string;
+    const libelle = formData.get('libelle') as string;
 
     let url_pv = '';
     let hash_file = '';
@@ -76,13 +74,9 @@ export async function POST(request: NextRequest) {
     const pv = await prisma.pvDepartement.create({
       data: {
         code_departement: parseInt(code_departement),
-        numero_pv,
-        date_etablissement,
+        libelle,
         url_pv,
-        hash_file,
-        statut: statut || 'brouillon',
-        date_creation: new Date().toISOString(),
-        date_modification: new Date().toISOString()
+        hash_file
       },
       include: {
         departement: {

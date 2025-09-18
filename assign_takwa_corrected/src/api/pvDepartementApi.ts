@@ -21,10 +21,7 @@ export interface PvDepartement {
 
 export interface PvDepartementInput {
   code_departement: number;
-  numero_pv: string;
-  date_etablissement: string;
-  url_pv?: string;
-  statut?: string;
+  libelle: string;
   file?: File;
 }
 
@@ -87,9 +84,7 @@ export const createPv = async (pvData: PvDepartementInput): Promise<PvDepartemen
   try {
     const formData = new FormData();
     formData.append('code_departement', pvData.code_departement.toString());
-    formData.append('numero_pv', pvData.numero_pv);
-    formData.append('date_etablissement', pvData.date_etablissement);
-    if (pvData.statut) formData.append('statut', pvData.statut);
+    formData.append('libelle', pvData.libelle);
     if (pvData.file) formData.append('file', pvData.file);
 
     return await apiFormCall('/api/pv-departement', formData, 'POST');
@@ -104,9 +99,7 @@ export const updatePv = async (id: number, pvData: Partial<PvDepartementInput>):
   try {
     const formData = new FormData();
     if (pvData.code_departement) formData.append('code_departement', pvData.code_departement.toString());
-    if (pvData.numero_pv) formData.append('numero_pv', pvData.numero_pv);
-    if (pvData.date_etablissement) formData.append('date_etablissement', pvData.date_etablissement);
-    if (pvData.statut) formData.append('statut', pvData.statut);
+    if (pvData.libelle) formData.append('libelle', pvData.libelle);
     if (pvData.file) formData.append('file', pvData.file);
 
     return await apiFormCall(`/api/pv-departement/${id}`, formData, 'PUT');

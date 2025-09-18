@@ -10,7 +10,6 @@ import {
   type DocumentArrondissement as DocumentArrondissementType,
   type DocumentArrondissementInput
 } from '../api/documentArrondissementApi';
-import FileUpload from './FileUpload';
 
 interface DocumentArrondissement {
   code: number;
@@ -118,8 +117,8 @@ const DocumentArrondissementManagement: React.FC<DocumentArrondissementManagemen
           file: selectedFile || undefined
         };
         await updateDocument(editingDocument.code, dataWithFile);
-      await loadData();
-      setEditingDocument(null);
+        await loadData();
+        setEditingDocument(null);
         setSelectedFile(null);
       }
     } catch (err) {
@@ -144,8 +143,7 @@ const DocumentArrondissementManagement: React.FC<DocumentArrondissementManagemen
 
   const handleDownload = (url: string) => {
     // Open document in new tab
-    const fullUrl = url.startsWith('http') ? url : `${process.env.REACT_APP_API_URL || 'https://turbo-barnacle-7pqj6gpp75jhrpww-3000.app.github.dev'}${url}`;
-    window.open(fullUrl, '_blank');
+    window.open(url, '_blank');
   };
 
   const getStatusBadge = (status: number) => {
@@ -243,7 +241,7 @@ const DocumentArrondissementManagement: React.FC<DocumentArrondissementManagemen
                   Type
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Fichier
+                  Hash
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                   Statut
@@ -282,18 +280,8 @@ const DocumentArrondissementManagement: React.FC<DocumentArrondissementManagemen
                         {document.type_document.toUpperCase()}
                       </span>
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                      {document.url_document ? (
-                        <button
-                          onClick={() => handleDownload(document.url_document)}
-                          className="text-blue-600 hover:text-blue-800 flex items-center gap-1"
-                        >
-                          <i className="fas fa-download"></i>
-                          Télécharger
-                        </button>
-                      ) : (
-                        <span className="text-gray-400">Aucun fichier</span>
-                      )}
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 font-mono">
+                      {document.hash_file ? `${document.hash_file.substring(0, 16)}...` : 'N/A'}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
                       {getStatusBadge(document.statut_validation)}
@@ -312,7 +300,7 @@ const DocumentArrondissementManagement: React.FC<DocumentArrondissementManagemen
                       {canEdit && (
                         <>
                           <button
-                            onClick={() => setEditingDocument(document)}
+                            onClick={() => {/* Edit functionality not implemented yet */}}
                             className="text-indigo-600 hover:text-indigo-900 mr-3"
                             title="Modifier"
                           >
@@ -419,12 +407,18 @@ const DocumentArrondissementManagement: React.FC<DocumentArrondissementManagemen
                   </div>
                   
                   <div className="md:col-span-2">
-                    <FileUpload
-                      onFileSelect={setSelectedFile}
-                      label="Fichier du document"
-                      description="Formats acceptés: PDF, DOC, DOCX, JPG, JPEG, PNG (max 10MB)"
-                      required={false}
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      Fichier du document
+                    </label>
+                    <input
+                      type="file"
+                      accept=".pdf,.doc,.docx,.jpg,.jpeg,.png"
+                      onChange={(e) => setSelectedFile(e.target.files?.[0] || null)}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                     />
+                    <p className="text-xs text-gray-500 mt-1">
+                      Formats acceptés: PDF, DOC, DOCX, JPG, JPEG, PNG (max 10MB)
+                    </p>
                   </div>
                   
                   <div>
@@ -445,20 +439,20 @@ const DocumentArrondissementManagement: React.FC<DocumentArrondissementManagemen
                 </div>
                 
                 <div className="flex justify-end gap-2 mt-6">
-                <button
+                  <button
                     type="button"
-                  onClick={() => setShowCreateModal(false)}
-                  className="px-4 py-2 bg-gray-300 text-gray-700 rounded hover:bg-gray-400"
-                >
-                  Annuler
-                </button>
-                <button
+                    onClick={() => setShowCreateModal(false)}
+                    className="px-4 py-2 bg-gray-300 text-gray-700 rounded hover:bg-gray-400"
+                  >
+                    Annuler
+                  </button>
+                  <button
                     type="submit"
-                  className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
-                >
-                  Créer
-                </button>
-              </div>
+                    className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
+                  >
+                    Créer
+                  </button>
+                </div>
               </form>
             </div>
           </div>

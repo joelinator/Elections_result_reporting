@@ -216,11 +216,12 @@ export const hasPermission = (
   scope?: 'own' | 'department' | 'region' | 'all'
 ): boolean => {
   for (const roleName of userRoles) {
-    const roleType = roleName.toLowerCase() as RoleType;
+    const roleType = roleName as RoleType; // userRoles est déjà en minuscules
     const permissions = ROLE_PERMISSIONS[roleType];
     
     if (permissions) {
       const permission = permissions.find(p => p.entity === entity);
+      
       if (permission && permission.actions.includes(action)) {
         // Vérifier la portée si spécifiée
         if (!scope || !permission.scope || permission.scope === 'all' || permission.scope === scope) {

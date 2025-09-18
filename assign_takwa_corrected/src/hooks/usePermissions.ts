@@ -44,8 +44,8 @@ export const usePermissions = () => {
   };
 
   // Vérifier si l'utilisateur peut accéder à une entité
-  const canAccess = (entity: EntityType): boolean => {
-    return canAccessEntity(userRoles, entity);
+  const canAccess = (entity: EntityType, action: ActionType = ActionType.READ): boolean => {
+    return hasPermissionFor(entity, action);
   };
 
   // Vérifier si l'utilisateur peut modifier une entité
