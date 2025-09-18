@@ -51,16 +51,6 @@ const ParticipationCommuneManagement: React.FC<ParticipationCommuneManagementPro
   const canEdit = roleNames.includes('administrateur') || 
                   ['superviseur-departementale', 'superviseur-regionale', 'scrutateur', 'validateur'].some(role => roleNames.includes(role));
 
-  useEffect(() => {
-    if (!canViewData()) {
-      setError('Accès refusé. Vous n\'avez pas les permissions nécessaires.');
-      setLoading(false);
-      return;
-    }
-
-    loadData();
-  }, [canViewData, loadData]);
-
   const loadData = useCallback(async () => {
     try {
       setLoading(true);
@@ -86,6 +76,16 @@ const ParticipationCommuneManagement: React.FC<ParticipationCommuneManagementPro
       setLoading(false);
     }
   }, []);
+
+  useEffect(() => {
+    if (!canViewData()) {
+      setError('Accès refusé. Vous n\'avez pas les permissions nécessaires.');
+      setLoading(false);
+      return;
+    }
+
+    loadData();
+  }, [canViewData, loadData]);
 
   const handleCreate = async (participationData: ParticipationCommuneInput) => {
     try {
