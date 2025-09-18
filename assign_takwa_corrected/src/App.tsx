@@ -5147,6 +5147,10 @@ function AppContent() {
   };
   
   const [activeMenu, setActiveMenu] = useState(getInitialMenu());
+  
+  const handleSetActiveMenu = (menuId: string) => {
+    setActiveMenu(menuId);
+  };
 
   // Define full menu (admin sees everything) - Proper submenu structure
   const fullMenuItems: MenuItem[] = [
@@ -5544,7 +5548,7 @@ function AppContent() {
       <Navigation 
         menuItems={menuItems}
         activeMenu={activeMenu}
-        onMenuClick={setActiveMenu}
+        onMenuClick={handleSetActiveMenu}
       />
       <main className="p-8">
         {renderContent()}
