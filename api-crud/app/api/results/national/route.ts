@@ -6,19 +6,11 @@ const prisma = new PrismaClient();
 export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url);
-    const validationStatus = searchParams.get('validation_status');
     const includePartyDetails = searchParams.get('include_party_details') === 'true';
-
-    // Build where clause based on validation status
-    const whereClause: any = {};
-    if (validationStatus) {
-      whereClause.validation_status = parseInt(validationStatus);
-    }
 
     // Get national results aggregated by party
     const nationalResults = await prisma.resultatDepartement.groupBy({
       by: ['code_parti'],
-      where: whereClause,
       _sum: {
         nombre_vote: true
       },
@@ -73,7 +65,6 @@ export async function GET(request: NextRequest) {
       total_departements: await prisma.departement.count(),
       results: formattedResults,
       metadata: {
-        validation_status: validationStatus ? parseInt(validationStatus) : null,
         include_party_details: includePartyDetails,
         generated_at: new Date().toISOString()
       }

@@ -5,15 +5,6 @@ const prisma = new PrismaClient();
 
 export async function GET(request: NextRequest) {
   try {
-    const { searchParams } = new URL(request.url);
-    const validationStatus = searchParams.get('validation_status');
-
-    // Build where clause based on validation status
-    const whereClause: any = {};
-    if (validationStatus) {
-      whereClause.validation_status = parseInt(validationStatus);
-    }
-
     // Get statistics for different entities
     const [
       totalRegions,
@@ -33,23 +24,17 @@ export async function GET(request: NextRequest) {
       prisma.departement.count(),
       prisma.arrondissement.count(),
       prisma.bureauVote.count(),
-      prisma.resultatDepartement.count({ where: whereClause }),
-      prisma.participationDepartement.count({ where: whereClause }),
+      prisma.resultatDepartement.count(),
+      prisma.participationDepartement.count(),
       prisma.commissionDepartementale.count(),
       prisma.membreCommission.count(),
-      prisma.redressementBureauVote.count({ where: whereClause }),
-      prisma.redressementCandidat.count({ where: whereClause }),
+      prisma.redressementBureauVote.count(),
+      prisma.redressementCandidat.count(),
       prisma.pvDepartement.count(),
       prisma.participationCommune.count()
     ]);
 
-    // Calculate validation statistics
-    const validationStats = await prisma.resultatDepartement.groupBy({
-      by: ['validation_status'],
-      _count: {
-        validation_status: true
-      }
-    });
+    // Note: validation_status field does not exist in the database schema
 
     // Calculate participation statistics
     const participationStats = await prisma.participationDepartement.aggregate({
@@ -87,10 +72,7 @@ export async function GET(request: NextRequest) {
         participation_commune: totalParticipationCommune
       },
       validation: {
-        by_status: validationStats.reduce((acc, stat) => {
-          acc[stat.validation_status] = stat._count.validation_status;
-          return acc;
-        }, {} as Record<number, number>)
+        note: "validation_status field not available in current database schema"
       },
       participation: {
         taux_moyen: participationStats._avg.taux_participation || 0,
