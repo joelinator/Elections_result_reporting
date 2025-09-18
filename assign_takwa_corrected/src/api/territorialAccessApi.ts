@@ -177,6 +177,29 @@ export const canEditArrondissementData = async (arrondissementCode: number): Pro
   }
 };
 
+// Check if user can edit participation commune data for a specific arrondissement
+export const canEditParticipationCommuneData = async (arrondissementCode: number): Promise<boolean> => {
+  try {
+    const response = await fetch(`/api/territorial-access/can-edit-participation-commune/${arrondissementCode}`, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${localStorage.getItem('accessToken')}`
+      }
+    });
+    
+    if (!response.ok) {
+      throw new Error('Failed to check participation commune edit access');
+    }
+    
+    const data = await response.json();
+    return data.canEdit;
+  } catch (error) {
+    console.error('Error checking participation commune edit access:', error);
+    return false;
+  }
+};
+
 // Check if user can edit data for a specific bureau de vote
 export const canEditBureauVoteData = async (bureauVoteCode: number): Promise<boolean> => {
   try {

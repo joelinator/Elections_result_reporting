@@ -75,6 +75,7 @@ import PvDepartementManagement from './components/PvDepartementManagement'
 import RedressementBureauManagement from './components/RedressementBureauManagement'
 import RedressementCandidatManagement from './components/RedressementCandidatManagement'
 import DocumentArrondissementManagement from './components/DocumentArrondissementManagement'
+import ParticipationCommuneManagement from './components/ParticipationCommuneManagement'
 
 // Utility function to clean PV URLs by removing '/uploads' part
 const cleanPVUrl = (url: string): string => {
@@ -5261,6 +5262,11 @@ function AppContent() {
           id: 'document-arrondissement',
           label: 'Documents Arrondissement',
           icon: 'fas fa-file-upload'
+        },
+        {
+          id: 'participation-commune',
+          label: 'Participations Communales',
+          icon: 'fas fa-chart-pie'
         }
       ]
     },
@@ -5417,7 +5423,7 @@ function AppContent() {
           if (item.id === 'arrondissement-management') {
             return {
               ...item,
-              children: item.children?.filter(child => ['arrondissements', 'document-arrondissement'].includes(child.id))
+              children: item.children?.filter(child => ['arrondissements', 'document-arrondissement', 'participation-commune'].includes(child.id))
             };
           }
           return item;
@@ -5436,7 +5442,7 @@ function AppContent() {
           if (item.id === 'arrondissement-management') {
             return {
               ...item,
-              children: item.children?.filter(child => ['arrondissements', 'document-arrondissement'].includes(child.id))
+              children: item.children?.filter(child => ['arrondissements', 'document-arrondissement', 'participation-commune'].includes(child.id))
             };
           }
           return item;
@@ -5517,6 +5523,8 @@ function AppContent() {
         return <RedressementCandidatManagement className="max-w-7xl mx-auto" />;
       case 'document-arrondissement':
         return <DocumentArrondissementManagement className="max-w-7xl mx-auto" />;
+      case 'participation-commune':
+        return <ParticipationCommuneManagement className="max-w-7xl mx-auto" />;
       default:
         return (
           <div className="flex items-center justify-center h-96">

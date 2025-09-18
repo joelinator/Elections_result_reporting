@@ -8,6 +8,7 @@ import {
   canEditDepartmentData,
   canEditArrondissementData,
   canEditBureauVoteData,
+  canEditParticipationCommuneData,
   type TerritorialAccess 
 } from '../api/territorialAccessApi';
 
@@ -167,6 +168,29 @@ export const useTerritorialAccessControl = () => {
     return await canEditBureauVoteData(bureauVoteCode);
   };
 
+  // Check if user can edit participation commune data for an arrondissement
+  const canEditParticipationCommune = async (arrondissementCode: number): Promise<boolean> => {
+    if (!user) return false;
+    
+    const roleNames = getUserRoleNames();
+    
+    // Admin can edit everything
+    if (roleNames.includes('administrateur')) return true;
+    
+    // Only specific roles can edit
+    const canEditRoles = ['superviseur-departementale', 'superviseur-regionale', 'scrutateur', 'validateur'];
+    const hasEditRole = canEditRoles.some(role => roleNames.includes(role));
+    
+    if (!hasEditRole) return false;
+    
+    // Check territorial access
+    const hasAccess = await hasArrondissementAccess(arrondissementCode);
+    if (!hasAccess) return false;
+    
+    // Check via API for real-time verification
+    return await canEditParticipationCommuneData(arrondissementCode);
+  };
+
   // Check if user can view data (read-only access)
   const canViewData = (): boolean => {
     if (!user) return false;
@@ -209,6 +233,7 @@ export const useTerritorialAccessControl = () => {
     canEditDepartment,
     canEditArrondissement,
     canEditBureauVote,
+    canEditParticipationCommune,
     canViewData,
     getUserRoleNames
   };
