@@ -319,7 +319,7 @@ const Navigation = ({ menuItems, activeMenu, onMenuClick }: {
   };
 
   return (
-    <nav className="bg-gradient-to-r from-slate-700 to-slate-600 h-14 shadow-md">
+    <nav className="bg-gradient-to-r from-slate-700 to-slate-600 h-14 shadow-md relative">
       <div className="px-6 h-full flex items-center gap-6 overflow-hidden">
         {menuItems.map((item) => (
         <div key={item.id} className="relative group flex-shrink">
