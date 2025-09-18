@@ -222,6 +222,14 @@ const Header = () => {
     setShowUserMenu(false);
   };
 
+  const handleMouseEnter = () => {
+    setShowUserMenu(true);
+  };
+
+  const handleMouseLeave = () => {
+    setShowUserMenu(false);
+  };
+
   return (
     <header className="bg-gradient-to-r from-slate-800 to-slate-700 text-white px-6 h-16 flex items-center justify-between shadow-lg">
       <div className="flex items-center gap-3">
@@ -231,10 +239,13 @@ const Header = () => {
         <span className="text-xl font-bold font-display">Vote FLow</span>
       </div>
       <div className="flex items-center gap-6">
-        <div className="relative">
+        <div 
+          className="relative"
+          onMouseEnter={handleMouseEnter}
+          onMouseLeave={handleMouseLeave}
+        >
           <div 
             className="flex items-center gap-3 cursor-pointer hover:bg-slate-600 rounded-lg px-3 py-2 transition-colors duration-200"
-            onClick={() => setShowUserMenu(!showUserMenu)}
           >
             <div className="w-8 h-8 bg-gradient-to-br from-blue-500 to-blue-600 rounded-full flex items-center justify-center shadow-md">
               <i className="fas fa-user text-sm"></i>
@@ -316,9 +327,8 @@ const Navigation = ({ menuItems, activeMenu, onMenuClick }: {
 
   const handleMenuClick = (item: MenuItem) => {
     if (item.children) {
-      // For parent menus, toggle dropdown AND select the menu
-      setOpenDropdown(openDropdown === item.id ? null : item.id);
-      onMenuClick(item.id); // This will select the parent menu
+      // For parent menus, just select the menu (dropdown opens on hover)
+      onMenuClick(item.id);
     } else {
       // For child menus, select the menu and close dropdown
       onMenuClick(item.id);
@@ -326,11 +336,26 @@ const Navigation = ({ menuItems, activeMenu, onMenuClick }: {
     }
   };
 
+  const handleMouseEnter = (item: MenuItem) => {
+    if (item.children) {
+      setOpenDropdown(item.id);
+    }
+  };
+
+  const handleMouseLeave = () => {
+    setOpenDropdown(null);
+  };
+
   return (
     <nav className="bg-gradient-to-r from-slate-700 to-slate-600 h-14 shadow-md">
       <div className="px-6 h-full flex items-center justify-center gap-6">
         {menuItems.map((item) => (
-        <div key={item.id} className="relative group">
+        <div 
+          key={item.id} 
+          className="relative group"
+          onMouseEnter={() => handleMouseEnter(item)}
+          onMouseLeave={handleMouseLeave}
+        >
           <button
             onClick={() => handleMenuClick(item)}
             className={`flex items-center gap-2 text-white hover:text-blue-300 transition-all duration-200 py-2 px-3 rounded-lg font-medium whitespace-nowrap ${
